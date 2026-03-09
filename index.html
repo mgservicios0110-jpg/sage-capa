@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SAGE Pro - CAPA Limache</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --p-blue: #002855; --p-gold: #ffcc00; --bg: #f8fafc; --white: #ffffff;
+            --text: #1e293b; --muted: #64748b; --grad: linear-gradient(135deg, #002855 0%, #004a99 100%);
+            --urgent: #ef4444; --success: #10b981; --info: #3b82f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); padding-bottom: 110px; overflow-x: hidden; color: var(--text); }
+        
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+        .toast { background: var(--white); color: var(--text); padding: 16px 24px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 6px solid var(--p-blue); display: flex; align-items: center; gap: 12px; font-weight: 800; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        header { background: var(--white); padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+        .logo-sq { width: 45px; height: 45px; background: var(--p-gold); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--p-blue); font-size: 1.4rem; }
+
+        .container { padding: 1.5rem; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+        .card { background: var(--white); border-radius: 28px; padding: 2rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02); margin-bottom: 1.5rem; width: 100%; max-width: 1200px; }
+        
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 1rem; width: 100%; max-width: 1200px; }
+        .stat-card { background: var(--white); border-radius: 24px; padding: 30px 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; cursor: pointer; transition: 0.3s ease; text-align: center; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .stat-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,40,85,0.08); }
+        .stat-card h3 { font-weight: 800; font-size: 1.2rem; color: var(--p-blue); }
+        .stat-card p { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
+        .stat-card i { font-size: 2rem; color: var(--p-blue); opacity: 0.8; margin-top: 5px; }
+
+        .edu-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1.5rem; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; }
+        .edu-table th { background: #f8fafc; padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid #e2e8f0; text-align: left; }
+        .edu-table td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; font-weight: 700; font-size: 0.9rem; }
+        .edu-table tr:last-child td { border-bottom: none; }
+
+        .note-cell { display: inline-flex; align-items: center; justify-content: center; width: 35px; height: 35px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; margin: 2px; font-size: 0.85rem; color: var(--p-blue); cursor: pointer; transition: 0.2s; font-weight: 800; }
+        .note-cell:hover { background: #fee2e2; border-color: var(--urgent); color: var(--urgent); }
+
+        .input-nota-manual { width: 45px; height: 35px; border-radius: 8px; border: 1px dashed #002855; text-align: center; font-weight: bold; background: #fff; outline: none; }
+        .input-nota-manual::-webkit-outer-spin-button, .input-nota-manual::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .promedio-badge { color: white; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 0.9rem; min-width: 50px; text-align: center; display: inline-block; }
+
+        .asist-btn { border: none; padding: 10px 18px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #f1f5f9; color: #64748b; font-size: 0.9rem; transition: 0.2s; }
+        .asist-btn.presente.active { background: #dcfce7; color: #166534; border: 2px solid var(--success); }
+        .asist-btn.ausente.active { background: #fee2e2; color: #991b1b; border: 2px solid var(--urgent); }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #001a35; display: flex; justify-content: space-around; padding: 15px 10px; z-index: 2000; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-btn { background: none; border: none; color: rgba(255, 255, 255, 0.5); font-size: 0.7rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+        .nav-btn.active { color: var(--p-gold); }
+        .nav-btn i { font-size: 1.4rem; }
+
+        input, select, textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 1rem; background: #fafafa; outline: none; font-weight: 600; font-size: 1rem; color: var(--text); }
+        input:focus, select:focus, textarea:focus { border-color: #cbd5e1; background: #fff; }
+        label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--muted); margin-bottom: 6px; margin-left: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .btn-main { background: var(--grad); color: white; border: none; padding: 1rem; border-radius: 18px; width: 100%; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.98); }
+        
+        .btn-danger { background: #fee2e2; color: #991b1b; padding: 10px 16px; border-radius: 12px; border: none; font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-danger:hover { background: #fecaca; }
+
+        #login-screen { position: fixed; inset: 0; background: var(--grad); display: flex; align-items: center; justify-content: center; z-index: 5000; }
+        .login-card { background: white; padding: 3rem; border-radius: 40px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2); }
+
+        .page { display: none; width: 100%; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hidden { display: none !important; }
+        .bit-item { background: #f8fafc; border-radius: 20px; padding: 18px; margin-bottom: 15px; border-left: 5px solid var(--p-blue); transition: 0.2s; position: relative; border: 1px solid #edf2f7; }
+        .bit-item:hover { background: #f1f5f9; }
+
+        /* Estilos para el modo consulta del admin */
+        .admin-read-only-info { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 16px; border-left: 5px solid #0ea5e9; font-weight: 700; font-size: 0.9rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+
+        /* NUEVOS ESTILOS PARA MENSAJES MODERNOS */
+        .msg-container { background: var(--white); border-radius: 20px; padding: 1.2rem; margin-bottom: 1rem; border: 1px solid #f1f5f9; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .msg-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .msg-avatar { width: 35px; height: 35px; background: var(--p-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; }
+        .msg-sender-info { flex: 1; }
+        .msg-sender-name { font-weight: 800; font-size: 0.9rem; color: var(--p-blue); display: block; }
+        .msg-tag-container { display: flex; gap: 5px; align-items: center; margin-top: 2px; }
+        .msg-tag { font-size: 0.6rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; text-transform: uppercase; }
+        .tag-dest { background: #f1f5f9; color: var(--muted); }
+        .tag-tipo { background: #e0f2fe; color: var(--info); }
+        .tag-urgente { background: #fee2e2; color: var(--urgent); }
+        .msg-body { font-size: 0.95rem; color: #475569; line-height: 1.4; padding-left: 45px; }
+        .msg-date { font-size: 0.65rem; color: var(--muted); text-align: right; margin-top: 8px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="logo-sq" style="margin: 0 auto 1.5rem; width: 75px; height: 75px;"><i class="fas fa-graduation-cap" style="font-size: 2rem;"></i></div>
+            <h2 style="color: var(--p-blue); font-weight: 900; font-size: 1.8rem; margin-bottom: 0.5rem;">SAGE PRO</h2>
+            <p style="color: #64748b; margin-bottom: 2.5rem; font-weight: 600;">CAPA Limache - Gestión Académica</p>
+            <input type="text" id="l-user" placeholder="Usuario">
+            <input type="password" id="l-pass" placeholder="Contraseña">
+            <button class="btn-main" onclick="handleLogin()">INICIAR SESIÓN <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <div id="app" style="display:none">
+        <header>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="logo-sq"><i class="fas fa-graduation-cap"></i></div>
+                <div>
+                    <div style="font-weight:900; color: var(--p-blue); font-size: 1.1rem;">CAPA LIMACHE</div>
+                    <div id="u-role-label" style="font-size:0.7rem; color:var(--success); font-weight:800; text-transform: uppercase; letter-spacing: 1px;">CARGANDO...</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <span id="u-name-display" style="font-weight: 700; color: var(--muted); font-size: 0.9rem;"></span>
+                <i class="fas fa-power-off" style="color: var(--p-blue); cursor:pointer; font-size: 1.3rem;" title="Cerrar Sesión" onclick="auth.signOut()"></i>
+            </div>
+        </header>
+
+        <div class="container">
+            <section id="p-home" class="page active">
+                <h2 style="margin-bottom: 2rem; font-weight: 900; text-align: center; color: var(--p-blue); font-size: 1.6rem; text-transform: uppercase; letter-spacing: 1px;">CURSOS DE CAPA LIMACHE</h2>
+                <div id="global-dashboard" class="dash-grid">
+                    </div>
+            </section>
+
+            <section id="p-obs" class="page">
+                <div class="card">
+                    <h2 style="margin-bottom: 1.8rem; font-weight: 800; color: var(--p-blue);"><i class="fas fa-comment-dots" style="margin-right: 10px; color: var(--p-blue);"></i> Nuevo Aviso</h2>
+                    <label>Para:</label>
+                    <select id="obs-destinatario"></select>
+                    
+                    <label>Tipo de Aviso:</label>
+                    <select id="obs-tipo">
+                        <option value="Informativo"> 📢  Informativo</option>
+                        <option value="Urgente"> 🚨  Urgente</option>
+                        <option value="Reunión"> 👥  Reunión / Citación</option>
+                        <option value="Licencia"> 📄  Licencia / Ausencia</option>
+                    </select>
+                    
+                    <label>Mensaje:</label>
+                    <textarea id="obs-texto" rows="4" placeholder="Escriba el detalle del aviso aquí..."></textarea>
+                    
+                    <button class="btn-main" onclick="sendObservation()"><i class="fas fa-paper-plane"></i> ENVIAR MENSAJE OFICIAL</button>
+                </div>
+                
+                <div class="card">
+                    <h3 style="font-weight: 800; color: var(--p-blue); margin-bottom: 1.5rem; font-size: 1.3rem;">Buzón de Comunicaciones</h3>
+                    <div id="messages-list" style="margin-top:15px;">
+                        </div>
+                </div>
+            </section>
+
+            <section id="p-asist" class="page">
+                <div class="card">
+                    <h2 style="margin-bottom: 1.8rem; font-weight: 800; color: var(--p-blue);"><i class="fas fa-calendar-check" style="margin-right: 10px; color: var(--p-blue);"></i> Asistencia Diaria</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 1rem;">
+                        <div>
+                            <label>Fecha:</label>
+                            <input type="date" id="asist-fecha" onchange="renderAttendanceList()">
+                        </div>
+                        <div>
+                            <label>Curso:</label>
+                            <select id="as-curso-dinamico" onchange="renderAttendanceList()"></select>
+                        </div>
+                    </div>
+                    <div id="asist-list-container" style="margin-top:20px; border-top: 1px solid #eee; padding-top: 10px;">
+                        </div>
+                </div>
+            </section>
+
+            <section id="p-notas" class="page">
+                <div class="card">
+                    <h2 style="margin-bottom: 1.8rem; font-weight: 800; color: var(--p-blue);"><i class="fas fa-star" style="margin-right: 10px; color: var(--p-gold);"></i> Notas y Promedios</h2>
+                    <div style="max-width: 400px; margin-bottom: 1.5rem;">
+                        <label>Seleccione Curso:</label>
+                        <select id="nota-curso-dinamico" onchange="renderNotesList()"></select>
+                    </div>
+                    
+                    <div id="admin-notas-info" class="admin-read-only-info hidden">
+                        <i class="fas fa-info-circle" style="font-size: 1.2rem;"></i>
+                        <span>Modo Consulta: Como administrador, puedes visualizar todas las notas pero no editarlas.</span>
+                    </div>
+
+                    <div id="notes-table-container">
+                        </div>
+                </div>
+            </section>
+
+            <section id="p-materia" class="page">
+                <div id="form-bitacora-container">
+                    <div class="card">
+                        <h2 style="margin-bottom: 1.8rem; font-weight: 800; color: var(--p-blue);"><i class="fas fa-paste" style="margin-right: 10px; color: var(--p-blue);"></i> Pauta Formativa</h2>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label>Fecha:</label>
+                                <input type="date" id="mat-fecha">
+                            </div>
+                            <div>
+                                <label>Curso:</label>
+                                <select id="mat-curso-dinamico" disabled></select>
+                            </div>
+                            <div>
+                                <label>Tipo de Registro:</label>
+                                <select id="mat-tipo">
+                                    <option value="Materia Cursada">📖 Materia Cursada</option>
+                                    <option value="Examen">📝 Examen</option>
+                                    <option value="Ejercicio">✏️ Ejercicio</option>
+                                    <option value="Tarea">🏠 Tarea</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <label>Detalle de la Clase / Actividad:</label>
+                        <textarea id="mat-contenido" rows="5" placeholder="Indique los contenidos revisados, objetivos logrados o detalles de la evaluación..."></textarea>
+                        
+                        <button class="btn-main" onclick="saveBitacora()"><i class="fas fa-save"></i> GUARDAR REGISTRO EN BITÁCORA</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 id="bitacora-titulo" style="font-weight: 800; color: var(--p-blue); margin-bottom: 1.5rem; font-size: 1.4rem;">Registros de Bitácora</h2>
+                    <div id="bitacora-list-filtro" style="margin-top:15px;">
+                        </div>
+                </div>
+            </section>
+
+            <section id="p-admin" class="page">
+                <div class="card">
+                    <h2 style="margin-bottom: 1.8rem; font-weight: 800; color: var(--p-blue);"><i class="fas fa-file-import" style="margin-right: 10px; color: var(--info);"></i> Carga Masiva de Alumnos</h2>
+                    <label>Curso Destino:</label>
+                    <select id="adm-bulk-curso" class="curso-selector-global"></select>
+                    
+                    <label>Lista de Nombres (Pegar directamente, un nombre por línea):</label>
+                    <textarea id="bulk-list" rows="8" placeholder="Ejemplo:
+JUAN PEREZ GOMEZ
+MARIA SOTO MORALES
+..."></textarea>
+                    
+                    <button class="btn-main" onclick="bulkUpload()"><i class="fas fa-upload"></i> IMPORTAR LISTADO DE ALUMNOS</button>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin-bottom: 1.8rem; font-weight: 800; color: var(--p-blue);"><i class="fas fa-users-config" style="margin-right: 10px; color: var(--muted);"></i> Gestión de Docentes Activos</h2>
+                    <div id="admin-docentes-list">
+                        </div>
+                    
+                    <hr style="opacity:0.1; margin: 2.5rem 0;">
+                    
+                    <h3 style="font-weight: 800; color: var(--p-blue); margin-bottom: 1.5rem; font-size: 1.3rem;">Registrar Nuevo Docente</h3>
+                    <input type="text" id="adm-prof-name" placeholder="Nombre completo">
+                    <input type="text" id="adm-prof-user" placeholder="Nombre de Usuario (ej: j.perez)">
+                    <input type="password" id="adm-prof-pass" placeholder="Contraseña Inicial">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1rem;">
+                        <div>
+                            <label>Asignar Curso Existente:</label>
+                            <select id="adm-prof-curso" class="curso-selector-global"></select>
+                        </div>
+                        <div>
+                            <label>O Crear Nuevo Curso:</label>
+                            <input type="text" id="adm-prof-nuevo-curso" placeholder="Nombre del nuevo curso (Ej: Marketing)">
+                        </div>
+                    </div>
+                    
+                    <button class="btn-main" onclick="registerTeacher()"><i class="fas fa-user-plus"></i> GUARDAR Y CREAR CUENTA DOCENTE</button>
+                </div>
+            </section>
+        </div>
+
+        <nav class="nav-bar">
+            <button class="nav-btn active" onclick="nav('p-home', this)"><i class="fas fa-home"></i>Inicio</button>
+            <button class="nav-btn" onclick="nav('p-obs', this)"><i class="fas fa-comments"></i>Avisos</button>
+            <button class="nav-btn" id="nav-lista" onclick="nav('p-asist', this)"><i class="fas fa-check-square"></i>Lista</button>
+            <button class="nav-btn" id="nav-notas" onclick="nav('p-notas', this)"><i class="fas fa-star"></i>Notas</button>
+            <button class="nav-btn" id="nav-pauta" onclick="nav('p-materia', this)"><i class="fas fa-paste"></i>Pauta</button>
+            <button id="nav-admin" class="nav-btn" style="display:none" onclick="nav('p-admin', this)"><i class="fas fa-user-gear"></i>Admin</button>
+        </nav>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN FIREBASE
+        const firebaseConfig = { apiKey: "AIzaSyDyp5J2ZRWpA8lRupKD5xfPOyd407bD020", authDomain: "capa-limache-sistema.firebaseapp.com", projectId: "capa-limache-sistema", storageBucket: "capa-limache-sistema.firebasestorage.app", messagingSenderId: "173615478102", appId: "1:173615478102:web:f711d94b4942ea926352f7" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // Variables Globales de Estado
+        let userProfile = null;
+        let globalCourses = [];
+        let unsubscribeNotes = null; // Para limpiar listeners de notas al cambiar curso
+
+        // --- FUNCIONES DE UTILIDAD ---
+        function showToast(m, t = 'success') {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = `toast ${t}`;
+            el.innerHTML = `<i class="fas ${t==='success'?'fa-check-circle':'fa-exclamation-triangle'}"></i> ${m}`;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        // --- GESTIÓN DE CURSOS GLOBALES (FIJOS + DINÁMICOS) ---
+        function syncCourses() {
+            db.collection("usuarios").onSnapshot(snap => {
+                // CURSOS FIJOS BASE (según requerimiento original)
+                let coursesSet = new Set(["Contabilidad", "Computación Básica", "Excel Básico"]);
+                
+                // Agregar cursos dinámicos creados por admin
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if(data.rol === 'profesor' && data.cursos && Array.isArray(data.cursos)) {
+                        data.cursos.forEach(c => coursesSet.add(c));
+                    }
+                });
+                
+                // Ordenar alfabéticamente
+                globalCourses = Array.from(coursesSet).sort();
+                
+                // Actualizar todos los selectores selectores HTML
+                updateAllSelectors();
+                
+                // Renderizar dashboard principal si ya cargó perfil
+                if(userProfile) renderDashboard(userProfile.rol.toLowerCase() === 'admin' ? globalCourses : userProfile.cursos);
+            });
+        }
+
+        function updateAllSelectors() {
+            // Selectores estándar y específicos de sección
+            const selectors = document.querySelectorAll('.curso-selector-global, #nota-curso-dinamico, #as-curso-dinamico, #mat-curso-dinamico');
+            selectors.forEach(sel => {
+                const currentVal = sel.value; // Guardar selección actual
+                sel.innerHTML = '<option value="">-- Seleccionar Curso --</option>';
+                globalCourses.forEach(c => {
+                    sel.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+                sel.value = currentVal; // Restaurar selección
+            });
+        }
+
+        // --- LÓGICA DE AUTENTICACIÓN Y SESIÓN ---
+        function handleLogin() {
+            const u = document.getElementById('l-user').value.trim();
+            const p = document.getElementById('l-pass').value;
+            if (!u || !p) return showToast("Faltan datos", "error");
+            
+            // Permitir login con usuario simple o email completo
+            const email = u.includes('@') ? u : `${u.toLowerCase()}@capa.local`;
+            
+            auth.signInWithEmailAndPassword(email, p).catch(() => showToast("Usuario o Contraseña incorrecta", "error"));
+        }
+
+        auth.onAuthStateChanged( async user => {
+            if (user) {
+                // Cargar perfil completo desde Firestore
+                const doc = await db.collection("usuarios").doc(user.uid).get();
+                if(!doc.exists) {
+                    auth.signOut();
+                    return showToast("Error grave: perfil no encontrado", "error");
+                }
+                
+                userProfile = doc.data();
+                userProfile.uid = user.uid;
+                const isAdmin = userProfile.rol.toLowerCase() === 'admin';
+                const isProfe = userProfile.rol.toLowerCase() === 'profesor';
+
+                // Configurar UI según Rol
+                document.getElementById('u-role-label').innerText = userProfile.rol;
+                document.getElementById('u-name-display').innerText = userProfile.nombre;
+                
+                // Mostrar/Ocultar botón Admin
+                document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
+                
+                // Ocultar formulario bitácora a Admin, cambiar título
+                document.getElementById('form-bitacora-container').style.display = isAdmin ? 'none' : 'block';
+                document.getElementById('bitacora-titulo').innerText = isAdmin ? "Control de Pautas Institucionales" : "Mi Bitácora Personal";
+
+                // Habilitar/Deshabilitar selectores de curso dinámicos (Admin elige, Profe fijo)
+                ['nota-curso-dinamico', 'as-curso-dinamico', 'mat-curso-dinamico'].forEach(id => {
+                    const sel = document.getElementById(id);
+                    sel.disabled = !isAdmin; // Deshabilitado si NO es admin
+                });
+
+                // Inicializar datos
+                syncCourses(); // Sincroniza cursos y actualiza dashboard
+                loadMessages(); // Carga avisos
+                loadBitacoraPrivate(isAdmin); // Carga bitácora (suya o global)
+
+                if(isAdmin) loadDocentesAdmin(); // Sección admin
+
+                // Preparar UI inicial
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                
+                // Setear fechas por defecto
+                document.getElementById('asist-fecha').valueAsDate = new Date();
+                document.getElementById('mat-fecha').valueAsDate = new Date();
+                
+            } else {
+                // Limpiar listeners si existen
+                if(unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
+                
+                // Mostrar Login
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app').style.display = 'none';
+                userProfile = null;
+            }
+        });
+
+        // --- NAVEGACIÓN ---
+        function nav(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(el) el.classList.add('active');
+            
+            // Cargas específicas al entrar a sección
+            if(id === 'p-obs') loadUsersMap();
+            if(id === 'p-admin') loadDocentesAdmin();
+        }
+
+        // --- DASHBOARD (PANTALLA INICIO) ---
+        function renderDashboard(cursosVisibles) {
+            const dash = document.getElementById('global-dashboard');
+            dash.innerHTML = "";
+            
+            if(!cursosVisibles || cursosVisibles.length === 0) {
+                dash.innerHTML = "<p style='text-align:center; grid-column: 1/-1; padding: 2rem; color: var(--muted); font-weight: 700;'>No tienes cursos asignados.</p>";
+                return;
+            }
+
+            cursosVisibles.forEach(c => {
+                dash.innerHTML += `
+                    <div class="stat-card" onclick="openCourse('${c}')">
+                        <h3>${c}</h3>
+                        <p>Gestión Académica</p>
+                        <i class="fas fa-layer-group"></i>
+                    </div>`;
+            });
+        }
+
+        // Función al clickear tarjeta de curso
+        function openCourse(curso) {
+            // Setea el curso en selectores deshabilitados de Profe o selectores de Admin
+            ['as-curso-dinamico', 'nota-curso-dinamico', 'mat-curso-dinamico'].forEach(id => {
+                document.getElementById(id).value = curso;
+            });
+            
+            // Navega a Notas (según requerimiento original) y carga datos
+            nav('p-notas', document.getElementById('nav-notas'));
+            renderNotesList();
+            renderAttendanceList(); // Carga previa de asistencia
+        }
+
+        // --- SECCIÓN AVISOS / COMUNICACIONES ---
+        function loadUsersMap() {
+            const sel = document.getElementById('obs-destinatario');
+            if (!sel) return;
+            
+            db.collection("usuarios").get().then(snap => {
+                sel.innerHTML = '<option value="todos"> 📢  Todos los Profesores</option>';
+                
+                const isAdmin = userProfile && userProfile.rol.toLowerCase() === 'admin';
+
+                if (isAdmin) {
+                    // Admin ve lista de profes para enviar privado
+                    snap.forEach(d => {
+                        const data = d.data();
+                        if (data.rol === 'profesor') {
+                            sel.innerHTML += `<option value="${d.id}"> 👤  Solo a Profe: ${data.nombre}</option>`;
+                        }
+                    });
+                } else {
+                    // Profe solo ve opción global o admin
+                    sel.innerHTML = `<option value="admin"> 🔑  Enviar solo a Dirección (Admin)</option>`;
+                    sel.innerHTML += `<option value="todos"> 📢  Informar a todos los Profesores</option>`;
+                }
+            });
+        }
+
+        async function sendObservation() {
+            const m = document.getElementById('obs-texto').value.trim();
+            const t = document.getElementById('obs-tipo').value;
+            const d = document.getElementById('obs-destinatario').value;
+            
+            if (!m) return showToast("Escriba un mensaje", "error");
+            
+            await db.collection("comunicaciones").add({
+                remitente: userProfile.nombre,
+                remitenteUid: auth.currentUser.uid,
+                destinatario: d, // 'todos', 'admin', o uid específico
+                tipo: t,
+                mensaje: m,
+                fecha: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            showToast("Aviso enviado oficialmente");
+            document.getElementById('obs-texto').value = "";
+        }
+
+        function loadMessages() {
+            db.collection("comunicaciones").orderBy("fecha", "desc").limit(20).onSnapshot(snap => {
+                const list = document.getElementById('messages-list');
+                list.innerHTML = "";
+                let hasMessages = false;
+                
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    const isAdmin = userProfile.rol.toLowerCase() === 'admin';
+                    const isSender = m.remitenteUid === userProfile.uid;
+                    const isForMe = m.destinatario === userProfile.uid || (m.destinatario === 'admin' && isAdmin);
+                    const isPublic = m.destinatario === 'todos';
+                    
+                    // Lógica de visibilidad
+                    if (isAdmin || isSender || isForMe || isPublic) {
+                        hasMessages = true;
+                        
+                        // Determinar etiquetas
+                        let tagDest = m.destinatario === 'todos' ? 'Global' : m.destinatario === 'admin' ? 'Dirección' : 'Privado';
+                        let tipoClase = m.tipo === 'Urgente' ? 'tag-urgente' : 'tag-tipo';
+                        
+                        const fecha = m.fecha ? m.fecha.toDate().toLocaleString([], {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '...';
+                        const inicial = m.remitente ? m.remitente.charAt(0).toUpperCase() : '?';
+
+                        list.innerHTML += `
+                            <div class="msg-container">
+                                <div class="msg-header">
+                                    <div class="msg-avatar">${inicial}</div>
+                                    <div class="msg-sender-info">
+                                        <span class="msg-sender-name">${m.remitente}</span>
+                                        <div class="msg-tag-container">
+                                            <span class="msg-tag tag-dest">${tagDest}</span>
+                                            <span class="msg-tag ${tipoClase}">${m.tipo}</span>
+                                        </div>
+                                    </div>
+                                    ${isAdmin ? `<button onclick="deleteDoc('comunicaciones','${doc.id}')" style="border:none; background:none; color:var(--urgent); cursor:pointer;"><i class="fas fa-trash-alt"></i></button>` : ''}
+                                </div>
+                                <div class="msg-body">${m.mensaje}</div>
+                                <div class="msg-date">${fecha}</div>
+                            </div>`;
+                    }
+                });
+                
+                if(!hasMessages) list.innerHTML = "<p style='text-align:center; padding: 1rem; color:var(--muted); font-weight:600;'>No hay mensajes visibles.</p>";
+            });
+        }
+
+        // --- SECCIÓN ADMIN: GESTIÓN DE DOCENTES ---
+        async function registerTeacher() {
+            const n = document.getElementById('adm-prof-name').value;
+            const u = document.getElementById('adm-prof-user').value.trim().toLowerCase();
+            const p = document.getElementById('adm-prof-pass').value;
+            const cE = document.getElementById('adm-prof-curso').value;
+            const cN = document.getElementById('adm-prof-nuevo-curso').value.trim();
+            
+            // Prioridad a nuevo curso si se escribe
+            const cFinal = cN !== "" ? cN : cE;
+            
+            if(!n || !u || !p || !cFinal) return showToast("Faltan datos obligatorios", "error");
+            if(p.length < 6) return showToast("Clave mínima 6 caracteres", "error");
+
+            try {
+                // Crear Usuario en Firebase Auth
+                const cr = await auth.createUserWithEmailAndPassword(`${u}@capa.local`, p);
+                
+                // Guardar Perfil en Firestore (Rol Profe + Curso asignado en Array)
+                await db.collection("usuarios").doc(cr.user.uid).set({
+                    nombre: n,
+                    rol: 'profesor',
+                    usuario: u,
+                    cursos: [cFinal] // Importante: Array para soportar multilineas a futuro
+                });
+                
+                showToast(`Docente ${n} registrado exitosamente`);
+                
+                // Limpiar form
+                ['adm-prof-name', 'adm-prof-user', 'adm-prof-pass', 'adm-prof-nuevo-curso'].forEach(id => {
+                    document.getElementById(id).value = "";
+                });
+                
+            } catch (e) {
+                console.error(e);
+                let msg = "Error al registrar";
+                if(e.code === 'auth/email-already-in-use') msg = "El usuario ya existe";
+                showToast(msg, "error");
+            }
+        }
+
+        function loadDocentesAdmin() {
+            db.collection("usuarios").where("rol", "==", "profesor").onSnapshot(snap => {
+                const list = document.getElementById('admin-docentes-list');
+                list.innerHTML = "";
+                
+                if(snap.empty) {
+                    list.innerHTML = "<p style='text-align:center; padding: 1rem; color:var(--muted); font-weight:600;'>No hay docentes registrados.</p>";
+                    return;
+                }
+
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    const cursosTxt = p.cursos ? p.cursos.join(', ') : 'Sin curso asignado';
+                    
+                    list.innerHTML += `
+                        <div class="card" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border: 1px solid #edf2f7; box-shadow: none;">
+                            <span><b>${p.nombre}</b><br><small style="color: var(--muted); font-weight:600;">Cursos: ${cursosTxt}</small></span>
+                            <button onclick="deleteDoc('usuarios','${doc.id}')" class="btn-danger"><i class="fas fa-user-minus"></i> RETIRAR</button>
+                        </div>`;
+                });
+            });
+        }
+
+        // --- CARGA MASIVA ALUMNOS ---
+        async function bulkUpload() {
+            const c = document.getElementById('adm-bulk-curso').value;
+            const rawList = document.getElementById('bulk-list').value;
+            const list = rawList.split('\n');
+            const batch = db.batch();
+            
+            if(!c) return showToast("Seleccione un curso destino", "error");
+            if(!rawList.trim()) return showToast("Pegue una lista de nombres", "error");
+            
+            let count = 0;
+            list.forEach(name => {
+                if (name.trim()) {
+                    count++;
+                    const ref = db.collection("alumnos").doc(); // ID auto-generado
+                    batch.set(ref, {
+                        nombre: name.trim().toUpperCase(),
+                        curso: c // Vinculado al curso seleccionado
+                    });
+                }
+            });
+            
+            try {
+                await batch.commit();
+                showToast(`Importación exitosa: ${count} alumnos agregados a ${c}`);
+                document.getElementById('bulk-list').value = "";
+            } catch (e) {
+                console.error(e);
+                showToast("Error al importar", "error");
+            }
+        }
+
+        // --- LÓGICA DE NOTAS ---
+        async function renderNotesList() {
+            // Limpiar listener anterior para evitar duplicidad de datos
+            if(unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
+            
+            const curso = document.getElementById('nota-curso-dinamico').value;
+            const container = document.getElementById('notes-table-container');
+            const adminInfoBadge = document.getElementById('admin-notas-info');
+
+            if (!curso) {
+                container.innerHTML = "";
+                adminInfoBadge.classList.add('hidden');
+                return;
+            }
+            
+            const isAdmin = userProfile.rol.toLowerCase() === 'admin';
+            
+            // Mostrar info modo consulta si es admin
+            if(isAdmin) adminInfoBadge.classList.remove('hidden');
+            else adminInfoBadge.classList.add('hidden');
+
+            // Obtener alumnos del curso (Carga única inicial)
+            const alumnosSnap = await db.collection("alumnos").where("curso", "==", curso).get();
+            
+            if(alumnosSnap.empty) {
+                container.innerHTML = "<p style='text-align:center; padding: 2rem; color: var(--muted); font-weight: 700;'>No hay alumnos registrados en este curso.</p>";
+                return;
+            }
+
+            // Renderizar estructura tabla básica
+            container.innerHTML = `
+                <table class="edu-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Estudiante</th>
+                            <th>Notas (Click nota para borrar ${isAdmin?'[ADMIN BLOQUEADO]':''})</th>
+                            <th style="text-align:right; width: 15%;">Final</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-notas-body">
+                        </tbody>
+                </table>`;
+
+            const tableBody = document.getElementById('table-notas-body');
+
+            // Suscribirse a notas de CADA alumno en tiempo real
+            alumnosSnap.forEach(alumnoDoc => {
+                const sId = alumnoDoc.id;
+                const sName = alumnoDoc.data().nombre;
+
+                // Crear fila vacía inmediatamente para mantener orden alfabético
+                let row = document.getElementById(`row-n-${sId}`);
+                if (!row) {
+                    row = document.createElement('tr');
+                    row.id = `row-n-${sId}`;
+                    tableBody.appendChild(row);
+                }
+
+                // Listener en tiempo real para las notas de ESTE alumno
+                db.collection("notas").where("alumnoId", "==", sId).onSnapshot(notasSnap => {
+                    let sum = 0, cant = 0, htmlNotas = "";
+                    
+                    let notasArr = [];
+                    notasSnap.forEach(doc => notasArr.push({id: doc.id, ...doc.data()}));
+                    notasArr.sort((a,b) => (a.fecha?.seconds || 0) - (b.fecha?.seconds || 0));
+
+                    notasArr.forEach(nData => {
+                        const val = parseFloat(nData.valor);
+                        sum += val; cant++;
+                        const deleteAction = !isAdmin ? `onclick="deleteNote('${nData.id}')" title="Eliminar nota"` : 'title="Admin bloqueado para borrar"';
+                        htmlNotas += `<span class="note-cell ${val < 4 ? 'danger' : 'success'}" ${deleteAction}>${val.toFixed(1)}</span>`;
+                    });
+
+                    // Calcular Promedio Final
+                    const promNumerico = cant > 0 ? (sum / cant) : 0;
+                    const promTxt = promNumerico > 0 ? promNumerico.toFixed(1) : '-';
+                    
+                    let colorBadge = 'background-color: var(--p-blue);'; 
+                    if(promNumerico > 0 && promNumerico < 4.0) colorBadge = 'background-color: #ef4444;'; 
+                    if(promTxt === '-') colorBadge = 'background-color: #cbd5e1; color: var(--muted);'; 
+
+                    // Actualizar contenido de la fila existente
+                    row.innerHTML = `
+                        <td><span style="font-size:0.95rem; text-transform:uppercase; color:var(--text);">${sName}</span></td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                                ${htmlNotas}
+                                ${!isAdmin ? `
+                                    <input type="text" inputmode="decimal" placeholder="+" class="input-nota-manual" title="Presione Enter para guardar"
+                                           onkeydown="if(event.key==='Enter') saveNoteManual('${sId}', this)">
+                                ` : ''}
+                            </div>
+                        </td>
+                        <td style="text-align:right"><span class="promedio-badge" style="${colorBadge}">${promTxt}</span></td>
+                    `;
+                });
+            });
+        }
+
+        async function saveNoteManual(alumnoId, inputEl) {
+            let valStr = inputEl.value.replace(',', '.');
+            const val = parseFloat(valStr);
+            
+            if (!isNaN(val) && val >= 1.0 && val <= 7.0) {
+                inputEl.disabled = true;
+                inputEl.style.opacity = '0.5';
+
+                await db.collection("notas").add({
+                    alumnoId: alumnoId,
+                    valor: val,
+                    fecha: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast("Nota agregada correctamente");
+                inputEl.value = "";
+                inputEl.disabled = false;
+                inputEl.style.opacity = '1';
+                inputEl.focus();
+            } else if (inputEl.value !== "") {
+                showToast("Nota inválida (Rango 1.0 - 7.0)", "error");
+                inputEl.value = "";
+            }
+        }
+
+        async function deleteNote(notaId) {
+            if(confirm("¿Deseas eliminar esta calificación permanentemente?")) {
+                await db.collection("notas").doc(notaId).delete();
+                showToast("Calificación eliminada");
+            }
+        }
+
+        // --- SECCIÓN ASISTENCIA ---
+        async function renderAttendanceList() {
+            const curso = document.getElementById('as-curso-dinamico').value;
+            const fecha = document.getElementById('asist-fecha').value;
+            const container = document.getElementById('asist-list-container');
+            
+            if (!curso || !fecha) {
+                container.innerHTML = "<p style='text-align:center; padding: 1rem; color:var(--muted);'>Seleccione fecha y curso.</p>";
+                return;
+            }
+
+            const alumnosSnap = await db.collection("alumnos").where("curso", "==", curso).get();
+            
+            if(alumnosSnap.empty) {
+                container.innerHTML = "<p style='text-align:center; padding: 1rem; color:var(--muted);'>No hay alumnos en este curso.</p>";
+                return;
+            }
+
+            const asistSnap = await db.collection("asistencias").where("curso", "==", curso).where("fecha", "==", fecha).get();
+            const asistMap = {};
+            asistSnap.forEach(doc => asistMap[doc.data().alumnoId] = doc.data().estado);
+
+            container.innerHTML = "";
+            alumnosSnap.forEach(docAlumno => {
+                const sId = docAlumno.id;
+                const estadoActual = asistMap[sId] || ''; 
+                
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 10px; border-bottom:1px solid #f1f5f9;">
+                        <span style="text-transform:uppercase; font-size:1rem;"><b>${docAlumno.data().nombre}</b></span>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="setAsist('${sId}','Presente')" class="asist-btn presente ${estadoActual === 'Presente' ? 'active' : ''}">P</button>
+                            <button onclick="setAsist('${sId}','Ausente')" class="asist-btn ausente ${estadoActual === 'Ausente' ? 'active' : ''}">A</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function setAsist(alumnoId, estado) {
+            const curso = document.getElementById('as-curso-dinamico').value;
+            const fecha = document.getElementById('asist-fecha').value;
+            const qSnap = await db.collection("asistencias").where("alumnoId", "==", alumnoId).where("fecha", "==", fecha).get();
+            
+            if (!qSnap.empty) {
+                await db.collection("asistencias").doc(qSnap.docs[0].id).update({ estado: estado });
+            } else {
+                await db.collection("asistencias").add({
+                    alumnoId: alumnoId, curso: curso, fecha: fecha, estado: estado, profesor: userProfile.nombre
+                });
+            }
+            renderAttendanceList();
+        }
+
+        // --- SECCIÓN PAUTA (BITÁCORA) ---
+        async function saveBitacora() {
+            const c = document.getElementById('mat-curso-dinamico').value;
+            const m = document.getElementById('mat-contenido').value.trim();
+            const f = document.getElementById('mat-fecha').value;
+            const t = document.getElementById('mat-tipo').value;
+            
+            if (!c || !m || !f) return showToast("Faltan datos obligatorios", "error");
+            
+            await db.collection("bitacoras").add({
+                curso: c, materia: m, fecha: f, tipo: t, 
+                profesor: userProfile.nombre, uid: userProfile.uid,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            showToast("Registro guardado en Bitácora");
+            document.getElementById('mat-contenido').value = "";
+        }
+
+        function loadBitacoraPrivate(isAdmin) {
+            let query = db.collection("bitacoras").orderBy("createdAt", "desc");
+            
+            // REQUERIMIENTO PRIVACIDAD: Si no es admin, solo carga registros donde el uid coincida con el profesor logueado
+            if(!isAdmin) {
+                query = query.where("uid", "==", userProfile.uid);
+            }
+            
+            query.onSnapshot(snap => {
+                const res = document.getElementById('bitacora-list-filtro');
+                res.innerHTML = "";
+                
+                if(snap.empty) {
+                    res.innerHTML = "<p style='text-align:center; padding: 1rem; color:var(--muted);'>No hay registros en bitácora.</p>";
+                    return;
+                }
+
+                snap.forEach(doc => {
+                    const b = doc.data();
+                    res.innerHTML += `
+                        <div class="bit-item">
+                            <small style="color:var(--muted); font-weight:700;"><b>${b.fecha}</b> | ${b.curso} | ${b.tipo}</small><br>
+                            ${isAdmin ? `<p style="font-weight:800; color:var(--p-blue); margin: 3px 0;">PROFE: ${b.profesor}</p>` : ''}
+                            <p style="margin:8px 0; font-size: 0.95rem; line-height:1.4;">${b.materia}</p>
+                            <button onclick="deleteDoc('bitacoras','${doc.id}')" style="background:none; border:none; color:var(--urgent); font-size:0.7rem; font-weight:800; cursor:pointer;"><i class="fas fa-trash"></i> ELIMINAR REGISTRO</button>
+                        </div>`;
+                });
+            });
+        }
+
+        async function deleteDoc(coleccion, docId) {
+            if (confirm("¿Estás seguro de eliminar este registro permanentemente?")) {
+                await db.collection(coleccion).doc(docId).delete();
+                showToast("Registro eliminado");
+            }
+        }
+        if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+    });
+}
+    </script>
+
+
+</body>
+</html>

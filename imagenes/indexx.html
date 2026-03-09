@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SAGE Pro - CAPA Limache</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --p-blue: #002855;
+            --p-gold: #ffcc00;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --grad: linear-gradient(135deg, #002855 0%, #004a99 100%);
+            --urgent: #ef4444;
+            --success: #10b981;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            padding-bottom: 110px;
+            overflow-x: hidden;
+            color: var(--text);
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: var(--white);
+            color: var(--text);
+            padding: 16px 24px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid var(--p-blue);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        header {
+            background: var(--white);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-sq {
+            width: 45px;
+            height: 45px;
+            background: var(--p-gold);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--p-blue);
+            font-size: 1.4rem;
+        }
+
+        .container {
+            padding: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 40, 85, 0.08);
+        }
+
+        .edu-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .edu-table th {
+            background: #f8fafc;
+            padding: 12px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .edu-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-weight: 700;
+        }
+
+        .note-cell {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin: 2px;
+            font-size: 0.85rem;
+            color: var(--p-blue);
+            cursor: pointer;
+        }
+
+        .promedio-badge {
+            background: var(--p-blue);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .asist-btn {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .asist-btn.presente.active {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid var(--success);
+        }
+
+        .asist-btn.ausente.active {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid var(--urgent);
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #001a35;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            z-index: 2000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-btn.active {
+            color: var(--p-gold);
+        }
+
+        .nav-btn i {
+            font-size: 1.3rem;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            background: #fafafa;
+            outline: none;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--muted);
+            margin-bottom: 5px;
+            margin-left: 5px;
+            text-transform: uppercase;
+        }
+
+        .btn-main {
+            background: var(--grad);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 18px;
+            width: 100%;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--grad);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+
+        .login-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 40px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .bit-item {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 5px solid var(--p-blue);
+            transition: 0.2s;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toast-container"></div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="logo-sq" style="margin: 0 auto 1.5rem; width: 70px; height: 70px;"><i
+                    class="fas fa-graduation-cap"></i></div>
+            <h2 style="color: var(--p-blue); font-weight: 900;">SAGE PRO</h2>
+            <p style="color: #64748b; margin-bottom: 2rem;">CAPA Limache - Gestión Académica</p>
+            <input type="text" id="l-user" placeholder="Usuario">
+            <input type="password" id="l-pass" placeholder="Contraseña">
+            <button class="btn-main" onclick="handleLogin()">INICIAR SESIÓN</button>
+        </div>
+    </div>
+
+    <div id="app" style="display:none">
+        <header>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="logo-sq"><i class="fas fa-graduation-cap"></i></div>
+                <div>
+                    <div style="font-weight:900; color: var(--p-blue);">CAPA LIMACHE</div>
+                    <div id="u-role-label"
+                        style="font-size:0.65rem; color:var(--success); font-weight:800; text-transform: uppercase;">
+                        CARGANDO...</div>
+                </div>
+            </div>
+            <i class="fas fa-power-off" style="color: var(--p-blue); cursor:pointer;" onclick="auth.signOut()"></i>
+        </header>
+
+        <div class="container">
+            <section id="p-home" class="page active">
+                <h2 style="margin-bottom: 1.5rem; font-weight: 800; text-align: center;">CURSOS DE CAPA LIMACHE</h2>
+                <div id="global-dashboard" class="dash-grid"></div>
+            </section>
+
+            <section id="p-obs" class="page">
+                <div class="card">
+                    <h2><i class="fas fa-comment-dots"></i> Nuevo Aviso</h2>
+                    <label>Para:</label>
+                    <select id="obs-destinatario"></select>
+
+                    <label>Tipo de Aviso:</label>
+                    <select id="obs-tipo">
+                        <option value="Informativo">📢 Informativo</option>
+                        <option value="Urgente">🚨 Urgente</option>
+                        <option value="Reunión">👥 Reunión / Citación</option>
+                        <option value="Licencia">📄 Licencia / Ausencia</option>
+                    </select>
+
+                    <label>Mensaje:</label>
+                    <textarea id="obs-texto" rows="3" placeholder="Escriba el aviso aquí..."></textarea>
+                    <button class="btn-main" onclick="sendObservation()">ENVIAR MENSAJE</button>
+                </div>
+                <div class="card">
+                    <h3>Historial de Comunicaciones</h3>
+                    <div id="messages-list" style="margin-top:15px;"></div>
+                </div>
+            </section>
+
+            <section id="p-asist" class="page">
+                <div class="card">
+                    <h2><i class="fas fa-calendar-check"></i> Asistencia Diaria</h2>
+                    <input type="date" id="asist-fecha" onchange="renderAttendanceList()">
+                    <select id="as-curso-dinamico" disabled onchange="renderAttendanceList()"></select>
+                    <div id="asist-list-container" style="margin-top:15px;"></div>
+                </div>
+            </section>
+
+            <section id="p-notas" class="page">
+                <div class="card">
+                    <h2><i class="fas fa-star"></i> Notas y Promedios</h2>
+                    <select id="nota-curso-dinamico" disabled onchange="renderNotesList()"></select>
+                    <div id="notes-table-container"></div>
+                </div>
+            </section>
+
+            <section id="p-materia" class="page">
+                <div id="form-bitacora-container">
+                    <div class="card">
+                        <h2><i class="fas fa-paste"></i> Pauta Formativa</h2>
+                        <input type="date" id="mat-fecha">
+                        <select id="mat-curso-dinamico" disabled></select>
+                        <select id="mat-tipo">
+                            <option value="Materia Cursada">Materia Cursada</option>
+                            <option value="Examen">Examen</option>
+                            <option value="Ejercicio">Ejercicio</option>
+                            <option value="Tarea">Tarea</option>
+                        </select>
+                        <textarea id="mat-contenido" rows="4"
+                            placeholder="Indique el detalle de la clase..."></textarea>
+                        <button class="btn-main" onclick="saveBitacora()">GUARDAR REGISTRO</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2 id="bitacora-titulo">Mi Bitácora Personal</h2>
+                    <div id="bitacora-list-filtro" style="margin-top:15px;"></div>
+                </div>
+            </section>
+
+            <section id="p-admin" class="page">
+                <div class="card">
+                    <h2>Carga Masiva de Alumnos</h2>
+                    <select id="adm-bulk-curso" class="curso-selector-global"></select>
+                    <textarea id="bulk-list" rows="6" placeholder="Pegue la lista de nombres aquí..."></textarea>
+                    <button class="btn-main" onclick="bulkUpload()">IMPORTAR ALUMNOS</button>
+                </div>
+                <div class="card">
+                    <h2>Gestión de Docentes</h2>
+                    <div id="admin-docentes-list"></div>
+                    <hr style="opacity:0.1; margin: 20px 0;">
+                    <h3>Registrar Docente</h3>
+                    <input type="text" id="adm-prof-name" placeholder="Nombre completo">
+                    <input type="text" id="adm-prof-user" placeholder="Usuario">
+                    <input type="password" id="adm-prof-pass" placeholder="Clave">
+                    <label>Curso Existente:</label>
+                    <select id="adm-prof-curso" class="curso-selector-global"></select>
+                    <label>O Crear Nuevo Curso:</label>
+                    <input type="text" id="adm-prof-nuevo-curso" placeholder="Nombre del nuevo curso (Ej: Marketing)">
+                    <button class="btn-main" onclick="registerTeacher()">GUARDAR DOCENTE</button>
+                </div>
+            </section>
+        </div>
+
+        <nav class="nav-bar">
+            <button class="nav-btn active" onclick="nav('p-home', this)"><i class="fas fa-home"></i>Inicio</button>
+            <button class="nav-btn" onclick="nav('p-obs', this)"><i class="fas fa-comments"></i>Avisos</button>
+            <button class="nav-btn" id="nav-lista" onclick="nav('p-asist', this)"><i
+                    class="fas fa-check-square"></i>Lista</button>
+            <button class="nav-btn" id="nav-notas" onclick="nav('p-notas', this)"><i
+                    class="fas fa-star"></i>Notas</button>
+            <button class="nav-btn" id="nav-pauta" onclick="nav('p-materia', this)"><i
+                    class="fas fa-paste"></i>Pauta</button>
+            <button id="nav-admin" class="nav-btn" style="display:none" onclick="nav('p-admin', this)"><i
+                    class="fas fa-user-gear"></i>Admin</button>
+        </nav>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN FIREBASE
+        const firebaseConfig = { apiKey: "AIzaSyDyp5J2ZRWpA8lRupKD5xfPOyd407bD020", authDomain: "capa-limache-sistema.firebaseapp.com", projectId: "capa-limache-sistema", storageBucket: "capa-limache-sistema.firebasestorage.app", messagingSenderId: "173615478102", appId: "1:173615478102:web:f711d94b4942ea926352f7" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        let userProfile = null;
+        let globalCourses = [];
+
+        function showToast(m, t = 'success') {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div'); el.className = `toast ${t}`;
+            el.innerHTML = `<i class="fas ${t === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i> ${m}`;
+            container.appendChild(el); setTimeout(() => el.remove(), 4000);
+        }
+
+        function syncCourses() {
+            db.collection("usuarios").onSnapshot(snap => {
+                let coursesSet = new Set(["Contabilidad", "Computación Básica", "Excel Básico"]);
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.cursos && Array.isArray(data.cursos)) data.cursos.forEach(c => coursesSet.add(c));
+                });
+                globalCourses = Array.from(coursesSet).sort();
+                updateAllSelectors();
+                if (userProfile) renderDashboard(userProfile.rol === 'admin' ? globalCourses : userProfile.cursos);
+            });
+        }
+
+        function updateAllSelectors() {
+            const selectors = document.querySelectorAll('.curso-selector-global, #nota-curso-dinamico, #as-curso-dinamico, #mat-curso-dinamico');
+            selectors.forEach(sel => {
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+                globalCourses.forEach(c => { sel.innerHTML += `<option value="${c}">${c}</option>`; });
+                sel.value = currentVal;
+            });
+        }
+
+        function handleLogin() {
+            const u = document.getElementById('l-user').value.trim();
+            const p = document.getElementById('l-pass').value;
+            if (!u || !p) return showToast("Faltan datos", "error");
+            const email = u.includes('@') ? u : `${u.toLowerCase()}@capa.local`;
+            auth.signInWithEmailAndPassword(email, p).catch(() => showToast("Usuario o Clave incorrecta", "error"));
+        }
+
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                const doc = await db.collection("usuarios").doc(user.uid).get();
+                if (!doc.exists) { auth.signOut(); return showToast("Error de perfil", "error"); }
+                userProfile = doc.data();
+                const isAdmin = userProfile.rol.toLowerCase() === 'admin';
+                document.getElementById('u-role-label').innerText = userProfile.rol;
+                document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
+                if (isAdmin) {
+                    document.getElementById('form-bitacora-container').style.display = 'none';
+                    document.getElementById('bitacora-titulo').innerText = "Control de Pautas Institucionales";
+                }
+                ['nota-curso-dinamico', 'as-curso-dinamico', 'mat-curso-dinamico'].forEach(id => {
+                    document.getElementById(id).disabled = !isAdmin;
+                });
+                syncCourses();
+                loadMessages();
+                if (isAdmin) loadDocentesAdmin();
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                document.getElementById('asist-fecha').valueAsDate = new Date();
+                document.getElementById('mat-fecha').valueAsDate = new Date();
+                loadBitacoraPrivate(isAdmin);
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app').style.display = 'none';
+            }
+        });
+
+        // NAVEGACIÓN CORREGIDA CON CARGA DE MAPA DE USUARIOS
+        function nav(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (el) el.classList.add('active');
+            if (id === 'p-obs') loadUsersMap();
+        }
+
+        function renderDashboard(cursos) {
+            const dash = document.getElementById('global-dashboard'); dash.innerHTML = "";
+            cursos.forEach(c => {
+                dash.innerHTML += `<div class="stat-card" onclick="openCourse('${c}')"><h3>${c}</h3><p>Gestión del Curso</p><i class="fas fa-layer-group"></i></div>`;
+            });
+        }
+
+        function openCourse(c) {
+            ['as-curso-dinamico', 'nota-curso-dinamico', 'mat-curso-dinamico'].forEach(s => document.getElementById(s).value = c);
+            nav('p-asist'); renderAttendanceList(); renderNotesList();
+        }
+
+        // --- LÓGICA DE AVISOS ACTUALIZADA ---
+        function loadUsersMap() {
+            const sel = document.getElementById('obs-destinatario');
+            if (!sel) return;
+            db.collection("usuarios").onSnapshot(snap => {
+                sel.innerHTML = '<option value="todos">📢 Todos los Profesores</option>';
+                if (userProfile && userProfile.rol.toLowerCase() === 'admin') {
+                    snap.forEach(d => {
+                        const data = d.data();
+                        if (data.rol === 'profesor') sel.innerHTML += `<option value="${d.id}">👤 Solo a: ${data.nombre}</option>`;
+                    });
+                } else {
+                    sel.innerHTML += `<option value="admin">🔑 Admin (Dirección)</option>`;
+                }
+            });
+        }
+
+        async function sendObservation() {
+            const m = document.getElementById('obs-texto').value.trim();
+            const t = document.getElementById('obs-tipo').value;
+            const d = document.getElementById('obs-destinatario').value;
+            if (!m) return showToast("Escriba un mensaje", "error");
+            await db.collection("comunicaciones").add({
+                remitente: userProfile.nombre,
+                remitenteUid: auth.currentUser.uid,
+                destinatario: d,
+                tipo: t,
+                mensaje: m,
+                fecha: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showToast("Aviso enviado");
+            document.getElementById('obs-texto').value = "";
+        }
+
+        function loadMessages() {
+            db.collection("comunicaciones").orderBy("fecha", "desc").limit(15).onSnapshot(snap => {
+                const list = document.getElementById('messages-list'); list.innerHTML = snap.empty ? "<p>Sin mensajes.</p>" : "";
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    const esUrgente = m.tipo === 'Urgente' ? 'border-left: 5px solid var(--urgent);' : '';
+                    const fecha = m.fecha ? m.fecha.toDate().toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '...';
+                    list.innerHTML += `<div class="bit-item" style="${esUrgente}">
+                        <small><b>${m.remitente}</b> • ${m.tipo || 'Aviso'} <span style="float:right; font-size:0.6rem; color:var(--muted)">${fecha}</span></small>
+                        <p style="margin-top:5px;">${m.mensaje}</p>
+                    </div>`;
+                });
+            });
+        }
+
+        // --- RESTO DE FUNCIONES (DOCENTES, ALUMNOS, NOTAS) ---
+        async function registerTeacher() {
+            const n = document.getElementById('adm-prof-name').value, u = document.getElementById('adm-prof-user').value.trim().toLowerCase(), p = document.getElementById('adm-prof-pass').value;
+            const cE = document.getElementById('adm-prof-curso').value, cN = document.getElementById('adm-prof-nuevo-curso').value.trim();
+            const cF = cN !== "" ? cN : cE;
+            if (!n || !u || !p || !cF) return showToast("Faltan datos", "error");
+            try {
+                const cr = await auth.createUserWithEmailAndPassword(`${u}@capa.local`, p);
+                await db.collection("usuarios").doc(cr.user.uid).set({ nombre: n, rol: 'profesor', usuario: u, cursos: [cF] });
+                showToast("Docente registrado");
+                document.getElementById('adm-prof-name').value = ""; document.getElementById('adm-prof-user').value = ""; document.getElementById('adm-prof-pass').value = ""; document.getElementById('adm-prof-nuevo-curso').value = "";
+            } catch (e) { showToast(e.message, "error"); }
+        }
+
+        async function saveBitacora() {
+            const c = document.getElementById('mat-curso-dinamico').value, m = document.getElementById('mat-contenido').value.trim(), f = document.getElementById('mat-fecha').value, t = document.getElementById('mat-tipo').value;
+            if (c && m && f) {
+                await db.collection("bitacoras").add({ curso: c, materia: m, fecha: f, tipo: t, profesor: userProfile.nombre, uid: auth.currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                showToast("Registrado"); document.getElementById('mat-contenido').value = "";
+            }
+        }
+
+        function loadBitacoraPrivate(isAdmin) {
+            let q = db.collection("bitacoras").orderBy("createdAt", "desc");
+            if (!isAdmin) q = q.where("uid", "==", auth.currentUser.uid);
+            q.onSnapshot(snap => {
+                const res = document.getElementById('bitacora-list-filtro'); res.innerHTML = snap.empty ? "<p>Sin registros.</p>" : "";
+                snap.forEach(doc => {
+                    const b = doc.data();
+                    res.innerHTML += `<div class="bit-item">
+                        <small><b>${b.fecha}</b> | ${b.curso} | ${b.tipo}</small><br>
+                        ${isAdmin ? `<p style="font-weight:800; color:var(--p-blue)">PROFE: ${b.profesor}</p>` : ''}
+                        <p style="margin:5px 0;">${b.materia}</p>
+                        <button onclick="deleteDoc('bitacoras','${doc.id}')" style="background:none; border:none; color:var(--urgent); font-size:0.65rem; font-weight:800; cursor:pointer;">ELIMINAR</button>
+                    </div>`;
+                });
+            });
+        }
+
+        async function renderNotesList() {
+            const c = document.getElementById('nota-curso-dinamico').value, t_cont = document.getElementById('notes-table-container');
+            if (!c) return t_cont.innerHTML = "";
+            const alumnos = await db.collection("alumnos").where("curso", "==", c).get();
+            t_cont.innerHTML = `<table class="edu-table"><thead><tr><th>Estudiante</th><th>Notas</th><th style="text-align:right">Final</th></tr></thead><tbody id="table-notas-body"></tbody></table>`;
+            alumnos.forEach(async sD => {
+                const sId = sD.id, sN = sD.data().nombre;
+                db.collection("notas").where("alumnoId", "==", sId).onSnapshot(snap => {
+                    let sum = 0, cant = 0, h = "";
+                    snap.forEach(n => { const v = parseFloat(n.data().valor); sum += v; cant++; h += `<span class="note-cell">${v.toFixed(1)}</span>`; });
+                    const p = cant > 0 ? (sum / cant).toFixed(1) : "0.0";
+                    let row = document.getElementById(`row-n-${sId}`); if (!row) { row = document.createElement('tr'); row.id = `row-n-${sId}`; document.getElementById('table-notas-body').appendChild(row); }
+                    row.innerHTML = `<td><span style="font-size:0.85rem;">${sN}</span></td><td>${h} ${userProfile.rol !== 'admin' ? `<input type="number" step="0.1" placeholder="+" style="width:40px; height:35px; border-radius:8px; border:1px dashed #ccc; text-align:center;" onchange="saveNote('${sId}', this.value)">` : ''}</td><td style="text-align:right"><span class="promedio-badge">${p}</span></td>`;
+                });
+            });
+        }
+
+        async function saveNote(id, val) { if (val >= 1 && val <= 7) await db.collection("notas").add({ alumnoId: id, valor: parseFloat(val), fecha: new Date() }); }
+
+        async function renderAttendanceList() {
+            const c = document.getElementById('as-curso-dinamico').value, f = document.getElementById('asist-fecha').value, res = document.getElementById('asist-list-container');
+            if (!c || !f) return res.innerHTML = "";
+            const alumnos = await db.collection("alumnos").where("curso", "==", c).get();
+            const asistSnap = await db.collection("asistencias").where("curso", "==", c).where("fecha", "==", f).get();
+            const aMap = {}; asistSnap.forEach(d => aMap[d.data().alumnoId] = d.data().estado);
+            res.innerHTML = alumnos.empty ? "Sin alumnos." : "";
+            alumnos.forEach(doc => {
+                const sId = doc.id, st = aMap[sId] || '';
+                res.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
+                    <span><b>${doc.data().nombre}</b></span>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="setAsist('${sId}','Presente')" class="asist-btn presente ${st === 'Presente' ? 'active' : ''}">P</button>
+                        <button onclick="setAsist('${sId}','Ausente')" class="asist-btn ausente ${st === 'Ausente' ? 'active' : ''}">A</button>
+                    </div></div>`;
+            });
+        }
+
+        async function setAsist(aId, st) {
+            const c = document.getElementById('as-curso-dinamico').value, f = document.getElementById('asist-fecha').value;
+            const q = await db.collection("asistencias").where("alumnoId", "==", aId).where("fecha", "==", f).get();
+            if (!q.empty) await db.collection("asistencias").doc(q.docs[0].id).update({ estado: st });
+            else await db.collection("asistencias").add({ alumnoId: aId, curso: c, fecha: f, estado: st, profesor: userProfile.nombre });
+            renderAttendanceList();
+        }
+
+        async function bulkUpload() {
+            const c = document.getElementById('adm-bulk-curso').value, list = document.getElementById('bulk-list').value.split('\n'), batch = db.batch();
+            if (!c) return showToast("Seleccione un curso", "error");
+            list.forEach(name => { if (name.trim()) batch.set(db.collection("alumnos").doc(), { nombre: name.trim().toUpperCase(), curso: c }); });
+            await batch.commit(); showToast("Importado"); document.getElementById('bulk-list').value = "";
+        }
+
+        function loadDocentesAdmin() {
+            db.collection("usuarios").where("rol", "==", "profesor").onSnapshot(snap => {
+                const list = document.getElementById('admin-docentes-list'); list.innerHTML = snap.empty ? "Sin registros." : "";
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    list.innerHTML += `<div class="card" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span><b>${p.nombre}</b><br><small>${p.cursos ? p.cursos.join(', ') : 'Sin curso'}</small></span>
+                        <button onclick="deleteDoc('usuarios','${doc.id}')" class="btn-danger">RETIRAR</button>
+                    </div>`;
+                });
+            });
+        }
+
+        async function deleteDoc(col, id) { if (confirm("¿Estás seguro?")) await db.collection(col).doc(id).delete(); }
+    </script>
+
+    <!-- // Agrega esto al final de tu -->
+    <script> 
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
+        }
+</body >
+</html >
