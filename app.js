@@ -800,7 +800,13 @@ async function renderNotesList() {
             });
             
             if(!isAdmin) {
-                nHtml += `<input type="text" style="width:50px; padding:6px; border-radius:8px; border:2px dashed var(--c-blue-accent); text-align:center; font-weight:800; outline:none; margin-bottom:5px;" placeholder="+" onkeydown="if(event.key==='Enter') saveNote('${al.id}', this)">`;
+                nHtml += `
+                <div style="display:inline-flex; align-items:center; gap:5px; margin-bottom:5px;">
+                    <input type="text" inputmode="decimal" id="input-nota-${al.id}" style="width:55px; padding:6px; border-radius:8px; border:2px dashed var(--c-blue-accent); text-align:center; font-weight:800; outline:none;" placeholder="+" onkeydown="if(event.key==='Enter') saveNote('${al.id}', this)">
+                    <button onclick="saveNote('${al.id}', document.getElementById('input-nota-${al.id}'))" style="background:var(--c-teal); color:white; border:none; width:32px; height:32px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);" title="Guardar Nota">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>`;
             }
             document.getElementById(`notas-${al.id}`).innerHTML = nHtml;
             
