@@ -247,3 +247,18 @@ body { background: var(--bg-main); color: var(--text-main); }
     .controls-row > * { min-width: 100%; }
     .pastel-card { padding: 1.5rem 1rem; }
 }
+/* =========================================
+    AJUSTE DE LOGO GRANDE Y RESPONSIVO
+   ========================================= */
+.logo-gigante {
+    height: 80px !important; /* Tamaño grande para Computadoras y Tablets */
+    width: auto;
+    object-fit: contain;
+    margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+    .logo-gigante {
+        height: 55px !important; /* Tamaño ajustado para Celulares (no rompe el menú) */
+    }
+}
