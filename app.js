@@ -172,7 +172,7 @@ function configureUIForRole() {
     
     document.getElementById('u-name-display').textContent = userProfile.nombre;
     document.getElementById('u-rol-display').textContent = isAlumno ? 'Estudiante' : (isAdmin ? 'Dirección' : 'Docente');
-    document.getElementById('u-role-label').textContent = isAlumno ? 'ESTUDIANTE' : (isAdmin ? 'ADMIN' : 'PROFE');
+    document.getElementById('u-role-label').textContent = isAlumno ? 'ESTUDIANTE' : (isAdmin ? 'ADMINISTRADOR' : 'PROFESOR');
     document.getElementById('user-initial').textContent = userProfile.nombre.charAt(0).toUpperCase();
 
     document.querySelectorAll('.nav-item.nav-admin-only').forEach(el => {
