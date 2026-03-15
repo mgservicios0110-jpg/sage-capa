@@ -919,46 +919,89 @@ async function generarReporteOficial(tipo) {
         tableHTML += '</tbody></table>';
     }
 
+    // ABRIMOS LA VENTA DE VISTA PREVIA RESPONSIVA
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
-        <html>
+        <!DOCTYPE html>
+        <html lang="es">
         <head>
-            <title>Reporte Oficial - ${cursoNombre}</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Vista Previa - Reporte ${cursoNombre}</title>
             <style>
-                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 40px; }
-                .header { display: flex; align-items: center; border-bottom: 3px solid #00a89d; padding-bottom: 20px; margin-bottom: 30px; }
-                .header img { height: 90px; margin-right: 25px; }
-                .header-text h1 { margin: 0; color: #002855; font-size: 24px; text-transform: uppercase; }
-                .header-text h2 { margin: 5px 0 0 0; color: #b92b82; font-size: 18px; }
+                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 0; background: #e2e8f0; }
+                
+                /* BARRA DE CONTROLES NO IMPRIMIBLE */
+                .no-print-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 10px;}
+                .no-print-bar h3 { margin: 0; color: white; font-size: 1.1rem; }
+                .action-btns { display: flex; gap: 10px; flex-wrap: wrap;}
+                .btn-pv { padding: 10px 15px; font-size: 1rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display:flex; align-items:center; gap:5px;}
+                .btn-print { background: #00a89d; color: white; }
+                .btn-print:hover { background: #008f85; }
+                .btn-close { background: #ef4444; color: white; }
+                .btn-close:hover { background: #dc2626; }
+
+                /* HOJA DE REPORTE */
+                .page-container { background: white; max-width: 900px; margin: 30px auto; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; }
+                
+                /* ESTILOS INTERNOS DEL REPORTE */
+                .header { display: flex; align-items: center; border-bottom: 3px solid #00a89d; padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+                .header img { height: 70px; }
+                .header-text h1 { margin: 0; color: #002855; font-size: 22px; text-transform: uppercase; }
+                .header-text h2 { margin: 5px 0 0 0; color: #b92b82; font-size: 16px; }
                 .info-box { background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e2e8f0; display:flex; flex-wrap: wrap; gap: 20px; }
-                .info-item { flex: 1; min-width: 200px; }
-                .info-item strong { display: block; font-size: 12px; color: #64748b; text-transform: uppercase; }
-                .info-item span { font-size: 16px; color: #1e293b; font-weight: bold; }
+                .info-item { flex: 1; min-width: 150px; }
+                .info-item strong { display: block; font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+                .info-item span { font-size: 15px; color: #1e293b; font-weight: bold; }
                 table { width: 100%; border-collapse: collapse; margin-top: 20px; }
                 th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; }
                 th { background-color: #00a89d; color: white; text-transform: uppercase; font-size: 12px; }
                 td { font-size: 14px; text-transform: uppercase; }
                 tr:nth-child(even) { background-color: #f8fafc; }
                 .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+
+                /* RESPONSIVO PARA CELULARES Y TABLETS EN PANTALLA */
+                @media (max-width: 768px) {
+                    .page-container { margin: 10px; padding: 20px; }
+                    .header img { height: 50px; }
+                    .header-text h1 { font-size: 18px; }
+                    th, td { font-size: 12px; padding: 8px; }
+                }
+
+                /* ESTILOS ESPECÍFICOS PARA LA IMPRESIÓN (PDF o FÍSICO) */
+                @media print {
+                    .no-print-bar { display: none !important; }
+                    body { background: white; }
+                    .page-container { margin: 0; padding: 0; box-shadow: none; max-width: 100%; border-radius: 0; }
+                }
             </style>
         </head>
         <body>
-            <div class="header">
-                <img src="${window.location.origin}/logo.png" alt="Logo">
-                <div class="header-text">
-                    <h1>Centro de Capacitación</h1>
-                    <h2>Informe Oficial de ${tipo === 'notas' ? 'Calificaciones' : 'Asistencia'}</h2>
+            <div class="no-print-bar">
+                <h3>📄 Vista Previa de Documento</h3>
+                <div class="action-btns">
+                    <button class="btn-pv btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+                    <button class="btn-pv btn-close" onclick="window.close()">❌ Cerrar</button>
                 </div>
             </div>
-            <div class="info-box">
-                <div class="info-item"><strong>Curso</strong><span>${cursoNombre}</span></div>
-                <div class="info-item"><strong>Docente</strong><span>${cursoInfo.docente}</span></div>
-                <div class="info-item"><strong>Periodo</strong><span>${cursoInfo.mesInicio} - ${cursoInfo.mesTermino}</span></div>
-                <div class="info-item"><strong>Horario</strong><span>${cursoInfo.horario}</span></div>
+
+            <div class="page-container">
+                <div class="header">
+                    <img src="${window.location.origin}/logo.png" alt="Logo" onerror="this.style.display='none'">
+                    <div class="header-text">
+                        <h1>Centro de Capacitación</h1>
+                        <h2>Informe Oficial de ${tipo === 'notas' ? 'Calificaciones' : 'Asistencia'}</h2>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <div class="info-item"><strong>Curso</strong><span>${cursoNombre}</span></div>
+                    <div class="info-item"><strong>Docente</strong><span>${cursoInfo.docente}</span></div>
+                    <div class="info-item"><strong>Periodo</strong><span>${cursoInfo.mesInicio} - ${cursoInfo.mesTermino}</span></div>
+                    <div class="info-item"><strong>Horario</strong><span>${cursoInfo.horario}</span></div>
+                </div>
+                ${tableHTML}
+                <div class="footer">Documento oficial - Sistema de Gestión Académica - ${new Date().toLocaleDateString('es-CL')}</div>
             </div>
-            ${tableHTML}
-            <div class="footer">Documento oficial - Sistema de Gestión Académica - ${new Date().toLocaleDateString('es-CL')}</div>
-            <script>window.onload = function() { setTimeout(() => { window.print(); window.close(); }, 500); };</script>
         </body>
         </html>
     `);
