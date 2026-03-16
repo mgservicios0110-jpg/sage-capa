@@ -1,4 +1,6 @@
-const CACHE_NAME = 'capa-limache-v1';
+// CADA VEZ QUE HAGAS CAMBIOS GRANDES, CAMBIA ESTE NÚMERO (v2, v3, v4...)
+const CACHE_NAME = 'capa-limache-v2'; 
+
 const urlsToCache = [
   './',
   './index.html',
@@ -7,24 +9,39 @@ const urlsToCache = [
   './logo.png'
 ];
 
-// Instalar el Service Worker y guardar en caché los archivos principales
+// Instala el nuevo Service Worker
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Archivos en caché');
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting(); // Fuerza a que se active de inmediato
 });
 
-// Interceptar las peticiones para cargar más rápido
+// Borra la memoria caché vieja (v1) para hacer espacio a la nueva (v2)
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            console.log('Borrando caché antigua:', cache);
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim(); // Toma el control de la pantalla al instante
+});
+
+// Estrategia: Buscar en Internet primero, si falla, usar la Caché
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Si el archivo está en caché, lo devuelve. Si no, lo descarga de internet.
-        return response || fetch(event.request);
-      })
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
   );
 });
