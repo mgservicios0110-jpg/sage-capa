@@ -91,7 +91,7 @@ function normalizeString(str) {
 // AUTH & NAVEGACIÓN A PRUEBA DE FALLOS
 // ==========================================
 async function handleLogin(event) {
-    if (event) event.preventDefault(); // Detiene la recarga de página en móviles
+    if (event) event.preventDefault();
     
     const user = document.getElementById('l-user').value.trim(); const pass = document.getElementById('l-pass').value;
     if (!user || !pass) return showToast('Complete los campos', 'error');
@@ -123,7 +123,6 @@ auth.onAuthStateChanged(async (user) => {
             const roleExpected = document.getElementById('selected-role-hidden').value;
             const dbRol = (userProfile.rol || '').toLowerCase();
             
-            // Validación de roles flexible
             if (roleExpected && !dbRol.includes(roleExpected)) {
                 showToast('Estás entrando al portal equivocado para tu rol.', 'error');
                 await auth.signOut(); 
@@ -131,13 +130,11 @@ auth.onAuthStateChanged(async (user) => {
                 return;
             }
             
-            // MOSTRAR LA APP INMEDIATAMENTE (Evita que el usuario crea que lo botó)
             document.getElementById('login-screen').style.display = 'none'; 
             document.getElementById('app').style.display = 'block';
 
             configureUIForRole(); 
             
-            // Cargar datos en paralelo, si falla no cierra la sesión
             loadInitialData().catch(err => {
                 console.error("Error cargando datos:", err);
                 showToast('Cargando datos con conexión limitada.', 'warning');
@@ -154,7 +151,6 @@ auth.onAuthStateChanged(async (user) => {
             
         } catch (error) { 
             console.error("Error iniciando sesión: ", error);
-            // NO se hace auth.signOut() aquí. Mantenemos al usuario adentro.
             showToast('Problemas conectando con el servidor. Revisa tu internet.', 'error');
         }
     } else {
@@ -201,7 +197,6 @@ function nav(pageId, element) {
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (element) element.classList.add('active');
 
-    // Cierra el menú al hacer clic en móvil
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('mobile-overlay');
     if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
@@ -228,7 +223,7 @@ async function loadInitialData() {
 }
 
 // ==========================================
-// MOTOR MAESTRO DE CURSOS (PROTEGIDO CONTRA CRASHES)
+// MOTOR MAESTRO DE CURSOS
 // ==========================================
 async function syncGlobalCourses() {
     let coursesNamesSet = new Set();
@@ -342,9 +337,26 @@ function renderStaffDashboard() {
                 </div>`; 
         });
         document.getElementById('stat-total-cursos').textContent = globalCoursesData.length;
+        
+        // Conteo Dinámico por Rol
         db.collection('alumnos').get().then(s => {
             const el = document.getElementById('stat-total-alumnos');
-            if(el) el.textContent = s.size;
+            if(!el) return;
+
+            if (userProfile.rol.toLowerCase().includes('admin')) {
+                el.textContent = s.size; 
+            } else {
+                let misAlumnosCount = 0;
+                const misCursosNorm = globalCourses.map(c => normalizeString(c));
+                
+                s.forEach(doc => {
+                    const cursoAlumno = normalizeString(doc.data().curso);
+                    if (misCursosNorm.includes(cursoAlumno)) {
+                        misAlumnosCount++;
+                    }
+                });
+                el.textContent = misAlumnosCount;
+            }
         }).catch(e => console.warn("Permiso denegado al contar alumnos", e));
     }
 }
@@ -552,7 +564,7 @@ function renderStudentDashboard() {
 }
 
 // ==========================================
-// COMUNICACIONES CON PRIVACIDAD ABSOLUTA
+// COMUNICACIONES
 // ==========================================
 function loadMessages(isAlumno) {
     const comboDest = document.getElementById('obs-destinatario');
@@ -736,9 +748,23 @@ async function renderAttendanceList() {
         const e = map[al.id];
         if(e==='Presente') p++; if(e==='Ausente') a++; if(e==='Justificado') j++;
         
-        const delBtn = isAdmin ? `<button onclick="eliminarAlumno('${al.id}', '${al.nombre}')" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:10px; font-size:1.1rem;" title="Eliminar Alumno Definitivamente"><i class="fas fa-user-times"></i></button>` : '';
+        const delBtn = isAdmin ? `<button onclick="eliminarAlumno('${al.id}', '${al.nombre}')" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:15px; font-size:1.1rem;" title="Eliminar Alumno Definitivamente"><i class="fas fa-user-times"></i></button>` : '';
         
-        html += `<tr><td><b>${al.nombre}</b> ${delBtn}</td><td style="text-align:right;">
+        // Lógica de Matrícula (Moroso/Al Día)
+        const pagado = al.pagoMatricula === true; 
+        let matriculaBadge = '';
+        
+        if (isAdmin) {
+            matriculaBadge = `<button onclick="toggleMatricula('${al.id}', ${pagado})" style="border:none; background:none; cursor:pointer; margin-left:10px; font-size:0.8rem; vertical-align:middle;" title="Clic para cambiar estado de pago">
+                ${pagado ? '<span class="badge-msg badge-material"><i class="fas fa-check-circle"></i> Al Día</span>' : '<span class="badge-msg badge-urgent"><i class="fas fa-times-circle"></i> Moroso</span>'}
+            </button>`;
+        } else {
+            matriculaBadge = `<span style="margin-left:10px; font-size:0.8rem; vertical-align:middle;" title="Estado de pago de matrícula">
+                ${pagado ? '<span class="badge-msg badge-material"><i class="fas fa-check-circle"></i> Al Día</span>' : '<span class="badge-msg badge-urgent"><i class="fas fa-times-circle"></i> Moroso</span>'}
+            </span>`;
+        }
+
+        html += `<tr><td><b style="vertical-align:middle;">${al.nombre}</b> ${matriculaBadge} ${delBtn}</td><td style="text-align:right;">
             <div style="display:flex; gap:10px; justify-content:flex-end;">
                 <button onclick="setAsist('${al.id}','Presente')" class="btn-mini-asist p ${e==='Presente'?'active':''}" title="Presente">P</button>
                 <button onclick="setAsist('${al.id}','Ausente')" class="btn-mini-asist a ${e==='Ausente'?'active':''}" title="Ausente">A</button>
@@ -925,12 +951,10 @@ async function generarReporteOficial(tipo) {
         tableHTML += '</tbody></table>';
     }
 
-    // Obtenemos la ruta absoluta de tu servidor para el logo
     const currentPath = window.location.href.split('?')[0].split('#')[0];
     const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
     const logoUrl = basePath + '/logo.png';
 
-    // ABRIMOS LA VENTA DE VISTA PREVIA RESPONSIVA (DISEÑO INTACTO)
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -942,7 +966,6 @@ async function generarReporteOficial(tipo) {
             <style>
                 body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 0; background: #e2e8f0; }
                 
-                /* BARRA DE CONTROLES NO IMPRIMIBLE */
                 .no-print-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 10px;}
                 .no-print-bar h3 { margin: 0; color: white; font-size: 1.1rem; }
                 .action-btns { display: flex; gap: 10px; flex-wrap: wrap;}
@@ -952,10 +975,8 @@ async function generarReporteOficial(tipo) {
                 .btn-close { background: #ef4444; color: white; }
                 .btn-close:hover { background: #dc2626; }
 
-                /* HOJA DE REPORTE */
                 .page-container { background: white; max-width: 900px; margin: 30px auto; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; }
                 
-                /* ESTILOS INTERNOS DEL REPORTE */
                 .header { display: flex; align-items: center; border-bottom: 3px solid #00a89d; padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
                 .header img { height: 70px; object-fit: contain; }
                 .header-text h1 { margin: 0; color: #002855; font-size: 22px; text-transform: uppercase; }
@@ -971,7 +992,6 @@ async function generarReporteOficial(tipo) {
                 tr:nth-child(even) { background-color: #f8fafc; }
                 .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 20px; }
 
-                /* RESPONSIVO PARA CELULARES Y TABLETS EN PANTALLA */
                 @media (max-width: 768px) {
                     .page-container { margin: 10px; padding: 20px; }
                     .header img { height: 50px; }
@@ -979,7 +999,6 @@ async function generarReporteOficial(tipo) {
                     th, td { font-size: 12px; padding: 8px; }
                 }
 
-                /* ESTILOS ESPECÍFICOS PARA LA IMPRESIÓN (PDF o FÍSICO) */
                 @media print {
                     .no-print-bar { display: none !important; }
                     body { background: white; }
@@ -1053,16 +1072,59 @@ function loadBitacora() {
 }
 
 function loadAdminData() {
-    db.collection('usuarios').where('rol', '==', 'profesor').onSnapshot(snap => {
-        const c = document.getElementById('admin-docentes-list'); if(!c) return; c.innerHTML = '';
-        snap.forEach(doc => {
-            const p = doc.data(); const cTxt = p.cursos ? p.cursos.join(', ') : 'Ninguno';
-            c.innerHTML += `<div class="admin-prof-card"><div class="prof-info"><h4><i class="fas fa-chalkboard-teacher"></i> ${p.nombre}</h4><p>Cursos: ${cTxt}</p></div>
-                <div class="admin-actions">
-                    <button onclick="agregarNuevoCursoExistente('${doc.id}', '${p.nombre}')" class="btn-outline-teal" title="Añadir curso"><i class="fas fa-plus"></i></button>
-                    <button onclick="eliminarDocente('${doc.id}', '${p.nombre}')" class="btn-outline-danger" title="Retirar docente"><i class="fas fa-trash"></i></button>
-                </div></div>`;
+    db.collection('usuarios').onSnapshot(snap => {
+        const tablaDirectorio = document.getElementById('admin-users-table'); 
+        const listaDocentes = document.getElementById('admin-docentes-list');
+        
+        let htmlTabla = '<table class="edu-table" style="font-size:0.85rem;"><thead><tr><th>Nombre</th><th>Rol</th><th>Usuario (Login)</th><th>Clave</th><th>Cursos</th><th>Acciones</th></tr></thead><tbody>';
+        let htmlDocentes = '';
+        
+        let users = [];
+        snap.forEach(doc => users.push({id: doc.id, ...doc.data()}));
+        
+        // Ordenar alfabéticamente
+        users.sort((a,b) => (a.nombre || '').localeCompare(b.nombre || '')).forEach(u => {
+            const cTxt = u.cursos && u.cursos.length > 0 ? u.cursos.join(', ') : 'Ninguno';
+            const rolBadge = u.rol === 'admin' ? '<span class="badge-msg badge-urgent">Admin</span>' : (u.rol === 'profesor' ? '<span class="badge-msg badge-info">Profesor</span>' : '<span class="badge-msg badge-material">Alumno</span>');
+            
+            // --- 1. LÓGICA PARA LA TABLA DEL DIRECTORIO GENERAL ---
+            let actions = `<button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', '${u.rol}')" class="btn-outline-danger" style="padding:6px 10px;" title="Eliminar y Revocar Acceso"><i class="fas fa-trash"></i></button>`;
+            
+            if(u.rol === 'profesor') {
+                actions = `<button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-teal" style="padding:6px 10px; margin-right:5px;" title="Añadir curso"><i class="fas fa-plus"></i></button>` + actions;
+            }
+
+            htmlTabla += `<tr>
+                <td><b>${u.nombre}</b></td>
+                <td>${rolBadge}</td>
+                <td><b style="color:var(--c-blue-accent);">${u.usuario}</b></td>
+                <td><code style="background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; font-weight:bold;">${u.clave || 'No guardada'}</code></td>
+                <td>${cTxt}</td>
+                <td style="white-space: nowrap;">${actions}</td>
+            </tr>`;
+
+            // --- 2. LÓGICA PARA LAS TARJETAS DE PROFESORES ACTIVOS ---
+            if (u.rol === 'profesor') {
+                htmlDocentes += `<div class="admin-prof-card">
+                    <div class="prof-info">
+                        <h4><i class="fas fa-chalkboard-teacher"></i> ${u.nombre}</h4>
+                        <p>Cursos: ${cTxt}</p>
+                    </div>
+                    <div class="admin-actions">
+                        <button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-teal" title="Añadir curso"><i class="fas fa-plus"></i></button>
+                        <button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', 'profesor')" class="btn-outline-danger" title="Retirar docente"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            }
         });
+        
+        htmlTabla += '</tbody></table>';
+        
+        // Inyectamos el HTML en ambas secciones
+        if (tablaDirectorio) tablaDirectorio.innerHTML = htmlTabla;
+        if (listaDocentes) {
+            listaDocentes.innerHTML = htmlDocentes === '' ? '<p class="text-muted">No hay docentes registrados.</p>' : htmlDocentes;
+        }
     });
 }
 
@@ -1151,4 +1213,20 @@ async function bulkUpload() {
     
     showToast(count + ' alumnos matriculados con cuentas web', 'success'); 
     document.getElementById('bulk-list').value = '';
+}
+
+// ==========================================
+// ESTADO DE MATRÍCULA (ADMIN)
+// ==========================================
+async function toggleMatricula(alumnoId, estadoActual) {
+    try {
+        await db.collection('alumnos').doc(alumnoId).update({
+            pagoMatricula: !estadoActual 
+        });
+        showToast(estadoActual ? 'Alumno marcado como Moroso' : 'Matrícula marcada al día', 'success');
+        renderAttendanceList(); 
+    } catch(e) {
+        console.error(e);
+        showToast('Error al actualizar estado', 'error');
+    }
 }

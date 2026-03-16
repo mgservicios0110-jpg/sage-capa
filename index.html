@@ -13,7 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=4">
     <link rel="manifest" href="manifest.json">
 </head>
 
@@ -352,23 +352,15 @@
                         </div>
                         <div class="p-3">
                             <p class="text-muted text-sm mb-3">Genera informes formales listos para imprimir o descargar
-                                en PDF. <b>El reporte se generará en base al curso que tengas fijado en la pestaña
-                                    Inicio.</b></p>
-                            <div id="empty-reportes" class="locked-course-notice error mb-3"><i
-                                    class="fas fa-exclamation-triangle"></i> Fije un curso en la pestaña "Inicio" para
-                                generar su reporte.</div>
+                                en PDF. <b>El reporte se generará en base al curso que tengas fijado en la pestaña Inicio.</b></p>
+                            <div id="empty-reportes" class="locked-course-notice error mb-3"><i class="fas fa-exclamation-triangle"></i> Fije un curso en la pestaña "Inicio" para generar su reporte.</div>
                             <div id="content-reportes" class="hidden">
                                 <div class="form-group mb-0"><label>Curso a Reportar:</label>
-                                    <div class="form-control bg-light-gray display-active-course"
-                                        style="font-weight:900; cursor:not-allowed; color:var(--c-magenta);"></div>
+                                    <div class="form-control bg-light-gray display-active-course" style="font-weight:900; cursor:not-allowed; color:var(--c-magenta);"></div>
                                 </div>
                                 <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
-                                    <button class="btn-accent w-100" style="flex:1; background:var(--c-teal);"
-                                        onclick="generarReporteOficial('notas')"><i class="fas fa-star"></i> Informe de
-                                        Calificaciones</button>
-                                    <button class="btn-accent w-100" style="flex:1; background:var(--c-orange);"
-                                        onclick="generarReporteOficial('asistencia')"><i
-                                            class="fas fa-calendar-check"></i> Informe de Asistencia</button>
+                                    <button class="btn-accent w-100" style="flex:1; background:var(--c-teal);" onclick="generarReporteOficial('notas')"><i class="fas fa-star"></i> Informe de Calificaciones</button>
+                                    <button class="btn-accent w-100" style="flex:1; background:var(--c-orange);" onclick="generarReporteOficial('asistencia')"><i class="fas fa-calendar-check"></i> Informe de Asistencia</button>
                                 </div>
                             </div>
                         </div>
@@ -381,10 +373,8 @@
                         <div class="split-layout p-3">
                             <div>
                                 <h4 style="margin-bottom:15px; color:var(--c-dark);">Crear Nuevo Curso</h4>
-                                <div class="form-group"><label>Nombre del Curso</label><input type="text" id="c-nombre"
-                                        class="form-control" placeholder="Ej: Armado y Desarmado de Computadores"></div>
-                                <div class="form-group"><label>Docente a cargo</label><input type="text" id="c-docente"
-                                        class="form-control" placeholder="Ej: Mauricio Galaz"></div>
+                                <div class="form-group"><label>Nombre del Curso</label><input type="text" id="c-nombre" class="form-control" placeholder="Ej: Armado y Desarmado de Computadores"></div>
+                                <div class="form-group"><label>Docente a cargo</label><input type="text" id="c-docente" class="form-control" placeholder="Ej: Mauricio Galaz"></div>
                                 <div class="form-group">
                                     <label>Jornada</label>
                                     <select id="c-jornada" class="form-control">
@@ -394,113 +384,89 @@
                                     </select>
                                 </div>
                                 <div class="controls-row">
-                                    <div class="form-group"><label>Mes Inicio</label><input type="text" id="c-inicio"
-                                            class="form-control" placeholder="Ej: Marzo"></div>
-                                    <div class="form-group"><label>Mes Término</label><input type="text" id="c-fin"
-                                            class="form-control" placeholder="Ej: Julio"></div>
+                                    <div class="form-group"><label>Mes Inicio</label><input type="text" id="c-inicio" class="form-control" placeholder="Ej: Marzo"></div>
+                                    <div class="form-group"><label>Mes Término</label><input type="text" id="c-fin" class="form-control" placeholder="Ej: Julio"></div>
                                 </div>
                                 <div class="controls-row">
-                                    <div class="form-group"><label>Duración (Horas)</label><input type="text"
-                                            id="c-duracion" class="form-control" placeholder="Ej: 40 hrs"></div>
-                                    <div class="form-group"><label>Días y Horarios</label><input type="text"
-                                            id="c-horario" class="form-control"
-                                            placeholder="Ej: Lun y Mie 18:00 a 20:00"></div>
+                                    <div class="form-group"><label>Duración (Horas)</label><input type="text" id="c-duracion" class="form-control" placeholder="Ej: 40 hrs"></div>
+                                    <div class="form-group"><label>Días y Horarios</label><input type="text" id="c-horario" class="form-control" placeholder="Ej: Lun y Mie 18:00 a 20:00"></div>
                                 </div>
-                                <button class="btn-accent w-100" style="background:var(--c-teal);"
-                                    onclick="crearCursoOficial()"><i class="fas fa-plus"></i> Guardar Curso
-                                    Oficial</button>
+                                <button class="btn-accent w-100" style="background:var(--c-teal);" onclick="crearCursoOficial()"><i class="fas fa-plus"></i> Guardar Curso Oficial</button>
                             </div>
                             <div class="border-left-desktop">
                                 <h4 style="margin-bottom:15px; color:var(--c-dark);">Cursos Activos (Base de Datos)</h4>
-                                <div id="admin-cursos-oficiales-list"
-                                    style="max-height: 450px; overflow-y:auto; padding-right:10px;"></div>
+                                <div id="admin-cursos-oficiales-list" style="max-height: 450px; overflow-y:auto; padding-right:10px;"></div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="split-layout">
-                        <div class="white-card">
-                            <div class="card-header-styled bg-dark">
-                                <h3><i class="fas fa-users-cog"></i> Personal Docente Activo</h3>
+                    <div class="white-card mb-4">
+                        <div class="card-header-styled bg-dark">
+                            <h3><i class="fas fa-users-cog"></i> Personal Docente Activo</h3>
+                        </div>
+                        <div id="admin-docentes-list" class="p-3 admin-cards-container">
                             </div>
-                            <div id="admin-docentes-list" class="p-3 admin-cards-container"></div>
+                    </div>
 
-                            <div class="card-header-styled bg-blue mt-4" style="border-radius: 12px 12px 0 0;">
-                                <h3><i class="fas fa-user-plus"></i> Crear Perfil Manual</h3>
-                            </div>
-                            <div class="p-3 border-container" style="border-radius: 0 0 12px 12px;">
-                                <div class="form-group"><label>Rol</label>
-                                    <select id="adm-nuevo-rol" class="form-control"
-                                        onchange="toggleNewCourseVisibility()">
-                                        <option value="profesor">Profesor (Docente)</option>
+                    <div class="white-card mb-4">
+                        <div class="card-header-styled bg-blue">
+                            <h3><i class="fas fa-user-plus"></i> Registro Único de Usuarios</h3>
+                        </div>
+                        <div class="p-4 bg-light-gray" style="border-bottom: 1px solid var(--border-light);">
+                            <div class="controls-row">
+                                <div class="form-group"><label>Rol del Usuario</label>
+                                    <select id="adm-nuevo-rol" class="form-control" onchange="toggleNewCourseVisibility()">
                                         <option value="alumno">Alumno (Estudiante)</option>
+                                        <option value="profesor">Profesor (Docente)</option>
                                         <option value="admin">Administrador (Dirección)</option>
                                     </select>
                                 </div>
-                                <div class="form-group"><label>Nombre Completo</label><input type="text"
-                                        id="adm-prof-name" class="form-control"></div>
-                                <div class="form-group"><label>Usuario / Correo</label><input type="text"
-                                        id="adm-prof-user" class="form-control"></div>
-                                <div class="form-group"><label>Contraseña</label><input type="password"
-                                        id="adm-prof-pass" class="form-control"></div>
+                                <div class="form-group"><label>Nombre Completo</label><input type="text" id="adm-prof-name" class="form-control" placeholder="Ej: Juan Pérez"></div>
+                            </div>
+                            
+                            <div class="controls-row">
+                                <div class="form-group"><label>Usuario o Correo (Para Iniciar Sesión)</label><input type="text" id="adm-prof-user" class="form-control" placeholder="Ej: jperez"></div>
+                                <div class="form-group"><label>Contraseña Asignada</label><input type="text" id="adm-prof-pass" class="form-control" placeholder="Mínimo 6 caracteres"></div>
+                            </div>
 
-                                <div class="form-group" id="container-asignar-curso">
-                                    <label>Asignar a Curso</label>
-                                    <select id="adm-prof-curso-select" class="form-control"
-                                        onchange="toggleManualCourseInput()"></select>
-                                    <input type="text" id="adm-prof-nuevo-curso" class="form-control hidden mt-2"
-                                        placeholder="Escriba el nombre del nuevo curso">
-                                </div>
+                            <div class="form-group" id="container-asignar-curso">
+                                <label>Asignar a Curso Inicial</label>
+                                <select id="adm-prof-curso-select" class="form-control" onchange="toggleManualCourseInput()"></select>
+                                <input type="text" id="adm-prof-nuevo-curso" class="form-control hidden mt-2" placeholder="Escriba el nombre del nuevo curso">
+                            </div>
 
-                                <button class="btn-accent w-100 mt-2" onclick="registerUserSystem()"><i
-                                        class="fas fa-check"></i> Registrar en Sistema</button>
-                            </div>
-                        </div>
-                        <div class="white-card h-fit-content">
-                            <div class="card-header-styled bg-orange">
-                                <h3><i class="fas fa-file-import"></i> Matrícula Masiva (Alumnos)</h3>
-                            </div>
-                            <div class="p-3">
-                                <p class="text-sm text-muted mb-3"
-                                    style="background:#fffbeb; padding:10px; border-radius:8px; border:1px solid #fde68a;">
-                                    <i class="fas fa-info-circle"></i> Se crearán cuentas web reales para cada alumno en
-                                    la lista.<br>
-                                    <b>Usuario auto-generado:</b> nombre.apellido@capa.local<br>
-                                    <b>Clave por defecto:</b> capa2026
-                                </p>
-                                <div class="form-group"><label>Curso Destino (El que tengas fijado)</label>
-                                    <div class="form-control bg-light-gray display-active-course"
-                                        style="font-weight:800; cursor:not-allowed; color:var(--c-orange);">Ninguno
-                                        Fijado</div>
-                                </div>
-                                <div class="form-group mt-3"><label>Lista de Nombres (1 por línea)</label><textarea
-                                        id="bulk-list" class="form-control" rows="10"
-                                        placeholder="Ej: Juan Perez&#10;Maria Gonzalez"></textarea></div>
-                                <button class="btn-accent w-100" style="background: var(--c-orange);"
-                                    onclick="bulkUpload()"><i class="fas fa-users"></i> Procesar Matrículas</button>
-                            </div>
+                            <button class="btn-accent w-100 mt-3" onclick="registerUserSystem()"><i class="fas fa-check"></i> Crear Usuario en el Sistema</button>
                         </div>
                     </div>
+
+                    <div class="white-card">
+                        <div class="card-header-styled bg-dark">
+                            <h3><i class="fas fa-users-cog"></i> Directorio General (Gestión y Claves)</h3>
+                        </div>
+                        <div id="admin-users-table" class="table-responsive p-3" style="max-height: 600px; overflow-y: auto;">
+                            </div>
+                    </div>
+
                 </section>
+                
                 <footer class="modern-footer">
                     <div class="footer-content">
-                        <p>&copy; 2026 Diseñado por <strong>mgservicios</strong> <br> Todos los derechos reservados.</p>
+                        <p>&copy; 2026 Diseñado por <strong>mgservicios</strong> | Todos los derechos reservados.</p>
                         <div class="footer-contact-info">
                             <span><i class="fas fa-map-marker-alt" style="color: var(--danger);"></i> Chile</span>
                             <span class="footer-divider">•</span>
                             <span>
-                                <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> Contacto:
+                                <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> Contacto: 
                                 <a href="https://wa.me/56998797596" target="_blank">+56 9 98797596</a>
                             </span>
                         </div>
                     </div>
                 </footer>
+
             </div>
         </main>
     </div>
 
-    <link rel="stylesheet" href="styles.css?v=2">
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=4"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

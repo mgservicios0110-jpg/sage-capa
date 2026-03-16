@@ -247,6 +247,7 @@ body { background: var(--bg-main); color: var(--text-main); }
     .controls-row > * { min-width: 100%; }
     .pastel-card { padding: 1.5rem 1rem; }
 }
+
 /* =========================================
     AJUSTE DE LOGO GRANDE Y RESPONSIVO
    ========================================= */
@@ -262,6 +263,7 @@ body { background: var(--bg-main); color: var(--text-main); }
         height: 55px !important; /* Tamaño ajustado para Celulares (no rompe el menú) */
     }
 }
+
 /* =========================================
     FOOTER MODERNO MGSERVICIOS (CENTRADO)
    ========================================= */

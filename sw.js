@@ -1,11 +1,11 @@
-// CADA VEZ QUE HAGAS CAMBIOS GRANDES, CAMBIA ESTE NÚMERO (v2, v3, v4...)
-const CACHE_NAME = 'capa-limache-v2'; 
+// CADA VEZ QUE HAGAS CAMBIOS GRANDES, CAMBIA ESTE NÚMERO (v3, v4, v5...)
+const CACHE_NAME = 'capa-limache-v3'; 
 
 const urlsToCache = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
+  './styles.css?v=3',
+  './app.js?v=3',
   './logo.png'
 ];
 
@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
   self.skipWaiting(); // Fuerza a que se active de inmediato
 });
 
-// Borra la memoria caché vieja (v1) para hacer espacio a la nueva (v2)
+// Borra la memoria caché vieja para hacer espacio a la nueva
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
