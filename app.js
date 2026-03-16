@@ -1098,8 +1098,9 @@ function loadAdminData() {
                 <td><b>${u.nombre}</b></td>
                 <td>${rolBadge}</td>
                 <td><b style="color:var(--c-blue-accent);">${u.usuario}</b></td>
-                <td><code style="background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; font-weight:bold;">${u.clave || 'No guardada'}</code></td>
-                <td>${cTxt}</td>
+                <td>
+                    ${u.clave ? `<code style="background:#e6f4ea; color:#1e8e3e; padding:4px 8px; border-radius:4px; border:1px solid #1e8e3e; font-weight:bold;">${u.clave}</code>` : `<span style="font-size:0.75rem; color:var(--danger); font-weight:bold;"><i class="fas fa-lock"></i> Bloqueada (Borrar y recrear usuario)</span>`}
+                </td>
                 <td style="white-space: nowrap;">${actions}</td>
             </tr>`;
 
@@ -1228,5 +1229,24 @@ async function toggleMatricula(alumnoId, estadoActual) {
     } catch(e) {
         console.error(e);
         showToast('Error al actualizar estado', 'error');
+    }
+}
+// ==========================================
+// LIMPIAR HISTORIAL DE BITÁCORA (ADMIN)
+// ==========================================
+async function limpiarHistorialBitacora() {
+    if (!lockedCourse) return showToast('Fije un curso en Inicio primero.', 'warning');
+    
+    if (await promptActionCustom('Limpiar Historial', `¿Estás seguro de borrar TODO el historial de la bitácora del curso "${lockedCourse}"? Esta acción no se puede deshacer.`)) {
+        try {
+            const snap = await db.collection('bitacoras').where('curso', '==', lockedCourse).get();
+            const batch = db.batch();
+            snap.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            showToast('Historial borrado exitosamente.', 'success');
+        } catch(e) {
+            console.error(e);
+            showToast('Error al borrar el historial.', 'error');
+        }
     }
 }

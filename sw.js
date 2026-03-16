@@ -1,11 +1,11 @@
 // CADA VEZ QUE HAGAS CAMBIOS GRANDES, CAMBIA ESTE NÚMERO (v3, v4, v5...)
-const CACHE_NAME = 'capa-limache-v3'; 
+const CACHE_NAME = 'capa-limache-v5'; 
 
 const urlsToCache = [
   './',
   './index.html',
-  './styles.css?v=3',
-  './app.js?v=3',
+  './styles.css?v=5',
+  './app.js?v=5',
   './logo.png'
 ];
 
