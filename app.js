@@ -8,7 +8,7 @@ const firebaseConfig = {
     appId: "1:173615478102:web:f711d94b4942ea926352f7"
 };
 
-// Evitar crasheo al inicializar apps múltiples (muy común en WebViews/APK)
+// Evitar crasheo al inicializar apps múltiples
 if (!firebase.apps.length) { 
     firebase.initializeApp(firebaseConfig); 
 }
@@ -564,7 +564,7 @@ function renderStudentDashboard() {
 }
 
 // ==========================================
-// COMUNICACIONES
+// COMUNICACIONES CON PRIVACIDAD
 // ==========================================
 function loadMessages(isAlumno) {
     const comboDest = document.getElementById('obs-destinatario');
@@ -581,29 +581,24 @@ function loadMessages(isAlumno) {
             comboDest.innerHTML = '';
             if (!isAlumno) comboDest.innerHTML += '<option value="todos">📢 A Todos los Usuarios</option>';
             
-            // Extraer los cursos del estudiante actual (normalizados para evitar errores de mayúsculas/tildes)
+            // Extraer los cursos del estudiante actual (normalizados)
             const misCursosNorm = (userProfile.cursos || []).map(c => normalizeString(c));
             
             uSnap.forEach(u => {
                 const data = u.data();
                 if (u.id !== userProfile.uid) { 
                     if (isAlumno) {
-                        // Si es Administrador, SIEMPRE lo mostramos
                         if (data.rol.toLowerCase().includes('admin')) {
                             comboDest.innerHTML += `<option value="${u.id}">🛡️ Dirección (${data.nombre})</option>`;
                         } 
-                        // Si es Profesor, revisamos si comparten algún curso
                         else if (data.rol.toLowerCase() === 'profesor') {
                             const profeCursosNorm = (data.cursos || []).map(c => normalizeString(c));
-                            // Verifica si hay al menos un curso en común
                             const compartenCurso = profeCursosNorm.some(c => misCursosNorm.includes(c));
-                            
                             if (compartenCurso) {
                                 comboDest.innerHTML += `<option value="${u.id}">👨‍🏫 Profesor: ${data.nombre}</option>`;
                             }
                         }
                     } else {
-                        // Para Profesores y Admins, mostramos a todos
                         let icon = '👤'; if (data.rol === 'alumno') icon = '🎓'; if (data.rol === 'profesor') icon = '👨‍🏫'; if (data.rol.toLowerCase().includes('admin')) icon = '🛡️';
                         comboDest.innerHTML += `<option value="${u.id}">${icon} ${data.nombre} (${data.rol.toUpperCase()})</option>`;
                     }
@@ -1084,166 +1079,6 @@ function loadBitacora() {
     });
 }
 
-function loadAdminData() {
-    db.collection('usuarios').onSnapshot(snap => {
-        const tablaDirectorio = document.getElementById('admin-users-table'); 
-        const listaDocentes = document.getElementById('admin-docentes-list');
-        
-        let htmlTabla = '<table class="edu-table" style="font-size:0.85rem;"><thead><tr><th>Nombre</th><th>Rol</th><th>Usuario (Login)</th><th>Clave</th><th>Cursos</th><th>Acciones</th></tr></thead><tbody>';
-        let htmlDocentes = '';
-        
-        let users = [];
-        snap.forEach(doc => users.push({id: doc.id, ...doc.data()}));
-        
-        // Ordenar alfabéticamente
-        users.sort((a,b) => (a.nombre || '').localeCompare(b.nombre || '')).forEach(u => {
-            const cTxt = u.cursos && u.cursos.length > 0 ? u.cursos.join(', ') : 'Ninguno';
-            const rolBadge = u.rol === 'admin' ? '<span class="badge-msg badge-urgent">Admin</span>' : (u.rol === 'profesor' ? '<span class="badge-msg badge-info">Profesor</span>' : '<span class="badge-msg badge-material">Alumno</span>');
-            
-            // --- 1. LÓGICA PARA LA TABLA DEL DIRECTORIO GENERAL ---
-            let actions = `<button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', '${u.rol}')" class="btn-outline-danger" style="padding:6px 10px;" title="Eliminar y Revocar Acceso"><i class="fas fa-trash"></i></button>`;
-            
-            if(u.rol === 'profesor') {
-                actions = `<button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-teal" style="padding:6px 10px; margin-right:5px;" title="Añadir curso"><i class="fas fa-plus"></i></button>` + actions;
-            }
-
-            htmlTabla += `<tr>
-                <td><b>${u.nombre}</b></td>
-                <td>${rolBadge}</td>
-                <td><b style="color:var(--c-blue-accent);">${u.usuario}</b></td>
-                <td>
-                    ${u.clave ? `<code style="background:#e6f4ea; color:#1e8e3e; padding:4px 8px; border-radius:4px; border:1px solid #1e8e3e; font-weight:bold;">${u.clave}</code>` : `<span style="font-size:0.75rem; color:var(--danger); font-weight:bold;"><i class="fas fa-lock"></i> Bloqueada (Borrar y recrear usuario)</span>`}
-                </td>
-                <td style="white-space: nowrap;">${actions}</td>
-            </tr>`;
-
-            // --- 2. LÓGICA PARA LAS TARJETAS DE PROFESORES ACTIVOS ---
-            if (u.rol === 'profesor') {
-                htmlDocentes += `<div class="admin-prof-card">
-                    <div class="prof-info">
-                        <h4><i class="fas fa-chalkboard-teacher"></i> ${u.nombre}</h4>
-                        <p>Cursos: ${cTxt}</p>
-                    </div>
-                    <div class="admin-actions">
-                        <button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-teal" title="Añadir curso"><i class="fas fa-plus"></i></button>
-                        <button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', 'profesor')" class="btn-outline-danger" title="Retirar docente"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
-            }
-        });
-        
-        htmlTabla += '</tbody></table>';
-        
-        // Inyectamos el HTML en ambas secciones
-        if (tablaDirectorio) tablaDirectorio.innerHTML = htmlTabla;
-        if (listaDocentes) {
-            listaDocentes.innerHTML = htmlDocentes === '' ? '<p class="text-muted">No hay docentes registrados.</p>' : htmlDocentes;
-        }
-    });
-}
-
-async function agregarNuevoCursoExistente(docId, nombreProfe) {
-    const c = await promptActionCustom('Añadir Curso', `Escribe el curso para ${nombreProfe}:`, true, 'Ej: Excel Básico');
-    if (c) { 
-        await db.collection('usuarios').doc(docId).update({ cursos: firebase.firestore.FieldValue.arrayUnion(c.trim()) }); 
-        showToast('Curso añadido');
-        if(userProfile.rol.toLowerCase().includes('admin')) syncGlobalCourses();
-    }
-}
-
-async function eliminarDocente(docId, nombreProfe) {
-    if(await promptActionCustom('Retirar Docente', `¿Eliminar a ${nombreProfe} permanentemente?`)) { await db.collection('usuarios').doc(docId).delete(); showToast('Eliminado'); }
-}
-
-async function registerUserSystem() {
-    const rol = document.getElementById('adm-nuevo-rol').value; 
-    const nombre = document.getElementById('adm-prof-name').value.trim(); 
-    const user = document.getElementById('adm-prof-user').value.trim().toLowerCase(); 
-    const pass = document.getElementById('adm-prof-pass').value; 
-    
-    let curso = "";
-    if(rol !== 'admin') {
-        const selVal = document.getElementById('adm-prof-curso-select').value;
-        if(selVal === 'NUEVO') curso = document.getElementById('adm-prof-nuevo-curso').value.trim();
-        else curso = selVal;
-    }
-    
-    if(!nombre || !user || !pass) return showToast('Datos incompletos', 'warning');
-    if(rol !== 'admin' && !curso) return showToast('Asigna un curso', 'warning');
-    
-    try {
-        const cr = await secondaryApp.auth().createUserWithEmailAndPassword(user + '@capa.local', pass);
-        await db.collection('usuarios').doc(cr.user.uid).set({ nombre, rol, usuario: user, cursos: curso ? curso.split(',').map(c=>c.trim()) : [] });
-        
-        if (rol === 'alumno' && curso) {
-            await db.collection('alumnos').add({ nombre: nombre.toUpperCase(), curso: curso });
-        }
-        
-        await secondaryApp.auth().signOut(); showToast('Usuario creado con éxito'); 
-        document.querySelectorAll('#adm-prof-name, #adm-prof-user, #adm-prof-pass, #adm-prof-nuevo-curso').forEach(el=>el.value='');
-        document.getElementById('adm-prof-curso-select').value = '';
-        document.getElementById('adm-prof-nuevo-curso').classList.add('hidden');
-    } catch(e) { 
-        if(e.code === 'auth/email-already-in-use') showToast('Ese usuario ya existe.', 'error');
-        else showToast('Error: ' + e.message, 'error'); 
-    }
-}
-
-async function bulkUpload() {
-    let c = lockedCourse;
-    if(!c) return showToast('Fija un curso en el Inicio primero.', 'warning');
-
-    const listRaw = document.getElementById('bulk-list').value;
-    const list = listRaw.split('\n').map(n => n.trim()).filter(n => n !== "");
-    
-    if (list.length === 0) return showToast('La lista está vacía', 'error');
-    showToast('Iniciando carga masiva con cuentas...', 'info');
-    
-    let count = 0;
-    for(let nombre of list) {
-        let emailBase = nombre.toLowerCase().replace(/\s+/g, '.').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        let email = emailBase + '@capa.local';
-        let pass = 'capa2026';
-
-        try {
-            const cr = await secondaryApp.auth().createUserWithEmailAndPassword(email, pass);
-            await db.collection('usuarios').doc(cr.user.uid).set({ nombre: nombre.toUpperCase(), rol: 'alumno', usuario: emailBase, cursos: [c] });
-            await db.collection('alumnos').add({ nombre: nombre.toUpperCase(), curso: c });
-            await secondaryApp.auth().signOut();
-            count++;
-        } catch(e) {
-            if(e.code === 'auth/email-already-in-use') {
-                let rnd = Math.floor(Math.random() * 1000);
-                try {
-                    const cr2 = await secondaryApp.auth().createUserWithEmailAndPassword(emailBase + rnd + '@capa.local', pass);
-                    await db.collection('usuarios').doc(cr2.user.uid).set({ nombre: nombre.toUpperCase(), rol: 'alumno', usuario: emailBase + rnd, cursos: [c] });
-                    await db.collection('alumnos').add({ nombre: nombre.toUpperCase(), curso: c });
-                    await secondaryApp.auth().signOut();
-                    count++;
-                } catch(ex) { console.error(ex); }
-            }
-        }
-    }
-    
-    showToast(count + ' alumnos matriculados con cuentas web', 'success'); 
-    document.getElementById('bulk-list').value = '';
-}
-
-// ==========================================
-// ESTADO DE MATRÍCULA (ADMIN)
-// ==========================================
-async function toggleMatricula(alumnoId, estadoActual) {
-    try {
-        await db.collection('alumnos').doc(alumnoId).update({
-            pagoMatricula: !estadoActual 
-        });
-        showToast(estadoActual ? 'Alumno marcado como Moroso' : 'Matrícula marcada al día', 'success');
-        renderAttendanceList(); 
-    } catch(e) {
-        console.error(e);
-        showToast('Error al actualizar estado', 'error');
-    }
-}
 // ==========================================
 // LIMPIAR HISTORIAL DE BITÁCORA (ADMIN)
 // ==========================================
@@ -1261,5 +1096,160 @@ async function limpiarHistorialBitacora() {
             console.error(e);
             showToast('Error al borrar el historial.', 'error');
         }
+    }
+}
+
+// ==========================================
+// ADMINISTRACIÓN UNIFICADA DE USUARIOS
+// ==========================================
+function loadAdminData() {
+    db.collection('usuarios').onSnapshot(snap => {
+        const tablaDirectorio = document.getElementById('admin-users-table'); 
+        const listaDocentes = document.getElementById('admin-docentes-list');
+        
+        let htmlTabla = '<table class="edu-table" style="font-size:0.85rem;"><thead><tr><th>Nombre</th><th>Rol</th><th>Usuario (Login)</th><th>Clave</th><th>Cursos</th><th>Acciones</th></tr></thead><tbody>';
+        let htmlDocentes = '';
+        
+        let users = [];
+        snap.forEach(doc => users.push({id: doc.id, ...doc.data()}));
+        
+        // Ordenar alfabéticamente
+        users.sort((a,b) => (a.nombre || '').localeCompare(b.nombre || '')).forEach(u => {
+            const cTxt = u.cursos && u.cursos.length > 0 ? u.cursos.join(', ') : 'Ninguno';
+            const rolBadge = u.rol === 'admin' ? '<span class="badge-msg badge-urgent">Admin</span>' : (u.rol === 'profesor' ? '<span class="badge-msg badge-info">Profesor</span>' : '<span class="badge-msg badge-material">Alumno</span>');
+            
+            // LÓGICA PARA LA TABLA DEL DIRECTORIO GENERAL
+            let actions = `<button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', '${u.rol}')" class="btn-outline-danger" style="padding:6px 10px;" title="Eliminar y Revocar Acceso"><i class="fas fa-trash"></i></button>`;
+            
+            if(u.rol === 'profesor') {
+                actions = `<button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-teal" style="padding:6px 10px; margin-right:5px;" title="Añadir curso"><i class="fas fa-plus"></i></button>` + actions;
+            }
+
+            htmlTabla += `<tr>
+                <td><b>${u.nombre}</b></td>
+                <td>${rolBadge}</td>
+                <td><b style="color:var(--c-blue-accent);">${u.usuario}</b></td>
+                <td>
+                    ${u.clave ? `<code style="background:#e6f4ea; color:#1e8e3e; padding:4px 8px; border-radius:4px; border:1px solid #1e8e3e; font-weight:bold;">${u.clave}</code>` : `<span style="font-size:0.75rem; color:var(--danger); font-weight:bold;"><i class="fas fa-lock"></i> Bloqueada (Borrar y recrear)</span>`}
+                </td>
+                <td>${cTxt}</td>
+                <td style="white-space: nowrap;">${actions}</td>
+            </tr>`;
+
+            // LÓGICA PARA LAS TARJETAS DE PROFESORES ACTIVOS
+            if (u.rol === 'profesor') {
+                htmlDocentes += `<div class="admin-prof-card">
+                    <div class="prof-info">
+                        <h4><i class="fas fa-chalkboard-teacher"></i> ${u.nombre}</h4>
+                        <p>Cursos: ${cTxt}</p>
+                    </div>
+                    <div class="admin-actions">
+                        <button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-teal" title="Añadir curso"><i class="fas fa-plus"></i></button>
+                        <button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', 'profesor')" class="btn-outline-danger" title="Retirar docente"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            }
+        });
+        
+        htmlTabla += '</tbody></table>';
+        
+        // Inyectamos el HTML
+        if (tablaDirectorio) tablaDirectorio.innerHTML = htmlTabla;
+        if (listaDocentes) {
+            listaDocentes.innerHTML = htmlDocentes === '' ? '<p class="text-muted">No hay docentes registrados.</p>' : htmlDocentes;
+        }
+    });
+}
+
+async function registerUserSystem() {
+    const rol = document.getElementById('adm-nuevo-rol').value; 
+    const nombre = document.getElementById('adm-prof-name').value.trim(); 
+    const user = document.getElementById('adm-prof-user').value.trim().toLowerCase(); 
+    const pass = document.getElementById('adm-prof-pass').value; 
+    
+    let curso = "";
+    if(rol !== 'admin') {
+        const selVal = document.getElementById('adm-prof-curso-select').value;
+        if(selVal === 'NUEVO') curso = document.getElementById('adm-prof-nuevo-curso').value.trim();
+        else curso = selVal;
+    }
+    
+    if(!nombre || !user || !pass) return showToast('Datos incompletos', 'warning');
+    if(rol !== 'admin' && !curso) return showToast('Asigna un curso', 'warning');
+    if(pass.length < 6) return showToast('La clave debe tener 6 caracteres', 'warning');
+    
+    showToast('Creando usuario y asignando permisos...', 'info');
+
+    try {
+        const email = user.includes('@') ? user : user + '@capa.local';
+        const cr = await secondaryApp.auth().createUserWithEmailAndPassword(email, pass);
+        
+        // AHORA SÍ GUARDARÁ LA CLAVE VISIBLE PARA TI
+        await db.collection('usuarios').doc(cr.user.uid).set({ 
+            nombre: nombre.toUpperCase(), 
+            rol: rol, 
+            usuario: user, 
+            clave: pass, 
+            cursos: curso ? curso.split(',').map(c=>c.trim()) : [] 
+        });
+        
+        if (rol === 'alumno' && curso) {
+            await db.collection('alumnos').add({ nombre: nombre.toUpperCase(), curso: curso, pagoMatricula: false });
+        }
+        
+        await secondaryApp.auth().signOut(); 
+        showToast('Usuario creado con éxito', 'success'); 
+        
+        document.querySelectorAll('#adm-prof-name, #adm-prof-user, #adm-prof-pass, #adm-prof-nuevo-curso').forEach(el=>el.value='');
+        document.getElementById('adm-prof-curso-select').value = '';
+        document.getElementById('adm-prof-nuevo-curso').classList.add('hidden');
+    } catch(e) { 
+        if(e.code === 'auth/email-already-in-use') showToast('Ese nombre de usuario ya existe.', 'error');
+        else showToast('Error: ' + e.message, 'error'); 
+    }
+}
+
+async function eliminarUsuarioGlobal(docId, nombre, rol) {
+    if(await promptActionCustom('Eliminar Usuario', `¿Estás seguro de eliminar a ${nombre}? Se borrará del directorio y perderá acceso.`)) { 
+        try {
+            const batch = db.batch();
+            
+            // 1. Borrar de la tabla general
+            batch.delete(db.collection('usuarios').doc(docId));
+            
+            // 2. Si es alumno, borrar de la tabla de listas para que desaparezca de la asistencia
+            if (rol === 'alumno') {
+                const alSnap = await db.collection('alumnos').where('nombre', '==', nombre).get();
+                alSnap.forEach(d => batch.delete(d.ref));
+            }
+            
+            await batch.commit();
+            showToast('Usuario eliminado del sistema', 'success'); 
+        } catch(e) {
+            console.error(e);
+            showToast('Error al intentar eliminar', 'error');
+        }
+    }
+}
+
+async function toggleMatricula(alumnoId, estadoActual) {
+    try {
+        await db.collection('alumnos').doc(alumnoId).update({
+            pagoMatricula: !estadoActual 
+        });
+        showToast(estadoActual ? 'Alumno marcado como Moroso' : 'Matrícula marcada al día', 'success');
+        renderAttendanceList(); 
+    } catch(e) {
+        console.error(e);
+        showToast('Error al actualizar estado', 'error');
+    }
+}
+
+async function agregarNuevoCursoExistente(docId, nombreProfe) {
+    const c = await promptActionCustom('Añadir Curso', `Escribe el curso para ${nombreProfe}:`, true, 'Ej: Excel Básico');
+    if (c) { 
+        await db.collection('usuarios').doc(docId).update({ cursos: firebase.firestore.FieldValue.arrayUnion(c.trim()) }); 
+        showToast('Curso añadido');
+        if(userProfile.rol.toLowerCase().includes('admin')) syncGlobalCourses();
     }
 }
