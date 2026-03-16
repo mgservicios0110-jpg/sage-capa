@@ -581,16 +581,29 @@ function loadMessages(isAlumno) {
             comboDest.innerHTML = '';
             if (!isAlumno) comboDest.innerHTML += '<option value="todos">📢 A Todos los Usuarios</option>';
             
+            // Extraer los cursos del estudiante actual (normalizados para evitar errores de mayúsculas/tildes)
+            const misCursosNorm = (userProfile.cursos || []).map(c => normalizeString(c));
+            
             uSnap.forEach(u => {
                 const data = u.data();
                 if (u.id !== userProfile.uid) { 
                     if (isAlumno) {
+                        // Si es Administrador, SIEMPRE lo mostramos
                         if (data.rol.toLowerCase().includes('admin')) {
                             comboDest.innerHTML += `<option value="${u.id}">🛡️ Dirección (${data.nombre})</option>`;
-                        } else if (data.rol.toLowerCase() === 'profesor') {
-                            comboDest.innerHTML += `<option value="${u.id}">👨‍🏫 Profesor: ${data.nombre}</option>`;
+                        } 
+                        // Si es Profesor, revisamos si comparten algún curso
+                        else if (data.rol.toLowerCase() === 'profesor') {
+                            const profeCursosNorm = (data.cursos || []).map(c => normalizeString(c));
+                            // Verifica si hay al menos un curso en común
+                            const compartenCurso = profeCursosNorm.some(c => misCursosNorm.includes(c));
+                            
+                            if (compartenCurso) {
+                                comboDest.innerHTML += `<option value="${u.id}">👨‍🏫 Profesor: ${data.nombre}</option>`;
+                            }
                         }
                     } else {
+                        // Para Profesores y Admins, mostramos a todos
                         let icon = '👤'; if (data.rol === 'alumno') icon = '🎓'; if (data.rol === 'profesor') icon = '👨‍🏫'; if (data.rol.toLowerCase().includes('admin')) icon = '🛡️';
                         comboDest.innerHTML += `<option value="${u.id}">${icon} ${data.nombre} (${data.rol.toUpperCase()})</option>`;
                     }
