@@ -15,6 +15,12 @@ if (!firebase.apps.length) {
 const secondaryApp = firebase.apps.length < 2 ? firebase.initializeApp(firebaseConfig, "Secondary") : firebase.app("Secondary");
 
 const db = firebase.firestore();
+
+// ACTIVAR MODO OFFLINE PROFUNDO (Evita que el sistema te expulse al parpadear el internet)
+db.enablePersistence().catch(function(err) {
+    console.warn("Aviso: Caché offline no se pudo iniciar", err);
+});
+
 const auth = firebase.auth();
 
 let userProfile = null;
@@ -1118,11 +1124,14 @@ function loadAdminData() {
             const cTxt = u.cursos && u.cursos.length > 0 ? u.cursos.join(', ') : 'Ninguno';
             const rolBadge = u.rol === 'admin' ? '<span class="badge-msg badge-urgent">Admin</span>' : (u.rol === 'profesor' ? '<span class="badge-msg badge-info">Profesor</span>' : '<span class="badge-msg badge-material">Alumno</span>');
             
-            // LÓGICA PARA LA TABLA DEL DIRECTORIO GENERAL
-            let actions = `<button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', '${u.rol}')" class="btn-outline-danger" style="padding:6px 10px;" title="Eliminar y Revocar Acceso"><i class="fas fa-trash"></i></button>`;
+            // --- AQUÍ ESTÁ LA MAGIA: AGREGUÉ EL BOTÓN DE EDITAR (LÁPIZ) ---
+            let actions = `
+                <button onclick="editarNombreUsuario('${u.id}', '${u.nombre}', '${u.rol}')" class="btn-outline-teal" style="padding:6px 10px; margin-right:5px;" title="Editar Nombre"><i class="fas fa-edit"></i></button>
+                <button onclick="eliminarUsuarioGlobal('${u.id}', '${u.nombre}', '${u.rol}')" class="btn-outline-danger" style="padding:6px 10px;" title="Eliminar y Revocar Acceso"><i class="fas fa-trash"></i></button>
+            `;
             
             if(u.rol === 'profesor') {
-                actions = `<button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-teal" style="padding:6px 10px; margin-right:5px;" title="Añadir curso"><i class="fas fa-plus"></i></button>` + actions;
+                actions = `<button onclick="agregarNuevoCursoExistente('${u.id}', '${u.nombre}')" class="btn-outline-blue" style="padding:6px 10px; margin-right:5px; border-color:var(--c-blue-accent); color:var(--c-blue-accent);" title="Añadir curso"><i class="fas fa-plus"></i></button>` + actions;
             }
 
             htmlTabla += `<tr>
@@ -1160,7 +1169,6 @@ function loadAdminData() {
         }
     });
 }
-
 async function registerUserSystem() {
     const rol = document.getElementById('adm-nuevo-rol').value; 
     const nombre = document.getElementById('adm-prof-name').value.trim(); 
@@ -1251,5 +1259,40 @@ async function agregarNuevoCursoExistente(docId, nombreProfe) {
         await db.collection('usuarios').doc(docId).update({ cursos: firebase.firestore.FieldValue.arrayUnion(c.trim()) }); 
         showToast('Curso añadido');
         if(userProfile.rol.toLowerCase().includes('admin')) syncGlobalCourses();
+    }
+}
+// ==========================================
+// EDITAR NOMBRE DEL USUARIO
+// ==========================================
+async function editarNombreUsuario(docId, nombreActual, rol) {
+    // Abrimos el modal para que el admin escriba el nuevo nombre
+    const nuevoNombre = await promptActionCustom('Editar Nombre', `Modificar el nombre de: ${nombreActual}`, true, nombreActual);
+    
+    // Si escribió algo y es diferente al nombre viejo
+    if (nuevoNombre && nuevoNombre.trim() !== '' && nuevoNombre !== nombreActual) {
+        const nombreUpper = nuevoNombre.trim().toUpperCase();
+        
+        try {
+            const batch = db.batch();
+            
+            // 1. Actualizamos el nombre en la tabla general de Usuarios
+            const userRef = db.collection('usuarios').doc(docId);
+            batch.update(userRef, { nombre: nombreUpper });
+
+            // 2. Si es Alumno, debemos actualizarlo también en la tabla de Alumnos 
+            // (para que su nombre cambie en la asistencia y en las notas)
+            if (rol === 'alumno') {
+                const alSnap = await db.collection('alumnos').where('nombre', '==', nombreActual).get();
+                alSnap.forEach(doc => {
+                    batch.update(doc.ref, { nombre: nombreUpper });
+                });
+            }
+
+            await batch.commit();
+            showToast('Nombre actualizado correctamente', 'success');
+        } catch (e) {
+            console.error("Error actualizando nombre: ", e);
+            showToast('Error al actualizar el nombre', 'error');
+        }
     }
 }
