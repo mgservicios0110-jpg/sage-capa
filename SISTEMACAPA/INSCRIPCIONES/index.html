@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGA Limache V4.6 - Pantalla Completa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        :root { --primary: #1e3a8a; --secondary: #be185d; --bg: #f0f4f8; --border: #cbd5e1; }
+        
+        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+        
+        body { background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
+
+        /* SIDEBAR COMPACTO */
+        .sidebar { width: 220px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 20; position: relative; }
+        .logo-area { padding: 20px; text-align: center; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: center; align-items: center; background: white; }
+        .logo-area img { width: 100%; max-height: 70px; object-fit: contain; }
+        
+        /* Botón Hamburguesa (Oculto en PC) */
+        .hamburger-btn { display: none; background: transparent; border: none; color: var(--primary); font-size: 1.8rem; cursor: pointer; }
+
+        .nav-menu { flex: 1; padding: 10px; overflow-y: auto; background: white; }
+        .nav-btn {
+            width: 100%; padding: 15px; border: none; background: transparent; color: #475569;
+            text-align: left; cursor: pointer; border-radius: 10px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .nav-btn.active, .nav-btn:hover { background: var(--primary); color: white; }
+
+        /* MAIN CONTENT */
+        .main { flex: 1; overflow-y: auto; padding: 20px; width: 100%; position: relative; z-index: 10; }
+        .view-section { display: none; width: 100%; max-width: 1200px; margin: 0 auto; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card { background: white; border-radius: 12px; padding: 30px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        h2 { color: var(--primary); font-weight: 800; font-size: 1.8rem; margin-bottom: 25px; border-left: 6px solid var(--secondary); padding-left: 15px; }
+
+        /* FORMULARIO GRANDE */
+        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        
+        .photo-col { grid-column: span 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #eee; padding-right: 20px; }
+        .data-col { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group.full { grid-column: span 4; }
+        .input-group.half { grid-column: span 2; }
+
+        label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input, select, textarea { 
+            padding: 16px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            background: #fdfdfd;
+            color: #1e293b;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        input:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1); }
+
+        .btn-save { 
+            background: var(--secondary); 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            width: 100%; 
+            margin-top: 30px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 15px;
+            transition: 0.3s; 
+        }
+        .btn-save:hover { background: #9d144d; transform: translateY(-3px); box-shadow: 0 12px 20px rgba(190, 24, 93, 0.3); }
+
+        /* TABLAS AMPLIADAS */
+        .table-card { padding: 0; overflow: hidden; }
+        .table-responsive { width: 100%; overflow-x: auto; display: block; } 
+        table { width: 100%; border-collapse: collapse; min-width: 600px; } 
+        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; color: #334155; }
+        tr:hover { background: #f1f5ff; }
+
+        #toast { position: fixed; bottom: 30px; right: 30px; background: #0f172a; color: white; padding: 15px 30px; border-radius: 12px; display: none; font-weight: 600; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        /* =========================================================
+           MEDIA QUERIES PARA MÓVILES (Menú Hamburguesa)
+           ========================================================= */
+        @media (max-width: 900px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .photo-col { grid-column: span 1; border-right: none; border-bottom: 1px solid #eee; padding-right: 0; padding-bottom: 20px; margin-bottom: 10px; }
+            .data-col { grid-column: span 1; grid-template-columns: 1fr; } 
+            .input-group.full, .input-group.half { grid-column: span 1; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            
+            /* Ajuste de la barra superior */
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex-direction: column; }
+            .logo-area { justify-content: space-between; padding: 15px 25px; z-index: 30; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+            .logo-area img { width: auto; max-height: 45px; margin: 0; }
+            
+            /* Mostrar botón hamburguesa */
+            .hamburger-btn { display: block; }
+
+            /* Menú desplegable oculto por defecto */
+            .nav-menu { 
+                display: none; 
+                position: absolute; 
+                top: 100%; 
+                left: 0; 
+                width: 100%; 
+                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+                padding: 15px 20px; 
+                border-bottom: 1px solid var(--border);
+                z-index: 20;
+            }
+            
+            /* Clase que se activa con JS para mostrar el menú */
+            .nav-menu.show-mobile { display: block; animation: slideDown 0.3s ease forwards; }
+
+            @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+            .nav-btn { justify-content: flex-start; padding: 15px; font-size: 1rem; }
+
+            .main { padding: 15px 10px; }
+            .card { padding: 20px 15px; }
+            h2 { font-size: 1.4rem; margin-bottom: 15px; }
+
+            .header-lista { flex-direction: column; align-items: stretch !important; gap: 15px; }
+            .header-lista > div { flex-direction: column; align-items: stretch !important; }
+            .header-lista select { width: 100% !important; }
+
+            .btn-save { font-size: 1rem; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="logo-area">
+        <img src="logo.png" id="main-logo" onerror="this.src='https://via.placeholder.com/200x80?text=LIMACHE'">
+        <button class="hamburger-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <nav class="nav-menu" id="nav-menu">
+        <button class="nav-btn active" onclick="show('inscripcion', this)"><i class="fas fa-user-plus fa-lg"></i> Inscripción</button>
+        <button class="nav-btn" onclick="show('talleres', this)"><i class="fas fa-chalkboard-teacher fa-lg"></i> Talleres</button>
+        <button class="nav-btn" onclick="show('lista', this)"><i class="fas fa-database fa-lg"></i> Base de Datos</button>
+    </nav>
+</aside>
+
+<main class="main">
+    <section id="sec-inscripcion" class="view-section active">
+        <h2>INTRODUCIR DATOS - FICHA 2026</h2>
+        <div class="card">
+            <form id="formV4">
+                <div class="form-grid">
+                    <div class="photo-col">
+                        <img id="preview" src="https://via.placeholder.com/150x180?text=FOTO" style="width:150px; height:180px; border-radius:12px; border:2px solid #cbd5e1; object-fit: cover; margin-bottom: 15px;">
+                        <input type="file" id="fotoFile" hidden onchange="processImg(this)">
+                        <button type="button" class="nav-btn" style="font-size:0.7rem; justify-content:center; background:#e2e8f0; width: 150px;" onclick="document.getElementById('fotoFile').click()">CARGAR FOTO</button>
+                    </div>
+
+                    <div class="data-col">
+                        <div class="input-group"><label>Apellido Paterno</label><input type="text" id="apP"></div>
+                        <div class="input-group"><label>Apellido Materno</label><input type="text" id="apM"></div>
+                        <div class="input-group full"><label>Nombres Completos</label><input type="text" id="nom"></div>
+                        <div class="input-group"><label>RUT (Sin puntos y con guión)</label><input type="text" id="rut" placeholder="12345678-9"></div>
+                        <div class="input-group"><label>Fecha Nacimiento</label><input type="date" id="fNac"></div>
+                    </div>
+
+                    <div class="input-group half"><label>Domicilio Completo</label><input type="text" id="dom"></div>
+                    <div class="input-group"><label>Teléfono / WhatsApp</label><input type="tel" id="tel"></div>
+                    <div class="input-group"><label>Email</label><input type="email" id="mail"></div>
+
+                    <div class="input-group"><label>Nivel de Estudios</label>
+                        <select id="edu">
+                            <option>N/A</option><option>BÁSICA</option><option>MEDIA</option><option>TÉCNICO</option><option>UNIVERSITARIO</option>
+                        </select>
+                    </div>
+                    <div class="input-group half"><label>Seleccionar Taller</label>
+                        <select id="tallerSelect" style="border-color: var(--primary); font-weight: bold;"><option value="">-- SELECCIONE UN TALLER --</option></select>
+                    </div>
+                    <div class="input-group"><label>¿Pagó Matrícula?</label>
+                        <select id="pagoStatus" onchange="checkPago(this.value)"><option value="NO">PENDIENTE (NO)</option><option value="SI">PAGADA (SI)</option></select>
+                    </div>
+
+                    <div class="input-group half"><label>Información de Folio y Valor</label><input type="text" id="folioVal" readonly style="background:#f1f5f9; color:var(--secondary); font-weight: 800;"></div>
+                    <div class="input-group half"><label>Motivo de la Capacitación</label><input type="text" id="motivo"></div>
+                </div>
+
+                <button type="button" class="btn-save" onclick="saveRecord()">
+                    <i class="fas fa-save"></i> GUARDAR REGISTRO
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section id="sec-talleres" class="view-section">
+        <h2>GESTIÓN DE CURSOS</h2>
+        <div class="card">
+            <div class="form-grid">
+                <div class="input-group half"><label>Nombre del Taller</label><input type="text" id="newTaller"></div>
+                <div class="input-group"><label>Nombre Docente</label><input type="text" id="newDocente"></div>
+                <div class="input-group" style="justify-content: flex-end;">
+                    <button class="btn-save" style="margin: 0; padding: 14px;" onclick="addTaller()">AÑADIR CURSO</button>
+                </div>
+            </div>
+        </div>
+        <div class="card table-card">
+            <div class="table-responsive">
+                <table id="tTalleres">
+                    <thead><tr><th>Nombre Taller</th><th>Docente Asignado</th><th width="100">Acción</th></tr></thead>
+                    <tbody id="tallerData"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec-lista" class="view-section">
+        <div class="header-lista" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2>BASE DE DATOS</h2>
+            <div style="display:flex; gap:15px; align-items: center;">
+                <label style="display:none;">Filtrar:</label>
+                <select id="filterTaller" onchange="drawTable()" style="width:300px; padding: 10px;"></select>
+                <button onclick="printCoursePDF()" class="btn-save" style="margin:0; padding: 12px 25px; font-size: 0.9rem; background: var(--primary);">
+                    <i class="fas fa-file-pdf"></i> EXPORTAR
+                </button>
+            </div>
+        </div>
+        <div class="card table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>RUT</th><th>Nombre Completo</th><th>Taller Inscrito</th><th>Folio</th><th width="80">Acción</th></tr></thead>
+                    <tbody id="tableData"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('limache_db_v4')) || [];
+    let talleres = JSON.parse(localStorage.getItem('limache_talleres')) || [
+        {nombre: "REPOSTERÍA", docente: "ANGELA TORO"},
+        {nombre: "PANADERÍA", docente: "NEVENCKA JIMENEZ"},
+        {nombre: "CONTABILIDAD", docente: "MAURICIO GALAZ"}
+    ];
+    let fotoBase64 = "";
+
+    // Función para abrir/cerrar el menú en celulares
+    function toggleMobileMenu() {
+        const nav = document.getElementById('nav-menu');
+        nav.classList.toggle('show-mobile');
+    }
+
+    function show(id, btn) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        document.getElementById('sec-'+id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Cierra el menú hamburguesa automáticamente al hacer clic en una opción (solo afecta a móviles)
+        document.getElementById('nav-menu').classList.remove('show-mobile');
+
+        updateSelects();
+        if(id === 'talleres') drawTalleres();
+        if(id === 'lista') drawTable();
+    }
+
+    function addTaller() {
+        const n = document.getElementById('newTaller').value.toUpperCase();
+        const d = document.getElementById('newDocente').value.toUpperCase();
+        if(!n || !d) return notify("Faltan campos");
+        talleres.push({nombre: n, docente: d});
+        localStorage.setItem('limache_talleres', JSON.stringify(talleres));
+        document.getElementById('newTaller').value = ""; document.getElementById('newDocente').value = "";
+        drawTalleres(); updateSelects(); notify("Curso agregado");
+    }
+
+    function drawTalleres() {
+        document.getElementById('tallerData').innerHTML = talleres.map((t, index) => `
+            <tr><td><b>${t.nombre}</b></td><td>${t.docente}</td>
+            <td><button onclick="delTaller(${index})" style="border:none; color:red; background:none; cursor:pointer;"><i class="fas fa-trash-alt fa-lg"></i></button></td></tr>
+        `).join('');
+    }
+
+    function delTaller(i) { if(confirm("¿Eliminar taller?")) { talleres.splice(i, 1); localStorage.setItem('limache_talleres', JSON.stringify(talleres)); drawTalleres(); updateSelects(); } }
+
+    function updateSelects() {
+        const options = '<option value="">-- SELECCIONE UN CURSO --</option>' + talleres.map(t => `<option value="${t.nombre}">${t.nombre} (${t.docente})</option>`).join('');
+        document.getElementById('tallerSelect').innerHTML = options;
+        document.getElementById('filterTaller').innerHTML = '<option value="TODOS">TODOS LOS CURSOS</option>' + talleres.map(t => `<option value="${t.nombre}">${t.nombre}</option>`).join('');
+    }
+
+    function checkPago(val) {
+        const inp = document.getElementById('folioVal');
+        inp.value = val === 'SI' ? `FOLIO: FL-${Math.floor(1000+Math.random()*9000)} | VALOR: $5.000` : "";
+    }
+
+    function processImg(input) {
+        let r = new FileReader();
+        r.onload = (e) => { document.getElementById('preview').src = e.target.result; fotoBase64 = e.target.result; };
+        r.readAsDataURL(input.files[0]);
+    }
+
+    function saveRecord() {
+        const al = {
+            id: Date.now(), nom: document.getElementById('nom').value.toUpperCase(),
+            apP: document.getElementById('apP').value.toUpperCase(), apM: document.getElementById('apM').value.toUpperCase(),
+            rut: document.getElementById('rut').value, tal: document.getElementById('tallerSelect').value,
+            folio: document.getElementById('folioVal').value, dom: document.getElementById('dom').value, 
+            fNac: document.getElementById('fNac').value, mot: document.getElementById('motivo').value,
+            edu: document.getElementById('edu').value
+        };
+        if(!al.nom || !al.tal || !al.rut) return notify("RUT, Nombre y Taller son requeridos");
+        db.push(al);
+        localStorage.setItem('limache_db_v4', JSON.stringify(db));
+        generateFichaPDF(al);
+        notify("Alumno guardado correctamente");
+        document.getElementById('formV4').reset();
+        document.getElementById('preview').src = "https://via.placeholder.com/150x180?text=FOTO";
+        fotoBase64 = "";
+    }
+
+    function drawTable() {
+        const f = document.getElementById('filterTaller').value;
+        const data = f === 'TODOS' ? db : db.filter(x => x.tal === f);
+        document.getElementById('tableData').innerHTML = data.map(a => `
+            <tr><td><b>${a.rut}</b></td><td>${a.nom} ${a.apP} ${a.apM}</td><td>${a.tal}</td><td>${a.folio || 'N/A'}</td>
+            <td><button onclick="delAl(${a.id})" style="border:none; color:red; cursor:pointer; background:none;"><i class="fas fa-trash-alt fa-lg"></i></button></td></tr>
+        `).join('');
+    }
+
+    function delAl(id) { if(confirm("¿Eliminar alumno?")) { db = db.filter(x => x.id !== id); localStorage.setItem('limache_db_v4', JSON.stringify(db)); drawTable(); } }
+
+    function notify(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = "block"; setTimeout(() => t.style.display = "none", 3000); }
+
+    function generateFichaPDF(al) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        try { doc.addImage(document.getElementById('main-logo'), 'PNG', 15, 10, 40, 20); } catch(e){}
+        doc.setFontSize(16); doc.setFont(undefined, 'bold');
+        doc.text("FICHA DE ALUMNOS (A) AÑO 2026", 60, 20);
+        doc.setFontSize(8); doc.setFont(undefined, 'normal');
+        doc.text("PROGRAMA DE CAPACITACIÓN - ILUSTRE MUNICIPALIDAD DE LIMACHE", 60, 26);
+        if(fotoBase64) doc.addImage(fotoBase64, 'JPEG', 160, 40, 30, 38);
+        else doc.rect(160, 40, 30, 38);
+        let y = 55;
+        const line = (l, v) => { doc.setFont(undefined, 'bold'); doc.text(l, 15, y); doc.setFont(undefined, 'normal'); doc.text(String(v || ""), 70, y); y += 12; };
+        line("APELLIDO PATERNO:", al.apP); line("APELLIDO MATERNO:", al.apM); line("NOMBRES:", al.nom);
+        line("RUT:", al.rut); line("FECHA NACIMIENTO:", al.fNac); line("DOMICILIO:", al.dom);
+        line("EDUCACIÓN:", al.edu); line("TALLER:", al.tal); line("PAGO:", al.folio || "PENDIENTE");
+        doc.setFont(undefined, 'bold'); doc.text("MOTIVO:", 15, y); doc.setFont(undefined, 'normal'); doc.text(al.mot || "", 15, y+7, {maxWidth: 180});
+        y = 250; doc.line(20, y, 90, y); doc.line(120, y, 190, y);
+        doc.setFontSize(9); doc.text("FIRMA ALUMNO (A)", 55, y+10, {align:'center'});
+        doc.text("NATHALY VILLABLANCA OLIVAREZ", 155, y+5, {align:'center'}); doc.text("ENCARGADA DE CAPACITACIÓN", 155, y+10, {align:'center'});
+        doc.save(`Ficha_${al.rut}.pdf`);
+    }
+
+    function printCoursePDF() {
+        const c = document.getElementById('filterTaller').value;
+        if(c === 'TODOS') return notify("Selecciona un curso específico");
+        
+        const talObj = talleres.find(t => t.nombre === c);
+        const data = db.filter(x => x.tal === c);
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        try { 
+            const logoImg = document.getElementById('main-logo');
+            doc.addImage(logoImg, 'PNG', 15, 10, 35, 18); 
+        } catch(e) {
+            console.error("No se pudo cargar el logo en el PDF", e);
+        }
+
+        doc.setFont("Montserrat", "bold");
+        doc.setFontSize(14);
+        doc.text(`LISTA DE ASISTENCIA 2026`, 60, 18);
+        
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text(`CURSO:`, 15, 40);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${c}`, 35, 40);
+
+        doc.setFont(undefined, 'bold');
+        doc.text(`DOCENTE:`, 15, 46);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${talObj ? talObj.docente : "SIN DOCENTE ASIGNADO"}`, 38, 46);
+
+        doc.autoTable({
+            startY: 55,
+            head: [['N°', 'RUT', 'APELLIDO PATERNO', 'APELLIDO MATERNO', 'NOMBRES']],
+            body: data.map((a, i) => [
+                i + 1, 
+                a.rut, 
+                a.apP || "", 
+                a.apM || "", 
+                a.nom || ""
+            ]),
+            theme: 'striped',
+            headStyles: { 
+                fillColor: [30, 58, 138],
+                textColor: 255, 
+                fontStyle: 'bold',
+                halign: 'center' 
+            },
+            styles: { 
+                fontSize: 9, 
+                cellPadding: 3 
+            },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 10 }
+            }
+        });
+
+        const fechaInp = new Date().toLocaleDateString();
+        doc.setFontSize(8);
+        doc.text(`Fecha de impresión: ${fechaInp}`, 15, doc.internal.pageSize.height - 10);
+
+        doc.save(`Lista_${c}_2026.pdf`);
+    }
+    updateSelects();
+</script>
+</body>
+</html>

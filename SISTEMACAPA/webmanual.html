@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computación Básica 2026 | Centro de Capacitación Municipal de Limache</title>
+    <meta name="description" content="Sitio web profesional del curso Computación Básica 2026.">
+    <style>
+        :root {
+            --primary: #8e24aa;
+            --secondary: #ff5a6a;
+            --teal: #10b7b2;
+            --gold: #f59e0b;
+            --dark: #0f172a;
+            --success: #16a34a;
+            --info: #2563eb;
+            --surface: #ffffff;
+            --muted: #5b6472;
+            --line: #e7edf5;
+            --shadow: 0 18px 45px rgba(15, 23, 42, .08);
+            --max: 1240px;
+            --radius: 24px;
+            --radius-lg: 32px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            color: #111827;
+            background:
+                radial-gradient(circle at top left, rgba(255, 90, 106, .12), transparent 28%),
+                radial-gradient(circle at top right, rgba(142, 36, 170, .14), transparent 30%),
+                linear-gradient(180deg, #f9fbff 0%, #eef4fb 100%);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        img {
+            max-width: 100%;
+            display: block
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(14px);
+            background: rgba(255, 255, 255, .84);
+            border-bottom: 1px solid rgba(15, 23, 42, .06);
+        }
+
+        .nav {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            object-fit: contain;
+            background: #fff;
+            padding: 5px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, .08);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 1rem
+        }
+
+        .brand p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: .88rem
+        }
+
+        .menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .menu a {
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: .93rem;
+            font-weight: 700
+        }
+
+        .menu a:hover {
+            background: #f2f5fb;
+            color: var(--primary)
+        }
+
+        .wrap {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 0 20px
+        }
+
+        section {
+            padding: 16px 0
+        }
+
+        .hero {
+            padding: 30px 0 22px;
+            display: grid;
+            grid-template-columns: 1.2fr .9fr;
+            gap: 24px;
+        }
+
+        .hero-main,
+        .hero-side,
+        .card,
+        .faq-item,
+        .schedule-box,
+        .pricing-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, .9);
+        }
+
+        .hero-main {
+            position: relative;
+            overflow: hidden;
+            padding: 44px;
+            color: #fff;
+            background: linear-gradient(135deg, rgba(142, 36, 170, .96) 0%, rgba(255, 90, 106, .95) 48%, rgba(245, 158, 11, .95) 100%);
+        }
+
+        .hero-main::before,
+        .hero-main::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .10)
+        }
+
+        .hero-main::before {
+            width: 330px;
+            height: 330px;
+            top: -120px;
+            right: -90px
+        }
+
+        .hero-main::after {
+            width: 180px;
+            height: 180px;
+            left: -40px;
+            bottom: -55px
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .15);
+            font-weight: 800;
+            font-size: .88rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-main h2 {
+            margin: 18px 0 14px;
+            font-size: clamp(2.2rem, 4.3vw, 4.2rem);
+            line-height: 1.02;
+            position: relative;
+            z-index: 1
+        }
+
+        .hero-main p {
+            margin: 0;
+            font-size: 1.04rem;
+            line-height: 1.8;
+            max-width: 760px;
+            position: relative;
+            z-index: 1
+        }
+
+        .hero-actions,
+        .inline-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+            position: relative;
+            z-index: 1
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            transition: .25s ease
+        }
+
+        .btn:hover {
+            transform: translateY(-2px)
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, .12)
+        }
+
+        .btn-outline {
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .35);
+            background: rgba(255, 255, 255, .10)
+        }
+
+        .btn-dark {
+            background: var(--dark);
+            color: #fff
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: #fff
+        }
+
+        .hero-side {
+            padding: 24px;
+            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 16px
+        }
+
+        .logo-box {
+            min-height: 290px;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, #fff 0%, #f7f9fd 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .logo-box img {
+            width: 300px;
+            object-fit: contain
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px
+        }
+
+        .stat {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 16px
+        }
+
+        .stat small {
+            display: block;
+            color: var(--muted);
+            margin-bottom: 6px
+        }
+
+        .stat strong {
+            font-size: 1rem
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 18px
+        }
+
+        .section-head h3 {
+            margin: 0;
+            font-size: clamp(1.5rem, 2.8vw, 2.5rem)
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+            max-width: 760px
+        }
+
+        .grid-2,
+        .grid-3,
+        .grid-4 {
+            display: grid;
+            gap: 18px
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr)
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr)
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr)
+        }
+
+        .card,
+        .schedule-box,
+        .pricing-card {
+            padding: 24px
+        }
+
+        .card h4,
+        .schedule-box h4,
+        .pricing-card h4 {
+            margin: 0 0 12px
+        }
+
+        .card p,
+        .card li,
+        .schedule-box p,
+        .pricing-card p {
+            color: #334155;
+            line-height: 1.74
+        }
+
+        .icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            margin-bottom: 12px
+        }
+
+        ul.clean {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 10px
+        }
+
+        ul.clean li::before {
+            content: "✓";
+            color: var(--teal);
+            font-weight: 900;
+            margin-right: 10px
+        }
+
+        .module {
+            border-left: 8px solid var(--primary);
+            background: linear-gradient(180deg, #fff 0%, #fbfcff 100%)
+        }
+
+        .module:nth-child(2) {
+            border-left-color: var(--secondary)
+        }
+
+        .module:nth-child(3) {
+            border-left-color: var(--teal)
+        }
+
+        .module:nth-child(4) {
+            border-left-color: var(--gold)
+        }
+
+        .module:nth-child(5) {
+            border-left-color: #3b82f6
+        }
+
+        .module:nth-child(6) {
+            border-left-color: #16a34a
+        }
+
+        .module:nth-child(7) {
+            border-left-color: #7c3aed
+        }
+
+        .module:nth-child(8) {
+            border-left-color: #ea580c
+        }
+
+        .badge {
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: #f3f6fb;
+            color: #475569;
+            font-weight: 800;
+            font-size: .8rem
+        }
+
+        .steps {
+            display: grid;
+            gap: 16px
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 74px 1fr;
+            gap: 16px
+        }
+
+        .step-num {
+            width: 74px;
+            height: 74px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 900
+        }
+
+        .schedule-grid,
+        .pricing-grid,
+        .resources,
+        .contact-grid {
+            display: grid;
+            gap: 18px
+        }
+
+        .schedule-grid {
+            grid-template-columns: repeat(3, 1fr)
+        }
+
+        .pricing-grid,
+        .resources {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .contact-grid {
+            grid-template-columns: 1.15fr .85fr;
+            align-items: start
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            min-height: 240px;
+            border-radius: 26px;
+            box-shadow: var(--shadow);
+            background: linear-gradient(145deg, rgba(142, 36, 170, .96), rgba(255, 90, 106, .92));
+            color: #fff;
+            padding: 22px;
+            display: flex;
+            align-items: flex-end;
+            transition: .35s ease
+        }
+
+        .gallery-item:nth-child(2) {
+            background: linear-gradient(145deg, rgba(16, 183, 178, .96), rgba(59, 130, 246, .92))
+        }
+
+        .gallery-item:nth-child(3) {
+            background: linear-gradient(145deg, rgba(245, 158, 11, .96), rgba(234, 88, 12, .92))
+        }
+
+        .gallery-item:nth-child(4) {
+            background: linear-gradient(145deg, rgba(31, 41, 55, .96), rgba(124, 58, 237, .92))
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-6px)
+        }
+
+        .gallery-item h4 {
+            margin: 0 0 8px
+        }
+
+        .gallery-item p {
+            margin: 0;
+            color: rgba(255, 255, 255, .92)
+        }
+
+        .table-wrap {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 12px;
+            overflow-x: auto
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden
+        }
+
+        th,
+        td {
+            padding: 15px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: .96rem
+        }
+
+        th {
+            background: linear-gradient(135deg, #141d3a, #482b7b);
+            color: #fff
+        }
+
+        .pricing-card.primary {
+            border: 2px solid rgba(142, 36, 170, .18);
+            background: linear-gradient(180deg, #fff 0%, #faf5ff 100%)
+        }
+
+        .pricing-price {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 8px 0 10px
+        }
+
+        .faq {
+            display: grid;
+            gap: 12px
+        }
+
+        .faq-item {
+            padding: 0;
+            overflow: hidden
+        }
+
+        .faq-item details {
+            padding: 18px 20px
+        }
+
+        .faq-item summary {
+            cursor: pointer;
+            font-weight: 800;
+            list-style: none
+        }
+
+        .faq-item summary::-webkit-details-marker {
+            display: none
+        }
+
+        .faq-item p {
+            margin: 12px 0 0;
+            color: #334155;
+            line-height: 1.7
+        }
+
+        .stars {
+            color: #f59e0b;
+            letter-spacing: 1px
+        }
+
+        .name {
+            font-weight: 800;
+            margin-top: 12px
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .field.full {
+            grid-column: 1/-1
+        }
+
+        label {
+            font-weight: 700;
+            font-size: .92rem
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            font: inherit;
+            background: #fff;
+            outline: none
+        }
+
+        textarea {
+            min-height: 130px;
+            resize: vertical
+        }
+
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px
+        }
+
+        .form-message {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: #ecfdf5;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: none;
+            font-weight: 700
+        }
+
+        .mini-map {
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            padding: 16px;
+            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+            margin-top: 16px
+        }
+
+        footer {
+            margin-top: 28px;
+            background: linear-gradient(135deg, #111827, #182338);
+            color: #fff
+        }
+
+        .footer-inner {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 34px 20px 48px;
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 18px;
+            align-items: center
+        }
+
+        .footer-card {
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .10);
+            border-radius: 24px;
+            padding: 24px
+        }
+
+        .whatsapp-float,
+        .back-top {
+            position: fixed;
+            right: 18px;
+            z-index: 140;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .25s ease
+        }
+
+        .whatsapp-float {
+            bottom: 18px;
+            width: 62px;
+            height: 62px;
+            background: #25D366;
+            color: #fff;
+            box-shadow: 0 18px 34px rgba(37, 211, 102, .35);
+            font-size: 1.7rem;
+            font-weight: 900
+        }
+
+        .back-top {
+            bottom: 92px;
+            width: 52px;
+            height: 52px;
+            background: var(--dark);
+            color: #fff;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, .24);
+            font-size: 1.3rem;
+            opacity: 0;
+            pointer-events: none
+        }
+
+        .back-top.show {
+            opacity: 1;
+            pointer-events: auto
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .7s ease, transform .7s ease
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        @media (max-width:1080px) {
+            .hero {
+                grid-template-columns: 1fr
+            }
+
+            .resources,
+            .contact-grid,
+            .footer-inner,
+            .pricing-grid {
+                grid-template-columns: 1fr
+            }
+
+            .gallery,
+            .grid-4,
+            .grid-3,
+            .grid-2,
+            .schedule-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .section-head {
+                flex-direction: column;
+                align-items: start
+            }
+        }
+
+        @media (max-width:760px) {
+            .nav {
+                flex-direction: column;
+                align-items: start
+            }
+
+            .menu {
+                justify-content: start
+            }
+
+            .gallery,
+            .grid-4,
+            .grid-3,
+            .grid-2,
+            .form-grid,
+            .stats,
+            .schedule-grid {
+                grid-template-columns: 1fr
+            }
+
+            .step {
+                grid-template-columns: 1fr
+            }
+
+            .step-num {
+                width: 64px;
+                height: 64px
+            }
+
+            .hero-main,
+            .hero-side,
+            .card,
+            .schedule-box,
+            .pricing-card {
+                padding: 20px
+            }
+
+            .hero-main h2 {
+                font-size: 2.3rem
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="nav">
+            <div class="brand">
+                <img class="brand-logo" src="LOGO.jpg"
+                    alt="Logo Centro de Capacitación Municipal">
+                <div>
+                    <h1>Centro de Capacitación Municipal</h1>
+                    <p>Computación Básica 2026 · Manual web profesional</p>
+                </div>
+            </div>
+            <nav class="menu">
+                <a href="#inicio">Inicio</a>
+                <a href="#programa">Programa</a>
+                <a href="#modulos">Módulos</a>
+                <a href="#horarios">Horarios</a>
+                <a href="#galeria">Galería</a>
+                <a href="#descargas">PDF</a>
+                <a href="#inscripcion">Inscripción</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section class="hero reveal visible" id="inicio">
+            <article class="hero-main">
+                <span class="eyebrow">💻 Formación digital 2026</span>
+                <h2>Manual Web Completo de Computación Básica</h2>
+                <p>Página institucional lista para publicar del curso <strong>Computación Básica 2026</strong> del
+                    <strong>Centro de Capacitación Municipal de Limache</strong>, con diseño moderno, formulario de
+                    inscripción, botón de WhatsApp, galería, descarga del manual PDF, horarios, beneficios y estructura
+                    profesional para promoción y uso académico.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#inscripcion">Inscribirme</a>
+                    <a class="btn btn-outline" href="#descargas">Descargar manual PDF</a>
+                </div>
+            </article>
+            <aside class="hero-side">
+                <div class="logo-box">
+                    <img src="LOGO.jpg" alt="Logo institucional">
+                </div>
+                <div class="stats">
+                    <div class="stat"><small>Docente / Monitor</small><strong>Mauricio Galaz</strong></div>
+                    <div class="stat"><small>Año</small><strong>2026</strong></div>
+                    <div class="stat"><small>Duración</small><strong>30 a 40 horas</strong></div>
+                    <div class="stat"><small>Modalidad</small><strong>Presencial / práctica</strong></div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="reveal" id="programa">
+            <div class="section-head">
+                <div>
+                    <h3>Presentación del programa</h3>
+                    <p>Curso orientado a personas que desean comenzar desde cero o fortalecer sus conocimientos en
+                        herramientas digitales para el trabajo, estudio y vida cotidiana.</p>
+                </div>
+            </div>
+            <div class="grid-3">
+                <article class="card">
+                    <div class="icon">🖥️</div>
+                    <h4>Enfoque práctico</h4>
+                    <p>Aprendizaje guiado con demostraciones, ejercicios reales y acompañamiento cercano para
+                        desarrollar confianza digital desde el primer día.</p>
+                </article>
+                <article class="card">
+                    <div class="icon">🌐</div>
+                    <h4>Competencias digitales</h4>
+                    <p>Incluye Windows, manejo de archivos, internet, correo electrónico, Word, Excel y presentaciones
+                        básicas.</p>
+                </article>
+                <article class="card">
+                    <div class="icon">🚀</div>
+                    <h4>Proyección laboral</h4>
+                    <p>Entrega herramientas concretas para empleabilidad, trámites en línea, comunicación y
+                        productividad personal.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="grid-2">
+                <article class="card">
+                    <h4>Objetivo general</h4>
+                    <p>Desarrollar competencias digitales básicas que permitan al estudiante utilizar un computador,
+                        navegar por internet y manejar herramientas ofimáticas de manera autónoma, responsable y segura.
+                    </p>
+                </article>
+                <article class="card">
+                    <h4>Objetivos específicos</h4>
+                    <ul class="clean">
+                        <li>Reconocer las partes del computador y sus funciones.</li>
+                        <li>Comprender el entorno Windows y sus elementos básicos.</li>
+                        <li>Usar barra de tareas, menú inicio y configuración inicial.</li>
+                        <li>Conectarse a redes Wi‑Fi y navegar por internet.</li>
+                        <li>Crear documentos simples, planillas y presentaciones.</li>
+                        <li>Aplicar prácticas básicas de seguridad digital.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="grid-4">
+                <article class="card">
+                    <h4>Perfil de ingreso</h4>
+                    <p>Dirigido a jóvenes, adultos y comunidad general con conocimientos nulos o básicos en computación.
+                    </p>
+                </article>
+                <article class="card">
+                    <h4>Perfil de egreso</h4>
+                    <p>El estudiante podrá operar un computador, conectarse a internet, crear archivos y desenvolverse
+                        con autonomía digital básica.</p>
+                </article>
+                <article class="card">
+                    <h4>Requisitos</h4>
+                    <p>No se exigen conocimientos previos. Solo disposición para aprender, asistir y participar
+                        activamente.</p>
+                </article>
+                <article class="card">
+                    <h4>Certificación</h4>
+                    <p>Sección preparada para informar requisitos de aprobación, asistencia mínima y entrega de
+                        certificado.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal" id="modulos">
+            <div class="section-head">
+                <div>
+                    <h3>Módulos del curso</h3>
+                    <p>Estructura lista para mostrar en la web institucional del programa 2026.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <article class="card module"><span class="badge">Módulo 1</span>
+                    <h4>Introducción al computador</h4>
+                    <ul class="clean">
+                        <li>Hardware y software.</li>
+                        <li>Teclado, mouse y monitor.</li>
+                        <li>Encendido y apagado correcto.</li>
+                        <li>Cuidado del equipo.</li>
+                    </ul>
+                </article>
+                <article class="card module"><span class="badge">Módulo 2</span>
+                    <h4>Windows y escritorio</h4>
+                    <ul class="clean">
+                        <li>Escritorio, ventanas e íconos.</li>
+                        <li>Exploración del entorno Windows.</li>
+                        <li>Uso inicial del sistema operativo.</li>
+                    </ul>
+                </article>
+                <article class="card module"><span class="badge">Módulo 3</span>
+                    <h4>Barra de tareas</h4>
+                    <ul class="clean">
+                        <li>Aplicaciones abiertas.</li>
+                        <li>Programas anclados.</li>
+                        <li>Reloj, sonido y notificaciones.</li>
+                    </ul>
+                </article>
+                <article class="card module"><span class="badge">Módulo 4</span>
+                    <h4>Menú Inicio</h4>
+                    <ul class="clean">
+                        <li>Acceso a programas y carpetas.</li>
+                        <li>Búsqueda rápida.</li>
+                        <li>Apagar o reiniciar el equipo.</li>
+                    </ul>
+                </article>
+                <article class="card module"><span class="badge">Módulo 5</span>
+                    <h4>Internet y Wi‑Fi</h4>
+                    <ul class="clean">
+                        <li>Conectividad básica.</li>
+                        <li>Redes Wi‑Fi y navegación segura.</li>
+                        <li>Uso de Google Chrome.</li>
+                    </ul>
+                </article>
+                <article class="card module"><span class="badge">Módulo 6</span>
+                    <h4>Word básico</h4>
+                    <ul class="clean">
+                        <li>Escribir y guardar documentos.</li>
+                        <li>Formato de texto y párrafo.</li>
+                        <li>Documentos cotidianos.</li>
+                    </ul>
+                </article>
+                <article class="card module"><span class="badge">Módulo 7</span>
+                    <h4>Excel básico</h4>
+                    <ul class="clean">
+                        <li>Celdas, filas y columnas.</li>
+                        <li>Tablas simples.</li>
+                        <li>Fórmulas como suma y promedio.</li>
+                    </ul>
+                </article>
+                <article class="card module"><span class="badge">Módulo 8</span>
+                    <h4>PowerPoint básico</h4>
+                    <ul class="clean">
+                        <li>Creación de diapositivas.</li>
+                        <li>Texto e imágenes.</li>
+                        <li>Presentación final simple.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="section-head">
+                <div>
+                    <h3>Metodología</h3>
+                    <p>Modelo paso a paso pensado para alumnos que aprenden mejor con práctica, guía y tareas reales.
+                    </p>
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="card">
+                        <h4>Explicación clara</h4>
+                        <p>El docente introduce cada contenido con lenguaje simple, ejemplos cotidianos y apoyo visual.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="card">
+                        <h4>Demostración en vivo</h4>
+                        <p>Se enseña en pantalla cómo realizar cada procedimiento antes de que el alumno lo replique.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="card">
+                        <h4>Práctica guiada</h4>
+                        <p>Los estudiantes desarrollan ejercicios concretos con acompañamiento y corrección inmediata.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="card">
+                        <h4>Aplicación real</h4>
+                        <p>Se resuelven tareas como crear un CV, usar correo, buscar información y organizar gastos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="reveal" id="horarios">
+            <div class="section-head">
+                <div>
+                    <h3>Horarios sugeridos</h3>
+                    <p>Sección preparada para mostrar alternativas de jornada y facilitar la captación de alumnos.</p>
+                </div>
+            </div>
+            <div class="schedule-grid">
+                <article class="schedule-box"><strong>Mañana</strong>
+                    <p>Lunes y miércoles<br>09:00 a 11:00 hrs</p>
+                </article>
+                <article class="schedule-box"><strong>Tarde</strong>
+                    <p>Martes y jueves<br>15:00 a 17:00 hrs</p>
+                </article>
+                <article class="schedule-box"><strong>Vespertino</strong>
+                    <p>Lunes y miércoles<br>18:30 a 20:30 hrs</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="section-head">
+                <div>
+                    <h3>Qué aprenderás</h3>
+                    <p>Beneficios concretos que puedes destacar en la página principal del curso.</p>
+                </div>
+            </div>
+            <div class="grid-3">
+                <article class="card">
+                    <div class="icon">📁</div>
+                    <h4>Organizar archivos</h4>
+                    <p>Crear carpetas, guardar documentos y mantener ordenada la información.</p>
+                </article>
+                <article class="card">
+                    <div class="icon">📧</div>
+                    <h4>Comunicación digital</h4>
+                    <p>Usar correo, adjuntar archivos y participar con mayor seguridad en entornos digitales.</p>
+                </article>
+                <article class="card">
+                    <div class="icon">📊</div>
+                    <h4>Productividad básica</h4>
+                    <p>Preparar documentos, planillas y presentaciones para estudio, trabajo y trámites.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal" id="galeria">
+            <div class="section-head">
+                <div>
+                    <h3>Galería del curso</h3>
+                    <p>Sección visual lista para reemplazar por fotos reales del laboratorio, clases y alumnos.</p>
+                </div>
+            </div>
+            <div class="gallery">
+                <article class="gallery-item">
+                    <div>
+                        <h4>Aprendizaje práctico</h4>
+                        <p>Trabajo guiado en computador con apoyo directo del docente.</p>
+                    </div>
+                </article>
+                <article class="gallery-item">
+                    <div>
+                        <h4>Entorno digital</h4>
+                        <p>Uso de Windows, navegación y herramientas de oficina.</p>
+                    </div>
+                </article>
+                <article class="gallery-item">
+                    <div>
+                        <h4>Clases accesibles</h4>
+                        <p>Metodología simple para estudiantes de distintos niveles.</p>
+                    </div>
+                </article>
+                <article class="gallery-item">
+                    <div>
+                        <h4>Formación municipal</h4>
+                        <p>Programa pensado para la comunidad de Limache.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal" id="descargas">
+            <div class="section-head">
+                <div>
+                    <h3>Descargas y recursos</h3>
+                    <p>Bloque listo para que el alumno descargue materiales del curso directamente desde la web.</p>
+                </div>
+            </div>
+            <div class="resources">
+                <article class="card">
+                    <h4>Manual del alumno en PDF</h4>
+                    <p>Descarga directa del manual base del curso para estudio, práctica y repaso en casa.</p>
+                    <div class="inline-actions">
+                        <a class="btn btn-dark" href="manual-alumno-informatica-basica.pdf" download>⬇ Descargar PDF</a>
+                        <a class="btn btn-success" href="manual-alumno-informatica-basica.pdf" target="_blank"
+                            rel="noopener">👁 Ver PDF</a>
+                    </div>
+                </article>
+                <article class="card">
+                    <h4>Recursos destacados</h4>
+                    <ul class="clean">
+                        <li>Programa del curso.</li>
+                        <li>Manual del alumno.</li>
+                        <li>Ficha de inscripción.</li>
+                        <li>Información de horarios y contacto.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="section-head">
+                <div>
+                    <h3>Plan de evaluación</h3>
+                    <p>Propuesta simple, clara y editable para acompañar el proceso de aprendizaje.</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Instrumento</th>
+                            <th>Descripción</th>
+                            <th>Ponderación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Guías prácticas</td>
+                            <td>Actividades sobre Windows, internet, manejo de archivos y conectividad.</td>
+                            <td>35%</td>
+                        </tr>
+                        <tr>
+                            <td>Ofimática básica</td>
+                            <td>Trabajos en Word, Excel y PowerPoint.</td>
+                            <td>30%</td>
+                        </tr>
+                        <tr>
+                            <td>Participación y asistencia</td>
+                            <td>Compromiso, práctica y participación en clases.</td>
+                            <td>20%</td>
+                        </tr>
+                        <tr>
+                            <td>Proyecto final</td>
+                            <td>Producto integrador como CV, planilla o presentación.</td>
+                            <td>15%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="section-head">
+                <div>
+                    <h3>Opciones de publicación</h3>
+                    <p>Bloque adaptable si deseas mostrar costo, gratuidad o modalidad especial del curso.</p>
+                </div>
+            </div>
+            <div class="pricing-grid">
+                <article class="pricing-card primary">
+                    <span class="badge">Opción destacada</span>
+                    <h4>Curso abierto 2026</h4>
+                    <div class="pricing-price">Consultar</div>
+                    <ul class="clean">
+                        <li>Manual PDF incluido.</li>
+                        <li>Inscripción vía WhatsApp.</li>
+                        <li>Formato presencial y práctico.</li>
+                        <li>Certificación adaptable.</li>
+                    </ul>
+                </article>
+                <article class="pricing-card">
+                    <span class="badge">Uso institucional</span>
+                    <h4>Versión municipal</h4>
+                    <p>Esta sección puede reemplazarse por “Gratuito”, “Con cupos limitados”, “Prioridad comunal” o
+                        cualquier condición oficial.</p>
+                    <div class="inline-actions">
+                        <a class="btn btn-info" href="#inscripcion">Solicitar cupo</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="section-head">
+                <div>
+                    <h3>Testimonios</h3>
+                    <p>Sección lista para reemplazar por comentarios reales de alumnos o vecinos de Limache.</p>
+                </div>
+            </div>
+            <div class="grid-3">
+                <article class="card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Aprendí desde cero a usar el computador y ahora puedo hacer trámites, buscar información y
+                        trabajar mejor.”</p>
+                    <div class="name">Alumno/a del programa</div>
+                </article>
+                <article class="card">
+                    <div class="stars">★★★★★</div>
+                    <p>“La explicación es clara y práctica. Me ayudó mucho a perder el miedo a la tecnología.”</p>
+                    <div class="name">Participante 2026</div>
+                </article>
+                <article class="card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Muy útil para quienes necesitan herramientas básicas para postular a trabajos o estudiar.”</p>
+                    <div class="name">Vecino/a de Limache</div>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal">
+            <div class="section-head">
+                <div>
+                    <h3>Preguntas frecuentes</h3>
+                    <p>Sección útil para una web pública del curso.</p>
+                </div>
+            </div>
+            <div class="faq">
+                <article class="faq-item">
+                    <details>
+                        <summary>¿Necesito conocimientos previos?</summary>
+                        <p>No. El curso está pensado para personas que parten desde cero o que necesitan reforzar lo
+                            básico.</p>
+                    </details>
+                </article>
+                <article class="faq-item">
+                    <details>
+                        <summary>¿Debo llevar computador propio?</summary>
+                        <p>Eso depende de la organización del curso. Esta web está preparada para mostrar esa
+                            información cuando se defina oficialmente.</p>
+                    </details>
+                </article>
+                <article class="faq-item">
+                    <details>
+                        <summary>¿Se entrega certificado?</summary>
+                        <p>La sección puede adaptarse para indicar requisitos de aprobación, asistencia y entrega de
+                            certificado final.</p>
+                    </details>
+                </article>
+                <article class="faq-item">
+                    <details>
+                        <summary>¿Cómo me inscribo?</summary>
+                        <p>Puedes completar el formulario y enviar tu solicitud directamente por WhatsApp al número del
+                            curso.</p>
+                    </details>
+                </article>
+            </div>
+        </section>
+
+        <section class="reveal" id="inscripcion">
+            <div class="section-head">
+                <div>
+                    <h3>Formulario de inscripción</h3>
+                    <p>Formulario funcional con validación y envío directo a WhatsApp para registro rápido de
+                        interesados.</p>
+                </div>
+            </div>
+            <div class="contact-grid">
+                <article class="card">
+                    <h4>Inscribirse al curso</h4>
+                    <form id="inscripcionForm">
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="nombre">Nombre completo</label>
+                                <input id="nombre" name="nombre" type="text" required placeholder="Ej.: María González">
+                            </div>
+                            <div class="field">
+                                <label for="telefono">Teléfono</label>
+                                <input id="telefono" name="telefono" type="tel" required
+                                    placeholder="Ej.: +56 9 1234 5678">
+                            </div>
+                            <div class="field">
+                                <label for="email">Correo electrónico</label>
+                                <input id="email" name="email" type="email" placeholder="Ej.: correo@ejemplo.com">
+                            </div>
+                            <div class="field">
+                                <label for="edad">Edad</label>
+                                <input id="edad" name="edad" type="number" min="12" max="99" placeholder="Ej.: 34">
+                            </div>
+                            <div class="field">
+                                <label for="nivel">Nivel de conocimiento</label>
+                                <select id="nivel" name="nivel" required>
+                                    <option value="">Seleccione una opción</option>
+                                    <option>Sin conocimientos</option>
+                                    <option>Básico</option>
+                                    <option>Intermedio inicial</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="horario">Horario de preferencia</label>
+                                <select id="horario" name="horario">
+                                    <option value="">Seleccione una opción</option>
+                                    <option>Mañana</option>
+                                    <option>Tarde</option>
+                                    <option>Vespertino</option>
+                                </select>
+                            </div>
+                            <div class="field full">
+                                <label for="mensaje">Mensaje o consulta</label>
+                                <textarea id="mensaje" name="mensaje"
+                                    placeholder="Cuéntanos si necesitas más información, horarios o requisitos."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" type="submit">Enviar inscripción por WhatsApp</button>
+                            <button class="btn btn-dark" type="button" id="copiarDatos">Copiar datos</button>
+                        </div>
+                        <div class="form-message" id="formMessage">Datos preparados correctamente. Se abrirá WhatsApp
+                            para enviar la inscripción.</div>
+                    </form>
+                </article>
+
+                <article class="card">
+                    <h4>Contacto del curso</h4>
+                    <p><strong>Institución:</strong> Centro de Capacitación Municipal</p>
+                    <p><strong>Curso:</strong> Computación Básica 2026</p>
+                    <p><strong>Docente:</strong> Mauricio Galaz</p>
+                    <p><strong>Dirección:</strong> Serrano #254, San Francisco de Limache, Valparaíso, Chile</p>
+                    <p><strong>WhatsApp / Teléfono:</strong> +56 9 7608 1946</p>
+                    <p><strong>Modalidad:</strong> Presencial / práctica</p>
+                    <p><strong>Duración:</strong> 30 a 40 horas</p>
+                    <div class="mini-map">
+                        <strong>Ubicación referencial</strong>
+                        <p style="margin:8px 0 0">Serrano #254, San Francisco de Limache, Valparaíso, Chile.</p>
+                    </div>
+                    <div class="inline-actions">
+                        <a class="btn btn-success" target="_blank" rel="noopener"
+                            href="https://wa.me/56976081946?text=Hola%2C%20quiero%20informaci%C3%B3n%20del%20curso%20de%20Computaci%C3%B3n%20B%C3%A1sica%202026.">Abrir
+                            WhatsApp</a>
+                        <a class="btn btn-info" href="#descargas">Ver materiales</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div>
+                <h3>Centro de Capacitación Municipal de Limache</h3>
+                <p style="color:rgba(255,255,255,.86);line-height:1.75;">Sitio web listo para subir a internet, editar y
+                    reutilizar para nuevas versiones del curso. Incluye formulario de inscripción, botón de WhatsApp,
+                    galería visual, descarga PDF, horarios, testimonios y animaciones suaves.</p>
+            </div>
+            <div class="footer-card">
+                <strong>Versión regenerada</strong>
+                <p style="margin:8px 0 0;color:rgba(255,255,255,.84);line-height:1.7;">Solo debes subir esta carpeta a
+                    tu hosting o a plataformas como Netlify, GitHub Pages o cualquier servidor web.</p>
+            </div>
+        </div>
+    </footer>
+
+    <a class="back-top" href="#inicio" aria-label="Volver arriba" title="Volver arriba">↑</a>
+    <a class="whatsapp-float"
+        href="https://wa.me/56976081946?text=Hola%2C%20quiero%20informaci%C3%B3n%20del%20curso%20de%20Computaci%C3%B3n%20B%C3%A1sica%202026."
+        target="_blank" rel="noopener" aria-label="WhatsApp" title="Escríbenos por WhatsApp">✆</a>
+
+    <script>
+        const revealItems = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.12 });
+        revealItems.forEach(item => observer.observe(item));
+
+        const form = document.getElementById('inscripcionForm');
+        const formMessage = document.getElementById('formMessage');
+        const copiarBtn = document.getElementById('copiarDatos');
+        const backTop = document.querySelector('.back-top');
+
+        function buildMessage() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const edad = document.getElementById('edad').value.trim();
+            const nivel = document.getElementById('nivel').value.trim();
+            const horario = document.getElementById('horario').value.trim();
+            const mensaje = document.getElementById('mensaje').value.trim();
+            return [
+                'Hola, quiero inscribirme al curso de Computación Básica 2026.',
+                '',
+                'Nombre: ' + nombre,
+                'Teléfono: ' + telefono,
+                'Correo: ' + (email || 'No indicado'),
+                'Edad: ' + (edad || 'No indicada'),
+                'Nivel: ' + nivel,
+                'Horario preferente: ' + (horario || 'No indicado'),
+                'Mensaje: ' + (mensaje || 'Sin mensaje adicional')
+            ].join('\\n');
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!form.reportValidity()) return;
+            const text = encodeURIComponent(buildMessage());
+            const url = 'https://wa.me/56976081946?text=' + text;
+            formMessage.textContent = 'Datos preparados correctamente. Se abrirá WhatsApp para enviar la inscripción.';
+            formMessage.style.display = 'block';
+            window.open(url, '_blank');
+        });
+
+        copiarBtn.addEventListener('click', async function () {
+            if (!form.reportValidity()) return;
+            try {
+                await navigator.clipboard.writeText(buildMessage());
+                formMessage.textContent = 'Datos copiados correctamente.';
+                formMessage.style.display = 'block';
+            } catch (error) {
+                formMessage.textContent = 'No se pudo copiar automáticamente. Intenta nuevamente.';
+                formMessage.style.display = 'block';
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backTop.classList.add('show');
+            } else {
+                backTop.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+
+</html>
+<!-- """
+
+html_path.write_text(html, encoding="utf-8")
+
+readme = textwrap.dedent("""\
+Manual web profesional del curso Computación Básica 2026.
+
+Archivos:
+- index.html
+- logo-centro-capacitacion-municipal.jpg
+- manual-alumno-informatica-basica.pdf
+
+Incluye:
+- formulario de inscripción por WhatsApp
+- botón flotante de WhatsApp
+- botón volver arriba
+- galería visual
+- descarga de PDF
+- horarios sugeridos
+- testimonios
+- preguntas frecuentes
+- tarjetas de beneficios, requisitos y certificación
+""")
+(base / "README.txt").write_text(readme, encoding="utf-8")
+
+zip_path = Path("/mnt/data/manual_web_computacion_basica_2026_nuevo.zip")
+if zip_path.exists():
+zip_path.unlink()
+
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+for f in base.iterdir():
+zf.write(f, arcname=f.name)
+
+print(f"Creado: {html_path}")
+print(f"Creado: {zip_path}") -->

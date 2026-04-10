@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tríptico Digital Interactivo - Centro de Capacitación Municipal Limache</title>
+<style>
+  :root {
+    --magenta: #9E005D;
+    --coral: #ED4E44;
+    --turquesa: #00A89D;
+    --naranja: #F18A00;
+    --amarillo: #FFEB3B; /* Not used in tree, but in guide */
+    --gris-fnd: #F5F5F5;
+    --gris-txt: #333;
+    --border-rad: 10px;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .leaflet-container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: white;
+    border-radius: var(--border-rad);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Color Bars */
+  .color-bars {
+    height: 15px;
+    display: flex;
+    width: 100%;
+  }
+
+  .color-bars div { flex: 1; }
+  .top-bars .bar-1 { background-color: var(--magenta); }
+  .top-bars .bar-2 { background-color: var(--coral); }
+  .top-bars .bar-3 { background-color: var(--turquesa); }
+  .top-bars .bar-4 { background-color: var(--naranja); }
+
+  .bottom-bars .bar-1 { background-color: var(--naranja); }
+  .bottom-bars .bar-2 { background-color: var(--turquesa); }
+  .bottom-bars .bar-3 { background-color: var(--coral); }
+  .bottom-bars .bar-4 { background-color: var(--magenta); }
+
+  /* Pages Wrapper */
+  .pages-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    padding: 20px;
+    position: relative;
+  }
+
+  .page {
+    padding: 20px;
+    border-right: 1px solid #eee;
+  }
+
+  .page:last-child { border-right: none; }
+
+  /* Page 1 - Curso Destacado */
+  .page-1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .logo-area {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .logo {
+    width: 60px;
+    height: auto;
+  }
+
+  .highlight-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--gris-txt);
+    margin: 0;
+    text-align: right;
+  }
+
+  .course-name-editable {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .editable-field[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: #999;
+  }
+
+  .editable-field[contenteditable="true"] {
+    outline: 2px dashed #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    transition: outline-color 0.2s;
+  }
+
+  .editable-field[contenteditable="true"]:focus {
+    outline-color: var(--turquesa);
+    outline-style: solid;
+  }
+
+  .course-name-editable h2 {
+    font-size: 2.2rem;
+    color: var(--gris-txt);
+    margin: 0;
+  }
+
+  .course-desc-editable p {
+    font-size: 1rem;
+    color: #666;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+  }
+
+  .benefits-list {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .benefit-icon {
+    width: 25px;
+    height: 25px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .benefit-icon svg { width: 100%; height: 100%; }
+
+  .editable-benefit {
+    font-size: 0.95rem;
+    color: var(--gris-txt);
+  }
+
+  .center-image {
+    width: 100%;
+    position: relative;
+    padding-bottom: 100%;
+    margin-bottom: 20px;
+  }
+
+  .center-image img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Page 2 - Próximos Cursos & Style Guide */
+  .page-2 {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .next-courses {
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--gris-txt);
+    margin: 0 0 20px 0;
+    text-align: center;
+  }
+
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .editable-hex-item {
+    text-align: center;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: white;
+  }
+
+  .hex-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px auto;
+  }
+
+  .hex-title {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: var(--gris-txt);
+    margin-bottom: 5px;
+  }
+
+  .hex-details {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .style-guide {
+    background-color: var(--gris-fnd);
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .style-guide-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--gris-txt);
+    margin: 0 0 15px 0;
+    text-align: center;
+  }
+
+  .guide-list {
+    font-size: 0.9rem;
+    color: var(--gris-txt);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .guide-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .guide-item span { margin-left: 10px; }
+
+  .color-guide {
+    display: flex;
+    gap: 5px;
+  }
+
+  .color-guide div {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+  }
+
+  /* Page 3 - Testimonios & Contacto */
+  .page-3 {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .testimonials {
+    margin-bottom: 30px;
+  }
+
+  .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .editable-hex-testimonial {
+    text-align: center;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: white;
+  }
+
+  .hex-portrait {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+    overflow: hidden;
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .hex-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hex-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--gris-txt);
+    margin-bottom: 5px;
+  }
+
+  .hex-quote {
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  .contact-section {
+    background-color: var(--gris-fnd);
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .contact-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--gris-txt);
+    margin: 0 0 15px 0;
+    text-align: center;
+  }
+
+  .platform-login {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .platform-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--gris-txt);
+    margin-bottom: 10px;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .login-input {
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .login-btn {
+    background-color: var(--turquesa);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: flex-end;
+  }
+
+  .contact-list {
+    font-size: 0.85rem;
+    color: var(--gris-txt);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .contact-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
+
+  .map-mini {
+    width: 100%;
+    height: 60px;
+    background-color: #ddd;
+    border-radius: 6px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #888;
+  }
+
+  /* SVG Icons (Simplificados) */
+  .icon-svg-lightbulb { fill: var(--turquesa); }
+  .icon-svg-clock { fill: var(--coral); }
+  .icon-svg-check { fill: var(--naranja); }
+  .icon-svg-guide-color { fill: #ccc; }
+  .icon-svg-guide-typo { fill: #ccc; }
+  .icon-svg-guide-forms { fill: #ccc; }
+  .icon-svg-guide-images { fill: #ccc; }
+  .icon-svg-guide-logos { fill: #ccc; }
+  .icon-svg-hex-laptop { fill: var(--turquesa); }
+  .icon-svg-hex-paint { fill: var(--coral); }
+  .icon-svg-hex-wrenches { fill: var(--naranja); }
+  .icon-svg-hex-handshake { fill: var(--magenta); }
+  .icon-svg-contact-pin { fill: #888; }
+  .icon-svg-contact-phone { fill: #888; }
+  .icon-svg-contact-mail { fill: #888; }
+  .icon-svg-contact-fb { fill: #888; }
+  .icon-svg-contact-ig { fill: #888; }
+  .icon-svg-contact-web { fill: #888; }
+
+  /* Responsive Layout */
+  @media (max-width: 900px) {
+    .pages-wrapper {
+      grid-template-columns: 1fr;
+    }
+    .page {
+      border-right: none;
+      border-bottom: 1px solid #eee;
+    }
+    .page:last-child { border-bottom: none; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="leaflet-container">
+  <div class="color-bars top-bars">
+    <div class="bar-1"></div>
+    <div class="bar-2"></div>
+    <div class="bar-3"></div>
+    <div class="bar-4"></div>
+  </div>
+
+  <div class="pages-wrapper">
+    <div class="page page-1">
+      <div class="logo-area">
+        <img src="path_to_logo.png" alt="Logo Centro de Capacitación" class="logo">
+        <h1 class="highlight-title">CURSO DESTACADO DE LA SEMANA</h1>
+      </div>
+      
+      <div class="course-name-editable">
+        <h2 class="editable-field" contenteditable="true" placeholder="[Nombre del Curso Principal (Editable)]"></h2>
+      </div>
+      
+      <div class="course-desc-editable">
+        <p class="editable-field" contenteditable="true" placeholder="[Ingresa descripción breve (Editable, máx. 2 líneas)]"></p>
+      </div>
+      
+      <div class="benefits-list">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24" class="icon-svg-lightbulb"><path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zm0 14h-2.5v-1.5h2.5V16zm1.5-3.5h-3c-.55 0-1-.45-1-1s.45-1 1-1h3c.55 0 1 .45 1 1s-.45 1-1 1zm2-3h-4c-.55 0-1-.45-1-1s.45-1 1-1h4c.55 0 1 .45 1 1s-.45 1-1 1z"/></svg>
+          </div>
+          <span class="editable-benefit editable-field" contenteditable="true" placeholder="[Ingresa Beneficio 1 (Editable)]"> Certificación Oficial</span>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24" class="icon-svg-clock"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          </div>
+          <span class="editable-benefit editable-field" contenteditable="true" placeholder="[Ingresa Beneficio 2 (Editable)]"> Plataforma 24/7</span>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24" class="icon-svg-check"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <span class="editable-benefit editable-field" contenteditable="true" placeholder="[Ingresa Beneficio 3 (Editable)]"> Acceso a Bolsa de Trabajo</span>
+        </div>
+      </div>
+      
+      <div class="center-image">
+        <img src="path_to_center_image.png" alt="Mano con brote">
+      </div>
+    </div>
+
+    <div class="page page-2">
+      <div class="next-courses">
+        <h2 class="section-title">PRÓXIMOS CURSOS EN LIMACHE</h2>
+        <div class="course-grid">
+          <div class="editable-hex-item">
+            <div class="hex-icon">
+              <svg viewBox="0 0 24 24" class="icon-svg-hex-laptop"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+            </div>
+            <div class="hex-title editable-field" contenteditable="true" placeholder="[Título Curso 1 (Editable)]">Curso de Programación Web</div>
+            <div class="hex-details editable-field" contenteditable="true" placeholder="[Fecha] - [Horario] - [Cupos] (Editable)">10/26 - 9AM - 15 Cupos</div>
+          </div>
+          <div class="editable-hex-item">
+            <div class="hex-icon">
+              <svg viewBox="0 0 24 24" class="icon-svg-hex-paint"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.08-.82-.5-1.57-1.13-2.12-.62-.55-1.42-.87-2.28-.87H17.1c-1.1 0-2-.9-2-2V4c0-.55-.45-1-1-1zM6.5 13.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11-1c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-5-3.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            </div>
+            <div class="hex-title editable-field" contenteditable="true" placeholder="[Título Curso 2 (Editable)]">Curso de Fotografía Digital</div>
+            <div class="hex-details editable-field" contenteditable="true" placeholder="[Fecha] - [Horario] - [Cupos] (Editable)">11/02 - 10AM - 20 Cupos</div>
+          </div>
+          <div class="editable-hex-item">
+            <div class="hex-icon">
+              <svg viewBox="0 0 24 24" class="icon-svg-hex-wrenches"><path d="M12 2c5.51 0 10 4.49 10 10s-4.49 10-10 10S2 17.51 2 12 6.49 2 12 2zm1 4h-2v1.5h2V6zm0 3h-2v3.5h2V9zm0 5h-2v1.5h2V14zM12 18c3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6 2.69 6 6 6zm-1-10h2v1.5h-2V8z"/></svg>
+            </div>
+            <div class="hex-title editable-field" contenteditable="true" placeholder="[Título Curso 3 (Editable)]">Curso de Gasfitería</div>
+            <div class="hex-details editable-field" contenteditable="true" placeholder="[Fecha] - [Horario] - [Cupos] (Editable)">11/15 - 8AM - 12 Cupos</div>
+          </div>
+          <div class="editable-hex-item">
+            <div class="hex-icon">
+              <svg viewBox="0 0 24 24" class="icon-svg-hex-handshake"><path d="M18.5 2C16.84 2 15 3.84 15 5.5s1.84 3.5 3.5 3.5S22 7.16 22 5.5 20.16 2 18.5 2zm-1 6h-1c-.55 0-1 .45-1 1v11c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1h-1v-2c0-1.1-.9-2-2-2h-3c-1.1 0-2 .9-2 2zm1 12H18v-2h1zm0-3H18v-2h1z"/></svg>
+            </div>
+            <div class="hex-title editable-field" contenteditable="true" placeholder="[Título Curso 4 (Editable)]">Taller de Habilidades Blandas</div>
+            <div class="hex-details editable-field" contenteditable="true" placeholder="[Fecha] - [Horario] - [Cupos] (Editable)">11/20 - 2PM - 25 Cupos</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="style-guide">
+        <h2 class="style-guide-title">GUÍA DE ESTILO - ESTANDARIZACIÓN CAPA</h2>
+        <ul class="guide-list">
+          <li class="guide-item">
+            <div class="guide-icon guide-color">
+              <svg viewBox="0 0 24 24" class="icon-svg-guide-color"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+            </div>
+            <span>**Uso de Colores:**</span>
+            <div class="color-guide">
+              <div style="background-color: var(--magenta);"></div>
+              <div style="background-color: var(--coral);"></div>
+              <div style="background-color: var(--turquesa);"></div>
+              <div style="background-color: var(--naranja);"></div>
+              <div style="background-color: var(--amarillo);"></div>
+            </div>
+            <span>Palette base</span>
+          </li>
+          <li class="guide-item">
+            <div class="guide-icon guide-typo">
+              <svg viewBox="0 0 24 24" class="icon-svg-guide-typo"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>**Tipografía:**</span>
+            <span>Segoe UI, Tahoma. Sans-serif moderno.</span>
+          </li>
+          <li class="guide-item">
+            <div class="guide-icon guide-forms">
+              <svg viewBox="0 0 24 24" class="icon-svg-guide-forms"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>**Formas:**</span>
+            <span>Uso de cuadrículas hexagonales y tarjetas.</span>
+          </li>
+          <li class="guide-item">
+            <div class="guide-icon guide-images">
+              <svg viewBox="0 0 24 24" class="icon-svg-guide-images"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>**Imágenes:**</span>
+            <span>Personas reales de Limache y brotes.</span>
+          </li>
+          <li class="guide-item">
+            <div class="guide-icon guide-logos">
+              <svg viewBox="0 0 24 24" class="icon-svg-guide-logos"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>**Logos y Eslogan:**</span>
+            <span>Visibles en todo el material.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page page-3">
+      <div class="testimonials">
+        <h2 class="section-title">TESTIMONIOS DE NUESTRA COMUNIDAD</h2>
+        <div class="testimonial-grid">
+          <div class="editable-hex-testimonial">
+            <div class="hex-portrait">
+              <img src="path_to_portrait_1.png" alt="[Retrato Alumno 1 (Imagen)]">
+            </div>
+            <div class="hex-name editable-field" contenteditable="true" placeholder="[Nombre Alumno 1 (Editable)]">Ana María García</div>
+            <div class="hex-quote editable-field" contenteditable="true" placeholder="[Ingresa cita de testimonio (Editable)]">"Gracias a CAPA, aprendí a programar y ahora tengo un trabajo."</div>
+          </div>
+          <div class="editable-hex-testimonial">
+            <div class="hex-portrait">
+              <img src="path_to_portrait_2.png" alt="[Retrato Alumno 2 (Imagen)]">
+            </div>
+            <div class="hex-name editable-field" contenteditable="true" placeholder="[Nombre Alumno 2 (Editable)]">Juan Pedro Soto</div>
+            <div class="hex-quote editable-field" contenteditable="true" placeholder="[Ingresa cita de testimonio (Editable)]">"El curso de fotografía fue increíble. Mis fotos son mejores."</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="contact-section">
+        <h2 class="contact-title">CONTÁCTANOS Y REGÍSTRATE</h2>
+        <div class="platform-login">
+          <p class="platform-title">CENTRAL PLATFORM</p>
+          <form class="login-form">
+            <input type="text" placeholder="Usuario" class="login-input">
+            <input type="password" placeholder="Contraseña" class="login-input">
+            <button type="submit" class="login-btn">LOGIN</button>
+          </form>
+        </div>
+        
+        <ul class="contact-list">
+          <li class="contact-item">
+            <div class="contact-icon pin">
+              <svg viewBox="0 0 24 24" class="icon-svg-contact-pin"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+            </div>
+            <span class="editable-field" contenteditable="true" placeholder="[Dirección en Limache (Editable)]">Calle Serrano N° 123, Limache</span>
+          </li>
+          <li class="contact-item">
+            <div class="contact-icon phone">
+              <svg viewBox="0 0 24 24" class="icon-svg-contact-phone"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>+56 9 8765 4321</span>
+          </li>
+          <li class="contact-item">
+            <div class="contact-icon mail">
+              <svg viewBox="0 0 24 24" class="icon-svg-contact-mail"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>contacto@capacitacion.cl</span>
+          </li>
+          <li class="contact-item">
+            <div class="contact-icon fb">
+              <svg viewBox="0 0 24 24" class="icon-svg-contact-fb"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>FB: /CapacitacionLimache</span>
+          </li>
+          <li class="contact-item">
+            <div class="contact-icon ig">
+              <svg viewBox="0 0 24 24" class="icon-svg-contact-ig"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>IG: @capacitacion_limache</span>
+          </li>
+          <li class="contact-item">
+            <div class="contact-icon web">
+              <svg viewBox="0 0 24 24" class="icon-svg-contact-web"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <span>www.capacitacionlimache.cl</span>
+          </li>
+        </ul>
+        
+        <div class="map-mini">
+          Limache
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="color-bars bottom-bars">
+    <div class="bar-1"></div>
+    <div class="bar-2"></div>
+    <div class="bar-3"></div>
+    <div class="bar-4"></div>
+  </div>
+</div>
+
+<script>
+  // Script opcional para guardar los datos editados si se necesita
+  /*
+  const editableFields = document.querySelectorAll('.editable-field');
+  editableFields.forEach(field => {
+    field.addEventListener('input', () => {
+      // Guardar datos en localStorage o base de datos
+      const fieldId = field.getAttribute('placeholder') || field.parentElement.getAttribute('placeholder') || field.id;
+      if (fieldId) {
+        localStorage.setItem(fieldId, field.innerHTML);
+      }
+    });
+    
+    // Cargar datos guardados
+    const fieldId = field.getAttribute('placeholder') || field.parentElement.getAttribute('placeholder') || field.id;
+    const savedData = localStorage.getItem(fieldId);
+    if (savedData) {
+      field.innerHTML = savedData;
+    }
+  });
+  */
+</script>
+
+</body>
+</html>

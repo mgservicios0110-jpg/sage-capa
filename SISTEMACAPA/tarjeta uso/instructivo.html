@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructivo CAPA Limache</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --c-magenta: #b92b82;
+            --c-teal: #00a89d;
+            --c-orange: #ea8b24;
+            --c-dark: #1e1e1e;
+            --c-blue: #1976d2;
+            --bg-light: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        
+        body {
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .tarjeta-digital {
+            background: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- CABECERA --- */
+        .header {
+            background: linear-gradient(135deg, var(--c-magenta) 0%, var(--c-teal) 100%);
+            padding: 40px 20px 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        /* ESTILOS DEL LOGO AGREGADO */
+        .logo-img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .header p {
+            font-size: 1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /* --- URL BOX --- */
+        .url-container {
+            margin: -20px 20px 20px;
+            background: #fffbeb;
+            border: 2px dashed var(--c-orange);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(234, 139, 36, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+        .url-container p {
+            color: var(--c-orange);
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .url-link {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--c-blue);
+            word-break: break-all;
+            text-decoration: none;
+        }
+
+        /* --- INSTALACIÓN --- */
+        .seccion-titulo {
+            text-align: center;
+            font-weight: 900;
+            color: var(--c-dark);
+            margin: 25px 0 15px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+        .grid-instalacion {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 0 20px;
+        }
+        .caja-instruccion {
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--c-dark);
+        }
+        .caja-instruccion.android {
+            background: #e6f4ea;
+            border-left: 4px solid #1e8e3e;
+        }
+        .caja-instruccion.ios {
+            background: #fce4ec;
+            border-left: 4px solid var(--c-magenta);
+        }
+        .caja-instruccion h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .android h4 { color: #1e8e3e; }
+        .ios h4 { color: var(--c-magenta); }
+        .caja-instruccion ol {
+            padding-left: 15px;
+            line-height: 1.4;
+        }
+        .caja-instruccion li { margin-bottom: 5px; }
+
+        /* --- CARACTERÍSTICAS --- */
+        .features-list {
+            padding: 10px 20px 30px;
+        }
+        .feat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .feat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .bg-magenta { background: var(--c-magenta); }
+        .bg-teal { background: var(--c-teal); }
+        .bg-orange { background: var(--c-orange); }
+        .bg-dark { background: var(--c-dark); }
+        
+        .feat-text h4 {
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--c-dark);
+            margin-bottom: 2px;
+        }
+        .feat-text p {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            background: var(--c-dark);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tarjeta-digital">
+        <div class="header">
+            <img src="logo.png" alt="Logo CAPA Limache" class="logo-img">
+            
+            <h1>Portal Académico Digital</h1>
+            <p>Centro de Capacitación Municipal CAPA Limache</p>
+        </div>
+
+        <div class="url-container">
+            <p><i class="fas fa-link"></i> Ingresa desde tu navegador:</p>
+            <a href="https://capa-limache-sistema.web.app" class="url-link">capa-limache-sistema.web.app</a>
+        </div>
+
+        <h3 class="seccion-titulo">📱 ¿Cómo instalar la App?</h3>
+        <div class="grid-instalacion">
+            <div class="caja-instruccion android">
+                <h4><i class="fab fa-android"></i> Android</h4>
+                <ol>
+                    <li>Abre el enlace en <b>Chrome</b>.</li>
+                    <li>Toca los <b>3 puntos (⋮)</b> arriba.</li>
+                    <li>Elige <b>Instalar App</b> o <b>Añadir a Inicio</b>.</li>
+                </ol>
+            </div>
+            <div class="caja-instruccion ios">
+                <h4><i class="fab fa-apple"></i> iPhone</h4>
+                <ol>
+                    <li>Abre el enlace en <b>Safari</b>.</li>
+                    <li>Toca <b>Compartir</b> abajo al centro.</li>
+                    <li>Selecciona <b>Añadir a Inicio</b>.</li>
+                </ol>
+            </div>
+        </div>
+
+        <h3 class="seccion-titulo">🎯 ¿Qué puedes hacer?</h3>
+        <div class="features-list">
+            <div class="feat-item">
+                <div class="feat-icon bg-magenta"><i class="fas fa-award"></i></div>
+                <div class="feat-text">
+                    <h4>Calificaciones</h4>
+                    <p>Revisa tus notas y promedios al instante.</p>
+                </div>
+            </div>
+            <div class="feat-item">
+                <div class="feat-icon bg-teal"><i class="fas fa-calendar-check"></i></div>
+                <div class="feat-text">
+                    <h4>Asistencia</h4>
+                    <p>Controla tu porcentaje de clases asistidas.</p>
+                </div>
+            </div>
+            <div class="feat-item">
+                <div class="feat-icon bg-orange"><i class="fas fa-envelope"></i></div>
+                <div class="feat-text">
+                    <h4>Comunicaciones</h4>
+                    <p>Mensajes directos y notificaciones oficiales.</p>
+                </div>
+            </div>
+            <div class="feat-item">
+                <div class="feat-icon bg-dark"><i class="fas fa-book"></i></div>
+                <div class="feat-text">
+                    <h4>Bitácora (Docentes)</h4>
+                    <p>Registra lo avanzado en clases rápidamente.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            ¡Aprende, Crece, Avanza! 🚀
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tríptico Visual - CAPA Limache</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --cian: #00A89D;
+            --magenta: #9E005D;
+            --naranja: #F18A00;
+            --coral: #ED4E44;
+            --texto-oscuro: #2D3748;
+            --texto-claro: #4A5568;
+            --fondo-gris: #F7FAFC;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #cbd5e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            gap: 50px;
+        }
+
+        /* BOTONES */
+        .acciones {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .acciones button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: var(--cian);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .acciones button:hover {
+            background: var(--magenta);
+        }
+
+        .etiqueta-cara {
+            color: #4a5568;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: -30px;
+            text-align: center;
+            background: white;
+            padding: 10px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .triptico {
+            display: flex;
+            width: 100%;
+            max-width: 1150px;
+            min-height: 750px;
+            background-color: white;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel {
+            flex: 1;
+            width: 33.333%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-padding {
+            padding: 40px 35px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel:not(:last-child) {
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .barra-colores {
+            display: flex;
+            height: 8px;
+            width: 100%;
+            position: absolute;
+            z-index: 10;
+        }
+
+        /* elimina conflicto */
+        .barra-top {
+            display: none;
+        }
+
+        /* fija abajo correctamente */
+        .barra-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .barra-colores div {
+            flex: 1;
+        }
+
+        .bg-cian {
+            background-color: var(--cian);
+        }
+
+        .bg-magenta {
+            background-color: var(--magenta);
+        }
+
+        .bg-naranja {
+            background-color: var(--naranja);
+        }
+
+        .bg-coral {
+            background-color: var(--coral);
+        }
+
+        [contenteditable="true"] {
+            outline: none;
+        }
+
+        .img-editable {
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .portada {
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-bottom: 4px solid var(--naranja);
+        }
+
+        .logo-portada {
+            width: 140px;
+            margin: -70px auto 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 50%;
+        }
+
+        .titulo-curso-portada {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .subtitulo-portada {
+            color: var(--cian);
+            font-weight: 600;
+        }
+
+        .contraportada {
+            background-color: var(--fondo-gris);
+        }
+
+        .caja-contacto {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: auto;
+            border-top: 4px solid var(--naranja);
+        }
+
+        .texto-intro {
+            color: var(--texto-claro);
+            font-size: 0.95rem;
+        }
+
+        .titulo-seccion {
+            font-weight: 800;
+            border-bottom: 3px solid var(--cian);
+        }
+
+        .modulo-caja {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--naranja);
+        }
+
+        @media print {
+
+            .triptico {
+                height: 100%;
+                page-break-after: always;
+            }
+
+            .panel {
+                flex: 1;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            @page {
+                size: A4 landscape;
+                margin: 5mm;
+            }
+        }
+
+        /* =========================
+        TAMAÑO UNIFORME TRÍPTICOS
+        ========================= */
+
+        .triptico {
+            width: 100%;
+            max-width: 1150px;
+            height: 700px;
+            /* 🔥 altura fija igual para ambos */
+            display: flex;
+            position: relative;
+        }
+
+        /* columnas proporcionales reales */
+        .panel {
+            flex: 1;
+            width: 33.333%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* evita que el contenido rompa el layout */
+        .panel-padding {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* imágenes SIEMPRE estables */
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* controla imágenes grandes (clave) */
+        .img-solapa {
+            display: block;
+            margin: 0 auto 15px auto;
+            /* centra horizontal */
+            width: 100%;
+            max-width: 260px;
+            /* controla tamaño */
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* hero portada */
+        .hero-img {
+            height: 170px;
+            object-fit: cover;
+        }
+
+        /* logo centrado */
+        .logo-portada {
+            width: 110px;
+            margin: -50px auto 10px auto;
+        }
+
+        /* QR */
+        img[alt="Código QR del curso"] {
+            width: 140px !important;
+            height: 140px !important;
+        }
+
+        /* textos más compactos */
+        p {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* módulos compactos */
+        .modulo-caja {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+
+        /* mapa */
+        .mapa-iframe {
+            width: 100%;
+            height: 140px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* redes sociales */
+        .redes-sociales svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* =========================
+        RESPONSIVO REAL
+        ========================= */
+
+        @media screen and (max-width: 900px) {
+            .triptico {
+                flex-direction: column;
+            }
+
+            .panel {
+                width: 100%;
+            }
+        }
+
+        /* =========================
+        IMPRESIÓN PERFECTA A4
+        ========================= */
+
+        @media print {
+
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            .acciones,
+            .etiqueta-cara {
+                display: none !important;
+            }
+
+            .triptico {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                page-break-after: always;
+            }
+
+            .panel {
+                width: 33.333% !important;
+                flex: none;
+            }
+
+            .panel-padding {
+                padding: 12px;
+            }
+
+            /* evita que se rompa en varias hojas */
+            * {
+                page-break-inside: avoid;
+            }
+
+            @page {
+                size: A4 landscape;
+                margin: 5mm;
+            }
+        }
+
+        /* =========================
+        ALTURA UNIFORME REAL
+        ========================= */
+
+        .triptico {
+            display: flex;
+            align-items: stretch;
+            /* 🔥 CLAVE */
+        }
+
+        /* cada panel ocupa el mismo alto */
+        .panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* contenido interno crece parejo */
+        .panel-padding {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* distribuye contenido */
+        }
+
+        /* evita que contenido rompa altura */
+        .panel-padding>* {
+            flex-shrink: 0;
+        }
+
+        /* hace que bloques crezcan parejo */
+        .texto-intro {
+            flex-grow: 1;
+        }
+
+        /* módulos ocupan espacio equilibrado */
+        #contenedorModulos {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .img-solapa {
+            height: 140px;
+            object-fit: cover;
+        }
+
+        .hero-img {
+            height: 180px;
+        }
+
+        .foto-docente {
+            height: 130px;
+            object-fit: cover;
+        }
+
+        .perfil-docente {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* CENTRA TODO */
+            text-align: center;
+        }
+
+        .foto-docente {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BOTONES -->
+    <div class="acciones">
+        <button onclick="window.print()">🖨 Imprimir A4</button>
+    </div>
+
+    <div class="etiqueta-cara">CARA 1: EXTERIOR DEL TRÍPTICO</div>
+
+    <div class="triptico">
+        <div class="barra-colores barra-top">
+            <div class="bg-cian"></div>
+            <div class="bg-magenta"></div>
+            <div class="bg-naranja"></div>
+            <div class="bg-coral"></div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-padding">
+                <img src="flyer prom.png" class="img-editable img-solapa" onclick="cambiarImagen(this)"
+                    title="Haz clic para cambiar la foto"> <br>
+
+                <h2 style="color: var(--magenta); font-size: 1.6rem; margin-bottom: 20px; font-weight: 800;"
+                    contenteditable="true">Nuestra Misión</h2>
+                <p class="texto-intro" contenteditable="true">* Diseñar programas formativos enfocados en las
+                    necesidades reales de nuestra comunidad.<br>
+                    * Brindar herramientas prácticas y actualizadas para potenciar el desarrollo personal y profesional
+                    de nuestros alumnos. <br>
+                    * Fomentar un ambiente de aprendizaje inclusivo, colaborativo y motivador que inspire a nuestros
+                    estudiantes a alcanzar sus metas.
+                </p>
+                <p class="texto-intro" contenteditable="true">En CAPA Limache, creemos que la educación es el motor del
+                    cambio y el crecimiento. Nuestro compromiso es ofrecer cursos de alta calidad que no solo transmitan
+                    conocimientos, sino que también empoderen a nuestros alumnos para enfrentar los desafíos del mundo
+                    laboral con confianza y éxito.</p>
+            </div>
+        </div>
+
+
+        <div class="panel contraportada">
+            <div class="panel-padding">
+                <h2 style="color: var(--texto-oscuro); font-size: 2.2rem; font-weight: 1000; text-align: center;">CAPA
+                    LIMACHE</h2>
+                <p style="text-align: center; color: var(--texto-claro); font-weight: 800; margin-bottom: 20px;">Centro
+                    de Capacitación Municipal</p>
+                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80"
+                    class="img-editable img-solapa" onclick="cambiarImagen(this)" title="Haz clic para cambiar la foto">
+
+                <div class="caja-contacto">
+                    <div class="dato-contacto"><strong>📍</strong> <span contenteditable="true">Serrano N° 254,
+                            Limache</span></div>
+                    <div class="dato-contacto"><strong>📞</strong> <span contenteditable="true">33 2 411 014 / +569 7608
+                            1946</span></div>
+                    <div class="dato-contacto"><strong>✉️</strong> <span
+                            contenteditable="true">nvillablanca@munilimache.cl</span></div> <br>
+
+                    <div class="redes-sociales">
+                        <center>
+                            <a href="https://www.facebook.com/capa.limache.2025?__cft__[0]=AZbKmZR_d3t_rotLHyaX2QZ-fqH_1V5UsTGOXkyv-PXCPPQboSTipzwBautqlCnJNNX2zOvMTJTXn92fJDV1Nh65W-1x6DKfmRJkBbH3EdzYcplQnmeOnVPkTvGMCg9IGTBceCe0YzeLmVem_otizBMy5fT8unhpgmjtJ2VL3huKv3loB4BJ0zujbmlmkozj_jc&__tn__=-UC%2CP-R"
+                                target="_blank" title="Facebook Capa Limache">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z" />
+                                </svg><br>
+                                Capa Limache
+                            </a><br>
+                            <br>
+                            <a href="https://www.instagram.com/capa_limache/#" target="_blank"
+                                title="Instagram Capa Limache">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                                </svg><br>
+                                @CapaLimache
+                            </a>
+                        </center>
+                    </div>
+                </div>
+
+                <iframe class="mapa-iframe"
+                    src="https://maps.google.com/maps?q=Serrano%20254,%20Limache,%20Chile&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+            </div>
+        </div>
+
+        <div class="panel portada">
+            <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80"
+                class="img-editable hero-img" onclick="cambiarImagen(this)"
+                title="Haz clic para cambiar la imagen de fondo">
+
+            <div class="panel-padding" style="padding-top: 0;">
+                <img src="logo.png" class="img-editable logo-portada" onclick="cambiarImagen(this)"
+                    title="Haz clic para cambiar el logo">
+
+                <div style="background: var(--naranja); color: white; display: inline-block; padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin: 0 auto 15px auto;"
+                    contenteditable="true">CURSO CERTIFICADO</div>
+
+                <h1 class="titulo-curso-portada" contenteditable="true">Contabilidad<br>Comercial y Tributaria 2026</h1>
+                <br>
+                <p class="subtitulo-portada" contenteditable="true">Área Técnica y Gestión administrativa.</p>
+                <br>
+                <p class="subtitulo-portada" contenteditable="true">Aquí encontrarás mas info sobre el curso y docente.
+                </p>
+                <div style="display:flex; justify-content:center; margin-top:20px;">
+                    <img src="qr.png" alt="Código QR del curso" class="img-editable" onclick="cambiarImagen(this)"
+                        title="Haz clic para cambiar el QR"
+                        style="width:180px; height:180px; background:transparent; padding:0; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
+                </div>
+
+                <p contenteditable="true" style="font-size:0.8rem; margin-top:8px; color:#d6ed83;">
+                    Escanea para más información
+                </p>
+            </div>
+        </div>
+        <div class="barra-colores barra-bottom">
+            <div class="bg-cian"></div>
+            <div class="bg-magenta"></div>
+            <div class="bg-naranja"></div>
+            <div class="bg-coral"></div>
+        </div>
+    </div>
+
+
+
+
+    <div class="etiqueta-cara">CARA 2: INTERIOR DEL TRÍPTICO</div>
+
+
+    <div class="triptico">
+        <div class="barra-colores barra-top">
+            <div class="bg-coral"></div>
+            <div class="bg-naranja"></div>
+            <div class="bg-magenta"></div>
+            <div class="bg-cian"></div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-padding">
+                <h2 class="titulo-seccion" style="border-color: var(--cian);" contenteditable="true">Objetivos</h2>
+
+                <!-- OBJETIVO GENERAL -->
+                <p class="texto-intro" contenteditable="true">
+                    Desarrollar competencias para registrar operaciones contables, comprender la normativa tributaria
+                    vigente y apoyar la toma de decisiones financieras en una organización.
+                </p>
+
+                <!-- OBJETIVOS ESPECÍFICOS -->
+                <ul style="padding-left: 18px; margin-top: 12px; color: var(--texto-claro); font-size: 0.9rem; line-height: 1.6;"
+                    contenteditable="true">
+                    <li>Aplicar el principio de partida doble en registros contables.</li>
+                    <li>Elaborar Balance General y Estado de Resultados.</li>
+                    <li>Manejar Libro Diario, Mayor y Balance de Comprobación.</li>
+                    <li>Comprender el ciclo contable completo.</li>
+                    <li>Calcular IVA (débito y crédito fiscal).</li>
+                    <li>Interpretar información financiera básica.</li>
+                </ul>
+
+
+                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80"
+                    class="img-editable"
+                    style="width: 100%; height: 160px; border-radius: 8px; margin: 20px 0; object-fit: cover;"
+                    onclick="cambiarImagen(this)" title="Haz clic para cambiar la imagen">
+
+                <h3 style="color: var(--texto-oscuro); font-size: 1.1rem; margin-bottom: 10px;" contenteditable="true">
+                    Requisitos de Ingreso</h3>
+                <ul style="padding-left: 20px; color: var(--texto-claro); font-size: 0.9rem; line-height: 1.7;"
+                    contenteditable="true">
+                    <li>Mayor de 18 años.</li>
+                    <li>Estar Matriculado</li>
+                    <li>Certificado Estudios</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-padding" style="background-color: var(--fondo-gris);">
+
+                <h2 class="titulo-seccion" style="border-color: var(--naranja);" contenteditable="true">
+                    Módulos de Estudio
+                </h2>
+
+                <!-- CONTENEDOR DINÁMICO -->
+                <div id="contenedorModulos">
+
+                    <div class="modulo-caja">
+                        <h4 contenteditable="true">1. Fundamentos Contables</h4>
+                        <p contenteditable="true">Conceptos básicos de activo, pasivo, patrimonio y la partida doble.
+                        </p>
+                    </div>
+
+                    <div class="modulo-caja">
+                        <h4 contenteditable="true">2. Registros y Libros</h4>
+                        <p contenteditable="true">Uso del Libro Diario, Libro Mayor y Balance de Comprobación.</p>
+                    </div>
+
+                    <div class="modulo-caja">
+                        <h4 contenteditable="true">3. Estados Financieros</h4>
+                        <p contenteditable="true">Análisis del Balance General y el Estado de Resultados.</p>
+                    </div>
+
+                    <div class="modulo-caja">
+                        <h4 contenteditable="true">4. Normativa Tributaria</h4>
+                        <p contenteditable="true">Aspectos básicos de facturación e impuestos mensuales.</p>
+                    </div>
+
+                </div>
+
+                <!-- BOTÓN -->
+                <button onclick="agregarModulo()" style="
+            margin-top:15px;
+            padding:10px;
+            width:100%;
+            border:none;
+            background:var(--naranja);
+            color:white;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:bold;
+        ">
+                    + Agregar Módulo
+                </button>
+
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-padding">
+                <h2 class="titulo-seccion" style="border-color: var(--magenta);" contenteditable="true">Docente del
+                    curso
+                </h2>
+
+                <div class="perfil-docente"><br>
+                    <img src="docente.png" class="img-editable foto-docente" onclick="cambiarImagen(this)"
+                        title="Haz clic para cambiar la foto del profesor">
+                    <div class="nombre-docente" contenteditable="true">Mauricio Galaz</div>
+                    <div class="cargo-docente" contenteditable="true">Profesor de Contabilidad</div>
+                    <p style="font-size: 0.85rem; color: var(--texto-claro); line-height: 1.4;" contenteditable="true">
+                        Especialista en desarrollo de plataformas y enseñanza técnica aplicada, con sólida experiencia
+                        en capacitación municipal.
+                        Cuenta con formación en contabilidad comercial - tributariay análisis de sistemas contables,
+                        integrando
+                        herramientas digitales en procesos formativos.
+                </div>
+
+                <div class="caja-evaluacion">
+                    <h3 style="color: var(--magenta); font-size: 1.1rem; margin-bottom: 10px;" contenteditable="true">
+                        Metodología de Evaluación</h3>
+                    <p style="font-size: 0.9rem; color: var(--texto-oscuro); line-height: 1.5;" contenteditable="true">
+                        El curso culmina con un examen práctico basado en la solución tipo <strong>TA_EX_7</strong>. Se
+                        evaluará mediante rúbrica oficial y se requiere nota mínima 4.0 para la certificación de CAPA
+                        Limache.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="barra-colores barra-bottom">
+            <div class="bg-cian"></div>
+            <div class="bg-magenta"></div>
+            <div class="bg-naranja"></div>
+            <div class="bg-coral"></div>
+        </div>
+    </div>
+
+    <script>
+        function cambiarImagen(elemento) {
+            let nuevaUrl = prompt("Pega aquí el enlace (URL) de la nueva imagen que quieres usar:\n\nEjemplo: https://tu-sitio.com/foto.jpg", elemento.src);
+            if (nuevaUrl != null && nuevaUrl.trim() !== "") {
+                elemento.src = nuevaUrl;
+            }
+        }
+    </script>
+    <script>
+        function agregarModulo() {
+            const contenedor = document.getElementById("contenedorModulos");
+            const total = contenedor.children.length + 1;
+
+            const nuevo = document.createElement("div");
+            nuevo.className = "modulo-caja";
+
+            nuevo.innerHTML = `
+        <h4 contenteditable="true">${total}. Nuevo Módulo</h4>
+        <p contenteditable="true">Describe el contenido del módulo...</p>
+    `;
+
+            contenedor.appendChild(nuevo);
+        }
+    </script>
+
+
+</body>
+
+</html>
