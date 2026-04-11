@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Diagnóstica - Capacitación Municipal Limache</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- VARIABLES DE DISEÑO MODERNO --- */
+        :root {
+            --primary-color: #0056b3; /* Azul Municipalidad */
+            --secondary-color: #2ecc71; /* Verde Éxito */
+            --warning-color: #e74c3c; /* Rojo Error */
+            --bg-color: #f4f7f6;
+            --text-color: #2c3e50;
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        /* --- ESTILOS GENERALES --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', 'Roboto', helvetica, sans-serif; background-color: var(--bg-color); color: var(--text-color); padding: 20px; line-height: 1.6; }
+
+        .main-wrapper { max-width: 1000px; margin: 0 auto; }
+
+        /* --- CABECERA SUPERIOR --- */
+        .header-container { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 20px; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .logo-group { display: flex; align-items: center; gap: 15px; }
+        .logo-placeholder { background: #eee; border-radius: 8px; font-size: 12px; color: #777; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: bold; }
+        
+        /* REEMPLAZA ESTO CON TU LOGO REAL */
+        .logo-muni { width: 70px; height: 70px; } 
+        /* REEMPLAZA ESTO CON TU LOGO REAL (uploaded:LOGO.jpg) */
+        .logo-centro { width: 140px; height: 70px; } 
+
+        .course-info { text-align: right; }
+        .course-info h1 { font-size: 1.5rem; color: var(--primary-color); }
+        .course-info p { color: #7f8c8d; font-size: 0.9rem; }
+
+        /* --- BARRA DE PROGRESO FLOTANTE --- */
+        .progress-container { position: sticky; top: 10px; background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: var(--border-radius); box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px; z-index: 100; backdrop-filter: blur(5px); }
+        .progress-bar-bg { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; position: relative; }
+        #progress-fill { background: linear-gradient(90deg, var(--secondary-color), #58d68d); height: 100%; width: 0%; border-radius: 6px; transition: var(--transition); }
+        .progress-stats { display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; font-size: 0.9rem; color: var(--primary-color); }
+
+        /* --- ESTILOS DE PREGUNTAS (TARJETAS) --- */
+        .quiz-container { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
+        
+        .unit-divider { margin-top: 30px; margin-bottom: 10px; padding-left: 10px; border-left: 5px solid var(--primary-color); font-size: 1.2rem; color: var(--primary-color); font-weight: bold; }
+
+        .question-card { background: var(--card-bg); padding: 25px; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: var(--transition); position: relative; border-left: 5px solid transparent; }
+        .question-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        
+        .question-text { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px; }
+        .q-number { background: var(--primary-color); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; margin-top: 2px; }
+
+        .options-container { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-label { display: flex; align-items: center; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: var(--transition); position: relative; }
+        .option-label:hover { background-color: #f1f8ff; border-color: var(--primary-color); }
+        
+        .option-label input { margin-right: 15px; transform: scale(1.3); cursor: pointer; accent-color: var(--primary-color); }
+
+        /* Estilos para feedback instantáneo */
+        .question-card.answered-correct { border-left-color: var(--secondary-color); }
+        .question-card.answered-wrong { border-left-color: var(--warning-color); }
+
+        .option-label.correct { background-color: #d4edda !important; border-color: var(--secondary-color) !important; color: #155724; font-weight: 600; }
+        .option-label.correct::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 15px; color: var(--secondary-color); }
+
+        .option-label.wrong { background-color: #f8d7da !important; border-color: var(--warning-color) !important; color: #721c24; text-decoration: line-through; }
+        .option-label.wrong::after { content: '\f00d'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 15px; color: var(--warning-color); }
+
+        .option-label.fade { opacity: 0.5; cursor: not-allowed; }
+        .option-label input:disabled { cursor: not-allowed; }
+
+        /* --- BOTÓN FINAL Y RESULTADOS --- */
+        .final-actions { text-align: center; margin-top: 30px; }
+        .btn-finish { background: linear-gradient(135deg, var(--primary-color), #007bff); color: white; border: none; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,86,179,0.3); transition: var(--transition); }
+        .btn-finish:hover { transform: scale(1.05); box-shadow: 0 6px 15px rgba(0,86,179,0.4); }
+        .btn-finish:disabled { background: #95a5a6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        #results-panel { display: none; background: var(--card-bg); padding: 30px; border-radius: var(--border-radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 30px; text-align: center; }
+        #results-panel h2 { color: var(--primary-color); margin-bottom: 15px; }
+        .score-display { font-size: 3rem; font-weight: bold; color: var(--secondary-color); margin-bottom: 10px; }
+        .feedback-text { font-size: 1.1rem; margin-bottom: 20px; }
+        .btn-restart { background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-top: 15px; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; text-align: center; gap: 15px; }
+            .logo-group { flex-direction: column; }
+            .course-info { text-align: center; }
+            .question-text { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+
+    <header class="header-container">
+        <div class="logo-group">
+            <img src="uploaded:LOGO.jpg" alt="Logo Centro Capacitación" class="logo-placeholder logo-centro">
+            </div>
+        <div class="course-info">
+            <h1>Computación Básica</h1>
+            <p>Evaluación Diagnóstica de Inducción</p>
+            <p>Municipalidad de Limache</p>
+        </div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-bar-bg">
+            <div id="progress-fill"></div>
+        </div>
+        <div class="progress-stats">
+            <span>Progreso</span>
+            <span id="progress-text">Pregunta 0 de 30</span>
+        </div>
+    </div>
+
+    <form id="quizForm">
+        <div class="quiz-container" id="questions-target">
+            </div>
+
+        <div class="final-actions">
+            <button type="button" class="btn-finish" id="btn-submit" onclick="finishQuiz()" disabled>Finalizar y Ver Resultados</button>
+        </div>
+    </form>
+
+    <div id="results-panel">
+        <i class="fas fa-chart-bar fa-3x" style="color: var(--primary-color); margin-bottom: 15px;">
+        <h2>Tu Resultado</h2>
+        <div class="score-display" id="score-text">0/30</div>
+        <p class="feedback-text" id="feedback-message"></p>
+        <p>¡Gracias por participar en la capacitación de Limache!</p>
+        <button class="btn-restart" onclick="location.reload()">Reiniciar Prueba</button>
+    </div>
+
+</div>
+
+<script>
+    // --- DATOS DE LAS 30 PREGUNTAS (Sin citas del PDF) ---
+    const quizData = [
+        // Unidad 1: Generalidades
+        { type: "unit", text: "Sección 1: Conceptos Digitales Básicos" },
+        { q: "La 'Informática' se define esencialmente como:", options: ["El estudio de cómo fabricar computadoras.", "El tratamiento automático de la información mediante computadoras.", "El uso de redes sociales para comunicarse.", "La venta de componentes electrónicos."], ans: 1 },
+        { q: "¿Qué significan las siglas TIC?", options: ["Tecnologías Integradas de Computación.", "Técnicas Interactivas y de Comunicación.", "Tecnologías de la Información y la Comunicación.", "Tratamiento Informático Comunitario."], ans: 2 },
+        { q: "Identifique una VENTAJA clave de las TIC:", options: ["Aumentan la brecha digital.", "Permiten el acceso global e instantáneo a información.", "Generan dependencia excesiva.", "Suelen ser muy costosas."], ans: 1 },
+        { q: "¿Qué es el 'Hardware'?", options: ["Los programas y el sistema operativo.", "La parte lógica y no tocable de la PC.", "La parte física y tangible de la computadora.", "El navegador de internet."], ans: 2 },
+        { q: "Si comparamos la PC con el cuerpo humano, el 'Software' sería comparable a:", options: ["Los huesos.", "Los músculos.", "Los pensamientos y conocimientos.", "La piel."], ans: 2 },
+
+        // Unidad 2 y 4: Componentes
+        { type: "unit", text: "Sección 2: Conociendo la Computadora" },
+        { q: "Se le considera el 'cerebro' de la computadora, donde se procesan los datos:", options: ["Disco Duro.", "Memoria RAM.", "Microprocesador (CPU).", "Placa Madre."], ans: 2 },
+        { q: "¿Cuál es la función principal de la Memoria RAM?", options: ["Guardar todos los archivos permanentemente.", "Almacenar datos temporalmente mientras se usan.", "Controlar la velocidad de internet.", "Mostrar imágenes en el monitor."], ans: 1 },
+        { q: "Este componente permite conectar y comunicar todos los dispositivos internos y externos:", options: ["Fuente de Poder.", "Placa Madre (Motherboard).", "Tarjeta de Video.", "Gabinete."], ans: 1 },
+        { q: "Dispositivo utilizado para almacenar información a largo plazo, incluso al apagar la PC:", options: ["Memoria RAM.", "Microprocesador.", "Disco Duro (o SSD).", "Lector de CD."], ans: 2 },
+        { q: "¿Qué tipo de periférico es el Ratón (Mouse)?", options: ["Entrada.", "Salida.", "Almacenamiento.", "Mixto."], ans: 0 },
+        { q: "¿Cuál de estos es un periférico de SALIDA?", options: ["Escáner.", "Teclado.", "Monitor.", "Cámara Web."], ans: 2 },
+        { q: "Un dispositivo Mixto es aquel que:", options: ["Funciona con pilas y electricidad.", "Sirve tanto para introducir como para extraer datos.", "Es de marca y genérico.", "Es viejo y nuevo a la vez."], ans: 1 },
+
+        // Unidad 5: Software/Windows
+        { type: "unit", text: "Sección 3: El Sistema Operativo y Archivos" },
+        { q: "Es el Software principal que gestiona el hardware y permite usar otras aplicaciones:", options: ["Microsoft Word.", "Google Chrome.", "Sistema Operativo (ej: Windows).", "Antivirus."], ans: 2 },
+        { q: "En Windows, ¿cuál es la función del 'Escritorio'?", options: ["Apagar la computadora automáticamente.", "Área principal de trabajo visual al iniciar.", "Lugar donde se guardan los correos.", "Una carpeta oculta."], ans: 1 },
+        { q: "Icono de Windows donde se envían temporalmente los archivos eliminados:", options: ["Panel de Control.", "Mi PC.", "Carpeta de Documentos.", "Papelera de Reciclaje."], ans: 3 },
+        { q: "La acción de 'arrastrar' un elemento con el mouse consiste en:", options: ["Hacer clic rápido dos veces.", "Hacer clic derecho una vez.", "Mantener pulsado el botón izquierdo y mover el mouse.", "Presionar la tecla Enter."], ans: 2 },
+        { q: "Es un contenedor digital utilizado para organizar archivos dentro del disco:", options: ["Archivo.", "Carpeta.", "Acceso Directo.", "Ventana."], ans: 1 },
+
+        // Unidad 6: Internet/Seguridad
+        { type: "unit", text: "Sección 4: Internet, Comunicación y Seguridad" },
+        { q: "Red global de computadoras interconectadas a nivel mundial:", options: ["Navegador.", "Google.", "Internet.", "Correo Electrónico."], ans: 2 },
+        { q: "Software necesario para visualizar páginas web (ej: Chrome, Firefox):", options: ["Buscador.", "Navegador Web.", "Página Web.", "Sitio Web."], ans: 1 },
+        { q: "Un Buscador Web sirva para:", options: ["Crear documentos de texto.", "Enviar correos electrónicos.", "Localizar información específica en Internet.", "Chatear en tiempo real."], ans: 2 },
+        { q: "¿Cuál de estas opciones representa un correo electrónico válido?", options: ["www.limache.cl", "juan.perez#gmail.com", "usuario@dominio.com", "juan perez gmail.com"], ans: 2 },
+        { q: "Un Virus Informático es:", options: ["Un fallo físico en el disco duro.", "Un programa malintencionado que daña el sistema.", "Un mensaje de correo no deseado.", "Un tipo de monitor moderno."], ans: 1 },
+        { q: "Mejor práctica para evitar virus:", options: ["No usar nunca internet.", "Mantener el sistema y antivirus actualizados y desconfiar de enlaces raros.", "Apagar la computadora seguido.", "Compartir contraseñas con amigos."], ans: 1 },
+
+        // Unidad 7: Word
+        { type: "unit", text: "Sección 5: Procesador de Texto (Word)" },
+        { q: "Uso principal de Microsoft Word:", options: ["Hacer cálculos y presupuestos.", "Crear presentaciones con diapositivas.", "Redactar, editar y dar formato a documentos de texto.", "Reproducir música y videos."], ans: 2 },
+        { q: "En Word, la opción 'Formato' se refiere a:", options: ["Guardar el archivo.", "Imprimir el documento.", "Cambiar la apariencia del texto (fuente, tamaño, color).", "Corregir la ortografía."], ans: 2 },
+        { q: "Para copiar un texto seleccionado, se usa el atajo de teclado:", options: ["Ctrl + V", "Ctrl + X", "Ctrl + C", "Ctrl + Z"], ans: 2 },
+
+        // Unidad 8: Excel
+        { type: "unit", text: "Sección 6: Planilla de Cálculo (Excel)" },
+        { q: "Uso principal de Microsoft Excel:", options: ["Escribir cartas largas.", "Organizar y analizar datos numéricos usando tablas y fórmulas.", "Navegar por internet.", "Dibujar planos."], ans: 1 },
+        { q: "En Excel, la intersección de una fila (número) y una columna (letra) se llama:", options: ["Tabla.", "Rango.", "Celda.", "Fórmula."], ans: 2 },
+        { q: "Toda fórmula o función en Excel DEBE comenzar obligatoriamente con el signo:", options: ["+", "-", "=", "*"], ans: 2 }
+    ];
+
+    // --- LÓGICA DE JAVASCRIPT ---
+    const target = document.getElementById('questions-target');
+    const fill = document.getElementById('progress-fill');
+    const progText = document.getElementById('progress-text');
+    const submitBtn = document.getElementById('btn-submit');
+    
+    let currentQuestionCount = 0;
+    const totalQuestions = quizData.filter(item => item.q).length;
+    let answeredCount = 0;
+    let correctAnswersCount = 0;
+
+    // Generar las preguntas dinámicamente
+    quizData.forEach((item, index) => {
+        if (item.type === "unit") {
+            const divider = document.createElement('div');
+            divider.className = 'unit-divider';
+            divider.innerText = item.text;
+            target.appendChild(divider);
+        } else {
+            currentQuestionCount++;
+            const qIndex = currentQuestionCount; // Número real de pregunta
+
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.id = `q-card-${index}`;
+
+            const qText = document.createElement('div');
+            qText.className = 'question-text';
+            qText.innerHTML = `<span class="q-number">${qIndex}</span> <span>${item.q}</span>`;
+            card.appendChild(qText);
+
+            const optContainer = document.createElement('div');
+            optContainer.className = 'options-container';
+
+            item.options.forEach((opt, oIndex) => {
+                const label = document.createElement('label');
+                label.className = 'option-label';
+                label.id = `label-${index}-${oIndex}`;
+
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `question-${index}`;
+                radio.value = oIndex;
+                radio.setAttribute('onclick', `checkAnswer(${index}, ${oIndex}, ${item.ans})`);
+
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(opt));
+                optContainer.appendChild(label);
+            });
+
+            card.appendChild(optContainer);
+            target.appendChild(card);
+        }
+    });
+
+    // Función para feedback instantáneo
+    function checkAnswer(qIndex, selectedOpt, correctOpt) {
+        const card = document.getElementById(`q-card-${qIndex}`);
+        const inputs = card.querySelectorAll('input');
+        
+        // Deshabilitar todas las opciones de esta pregunta
+        inputs.forEach(input => input.disabled = true);
+        
+        answeredCount++;
+
+        // Actualizar tarjeta y opciones
+        if (selectedOpt === correctOpt) {
+            correctAnswersCount++;
+            card.classList.add('answered-correct');
+            document.getElementById(`label-${qIndex}-${selectedOpt}`).classList.add('correct');
+        } else {
+            card.classList.add('answered-wrong');
+            document.getElementById(`label-${qIndex}-${selectedOpt}`).classList.add('wrong');
+            document.getElementById(`label-${qIndex}-${correctOpt}`).classList.add('correct');
+        }
+
+        // Opacidad a las no seleccionadas y correctas
+        inputs.forEach((input, oIndex) => {
+            const label = document.getElementById(`label-${qIndex}-${oIndex}`);
+            if(!label.classList.contains('correct') && !label.classList.contains('wrong')) {
+                label.classList.add('fade');
+            }
+        });
+
+        // Actualizar progreso
+        updateProgress();
+    }
+
+    // Actualizar barra de progreso
+    function updateProgress() {
+        const percent = (answeredCount / totalQuestions) * 100;
+        fill.style.width = `${percent}%`;
+        progText.innerText = `Pregunta ${answeredCount} de ${totalQuestions}`;
+
+        // Habilitar botón final si están todas respondidas
+        if (answeredCount === totalQuestions) {
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Finalizar prueba
+    function finishQuiz() {
+        document.getElementById('quizForm').style.display = 'none';
+        document.querySelector('.progress-container').style.display = 'none';
+        
+        const resultsPanel = document.getElementById('results-panel');
+        resultsPanel.style.display = 'block';
+        
+        const scoreText = document.getElementById('score-text');
+        scoreText.innerText = `${correctAnswersCount}/${totalQuestions}`;
+        
+        const feedback = document.getElementById('feedback-message');
+        const percentage = (correctAnswersCount / totalQuestions) * 100;
+
+        if (percentage >= 80) {
+            feedback.innerText = "¡Excelente nivel! Tienes conocimientos sólidos para este curso.";
+            scoreText.style.color = "var(--secondary-color)";
+        } else if (percentage >= 50) {
+            feedback.innerText = "Buen nivel básico. Este curso te ayudará a reforzar y aprender cosas nuevas.";
+            scoreText.style.color = "#f39c12"; // Naranja
+        } else {
+            feedback.innerText = "No te preocupes. Este curso es ideal para ti, aprenderás todas las bases necesarias.";
+            scoreText.style.color = "var(--warning-color)";
+        }
+        
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>

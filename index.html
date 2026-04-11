@@ -4,21 +4,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1976d2">
+    <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Centro de Capacitación Municipal | Portal Educativo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
     <link rel="stylesheet" href="styles.css?v=8">
     <link rel="manifest" href="manifest.json">
+
+    <style>
+        /* =======================================================
+           SISTEMA DE ALERTAS MODERNAS (TOASTS)
+           ======================================================= */
+        #toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 999999;
+            display: flex; flex-direction: column; gap: 12px; pointer-events: none;
+        }
+        .modern-toast {
+            background: #ffffff; color: #1e293b; padding: 16px 24px; border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); border-left: 6px solid #eab308;
+            font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 15px; width: max-content; max-width: 400px;
+            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .modern-toast i { font-size: 1.4rem; }
+        .modern-toast.error { border-left-color: #ef4444; }
+        .modern-toast.error i { color: #ef4444; }
+        .modern-toast.success { border-left-color: #22c55e; }
+        .modern-toast.success i { color: #22c55e; }
+        .modern-toast.warning i { color: #eab308; }
+        @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+        /* =======================================================
+           ESTILOS FORMULARIOS Y TABLAS
+           ======================================================= */
+        .form-grid-inscripcion { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .photo-col-ins { grid-column: span 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #eee; padding-right: 20px; }
+        .data-col-ins { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-group-ins { display: flex; flex-direction: column; gap: 8px; }
+        .input-group-ins.full { grid-column: span 2; }
+        .input-group-ins label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group-ins input, .input-group-ins select, .input-group-ins textarea { 
+            padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; width: 100%; outline: none; background: #fdfdfd; transition: all 0.2s;
+        }
+        .input-group-ins input:focus, .input-group-ins select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+        
+        .table-responsive { overflow-x: auto; width: 100%; }
+        .styled-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .styled-table th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.85rem; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+        .styled-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; color: #334155; vertical-align: middle; }
+        .styled-table tr:hover { background: #f1f5ff; }
+
+        @media (max-width: 900px) {
+            .form-grid-inscripcion { grid-template-columns: 1fr; }
+            .photo-col-ins { grid-column: span 1; border-right: none; padding-right: 0; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+            .data-col-ins { grid-column: span 1; grid-template-columns: 1fr; } 
+            .input-group-ins.full { grid-column: span 1; }
+        }
+
+        /* =======================================================
+           CERTIFICADO PREMIUM (AZUL MODERNO Y EDITABLE)
+           ======================================================= */
+        :root {
+            --azul-moderno: #1e3a8a; 
+            --magenta: #9E005D;
+            --naranja: #F18A00;
+            --coral: #ED4E44;
+            --texto-oscuro: #1A202C;
+            --texto-claro: #4A5568;
+            --dorado: #C5A059;
+        }
+
+        #zona-certificado-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #cbd5e0; z-index: 99999; overflow-y: auto; flex-direction: column; align-items: center; padding: 20px;
+        }
+        .cert-toolbar { display: flex; gap: 15px; margin-bottom: 20px; background: white; padding: 15px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        .diploma-container {
+            width: 210mm; height: 297mm; background-color: #ffffff; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            position: relative; padding: 45px; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; font-family: 'Montserrat', sans-serif;
+        }
+        .marco-exterior { position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; border: 2px solid var(--texto-oscuro); pointer-events: none; z-index: 5; }
+        .marco-interior { position: absolute; top: 26px; left: 26px; right: 26px; bottom: 26px; border: 1px solid var(--dorado); pointer-events: none; z-index: 5; }
+        .marca-agua { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; opacity: 0.03; pointer-events: none; z-index: 1; filter: grayscale(100%); }
+        
+        .contenido-diploma { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .header-certificado { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 5px; padding: 0 10px; }
+        .logo-inst { height: 110px; width: auto; max-width: 200px; object-fit: contain; cursor: pointer; }
+        
+        .marco-foto { width: 4.2cm; background-color: #fff; border: 1px solid #e2e8f0; padding: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); display: flex; flex-direction: column; transition: border-color 0.2s, box-shadow 0.2s; }
+        .marco-foto:hover { border-color: var(--azul-moderno); box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15); }
+        .area-imagen { width: 100%; height: 4.8cm; cursor: pointer; position: relative; }
+        .foto-interior { width: 100%; height: 100%; background-color: #f7fafc; border: 1px dashed #cbd5e0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .img-foto { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; }
+        .instruccion-foto { position: absolute; font-size: 0.6rem; color: #a0aec0; font-weight: 700; text-align: center; z-index: 1; padding: 5px; pointer-events: none; }
+        .datos-alumno-foto { margin-top: 6px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+        .texto-dato-foto { font-size: 0.55rem; color: var(--texto-oscuro); font-weight: 800; line-height: 1.2; text-transform: uppercase; }
+
+        .cuerpo-textos { text-align: center; display: flex; flex-direction: column; align-items: center; flex-grow: 1; justify-content: center; gap: 10px; padding: 0 20px; }
+        .titulo-certificado { font-size: 2.8rem; color: var(--texto-oscuro); font-weight: 800; letter-spacing: 4px; line-height: 1; margin-bottom: 2px; text-transform: uppercase; }
+        .subtitulo-certificado { font-size: 1.2rem; color: var(--magenta); font-weight: 600; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase; }
+        .texto-concede { font-size: 1.1rem; color: var(--texto-claro); margin-top: 5px; }
+        
+        .nombre-alumno-bloque { margin: 10px 0; width: 95%; display: flex; flex-direction: column; align-items: center; }
+        .cert-nombres { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 800; font-style: italic; color: var(--azul-moderno); line-height: 1; }
+        .cert-apellidos { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 600; font-style: italic; color: var(--azul-moderno); line-height: 1.2; margin-top: -5px;}
+        .linea-dorada-nombre { width: 80%; border-bottom: 2px solid var(--dorado); margin-top: 5px; }
+
+        .texto-motivo { font-size: 1.05rem; color: var(--texto-claro); line-height: 1.6; width: 90%; margin: 15px 0; }
+        .nombre-curso { font-size: 1.6rem; font-weight: 800; color: var(--texto-oscuro); text-transform: uppercase; width: 95%; letter-spacing: 1px; }
+        
+        .detalles-tecnicos { display: flex; justify-content: center; gap: 20px; margin-top: 15px; width: 100%; }
+        .detalle-box { text-align: center; padding: 5px 15px; border-left: 2px solid var(--naranja); }
+        .detalle-box:first-child { border-left: none; }
+        .detalle-box strong { color: var(--texto-claro); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+        .detalle-box span { color: var(--texto-oscuro); font-weight: 700; font-size: 1.1rem; }
+
+        .seccion-firmas { display: flex; flex-direction: column; width: 100%; padding: 0 40px; gap: 20px; margin-top: 20px; }
+        .firmas-fila { display: flex; justify-content: space-between; width: 100%; }
+        .firmas-centro { display: flex; justify-content: center; width: 100%; }
+        .firma-bloque { display: flex; flex-direction: column; align-items: center; width: 45%; }
+        .firma-bloque.alcalde { width: 55%; }
+        .img-firma-contenedor { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; position: relative; cursor: pointer; border-radius: 4px; }
+        .img-firma-contenedor:hover { background-color: rgba(0,0,0,0.03); }
+        .instruccion-firma { position: absolute; font-size: 0.6rem; color: #a0aec0; font-weight: 600; text-transform: uppercase; pointer-events: none; z-index: 1; }
+        .img-firma { max-width: 100%; max-height: 100%; object-fit: contain; position: relative; z-index: 2; opacity: 0; }
+        .linea-firma { width: 100%; height: 1px; background-color: var(--texto-oscuro); margin-bottom: 5px; }
+        .linea-colores { display: flex; height: 3px; width: 100%; margin-bottom: 5px; }
+        .nombre-firma { font-weight: 700; color: var(--texto-oscuro); font-size: 0.85rem; text-align: center; }
+        .cargo-firma { color: var(--texto-claro); font-size: 0.75rem; text-align: center; font-style: italic; }
+
+        [contenteditable="true"] { outline: none; transition: all 0.2s; border-radius: 4px; padding: 2px 4px; }
+        [contenteditable="true"]:hover { background-color: rgba(30, 58, 138, 0.05); cursor: text; }
+        [contenteditable="true"]:focus { background-color: transparent; border-bottom: 2px dashed var(--azul-moderno); }
+
+        @media print {
+            body > *:not(#zona-certificado-overlay) { display: none !important; }
+            #zona-certificado-overlay { display: block !important; position: static; background: white; padding: 0; }
+            .cert-toolbar, .no-print { display: none !important; }
+            .diploma-container { box-shadow: none; border: none; margin: 0; width: 210mm; height: 297mm; page-break-after: avoid; }
+            [contenteditable="true"]:focus, [contenteditable="true"]:hover { background-color: transparent; border-bottom: none; }
+            .marco-foto { box-shadow: none; border-color: #cbd5e0; }
+            .foto-interior { border-style: solid; }
+            @page { size: A4 portrait; margin: 0; }
+        }
+    </style>
 </head>
 
 <body>
     <div id="toast-container"></div>
+
+    <div id="zona-certificado-overlay">
+        <div class="cert-toolbar no-print">
+            <button class="btn-cancelar" onclick="cerrarCertificado()"><i class="fas fa-times"></i> Volver al Sistema</button>
+            <button class="btn-confirmar" onclick="window.print()"><i class="fas fa-print"></i> Imprimir Certificado</button>
+        </div>
+        
+        <div class="diploma-container" id="diploma-imprimible">
+            <div class="marco-exterior"></div>
+            <div class="marco-interior"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Escudo_de_Limache.svg/1200px-Escudo_de_Limache.svg.png" class="marca-agua" alt="">
+            
+            <div class="contenido-diploma">
+                <div class="header-certificado">
+                    <img src="logo.png" class="logo-inst" onclick="gestionarImagen(this, 'Pegar enlace del nuevo logo Municipal:')" title="Clic para cambiar logo" alt="Logo Institucional">
+                    <div class="marco-foto">
+                        <div class="area-imagen" onclick="gestionarImagen(this.querySelector('.img-foto'), 'Pega el enlace de la fotografía del alumno:')" title="Clic para foto">
+                            <div class="foto-interior">
+                                <span class="instruccion-foto no-print">FOTO<br>ALUMNO</span>
+                                <img src="" id="cert-img-foto" class="img-foto" alt="Fotografía">
+                            </div>
+                        </div>
+                        <div class="datos-alumno-foto">
+                            <div contenteditable="true" class="texto-dato-foto" id="cert-foto-nombre">NOMBRE ALUMNO</div>
+                            <div contenteditable="true" class="texto-dato-foto" id="cert-foto-rut">RUT: 12.345.678-9</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cuerpo-textos">
+                    <div>
+                        <h1 class="titulo-certificado" contenteditable="true">CERTIFICADO</h1>
+                        <div class="subtitulo-certificado" contenteditable="true">De Aprobación</div>
+                    </div>
+                    <div class="texto-concede" contenteditable="true">Se otorga el presente reconocimiento académico a:</div>
+
+                    <div class="nombre-alumno-bloque">
+                        <div id="cert-nombres" class="cert-nombres" contenteditable="true">Nombres del Alumno</div>
+                        <div id="cert-apellidos" class="cert-apellidos" contenteditable="true">Apellidos del Alumno</div>
+                        <div class="linea-dorada-nombre"></div>
+                    </div>
+
+                    <div class="texto-motivo" contenteditable="true">
+                        Por haber participado y aprobado con distinción el programa de capacitación oficial, 
+                        cumpliendo a cabalidad con las exigencias académicas, rúbricas de evaluación y asistencia requeridas en:
+                    </div>
+                    <div class="nombre-curso" id="cert-curso-principal" contenteditable="true">CONTABILIDAD COMERCIAL Y TRIBUTARIA</div>
+
+                    <div class="detalles-tecnicos">
+                        <div class="detalle-box">
+                            <strong contenteditable="true">Duración</strong>
+                            <span contenteditable="true" id="cert-duracion">60 Horas</span>
+                        </div>
+                        <div class="detalle-box">
+                            <strong contenteditable="true">Calificación Final</strong>
+                            <span contenteditable="true" id="cert-nota">6.8 (Aprobado)</span>
+                        </div>
+                        <div class="detalle-box">
+                            <strong contenteditable="true">Fecha de Emisión</strong>
+                            <span contenteditable="true" id="cert-fecha">Diciembre 2026, Limache</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="seccion-firmas">
+                    <div class="firmas-fila">
+                        <div class="firma-bloque">
+                            <div class="img-firma-contenedor" onclick="gestionarFirma(this.querySelector('.img-firma'))">
+                                <span class="instruccion-firma no-print">Clic: Firma Digital</span>
+                                <img src="" class="img-firma" alt="Firma">
+                            </div>
+                            <div class="linea-firma"></div>
+                            <div class="nombre-firma" contenteditable="true">Nathaly Villablanca Olivarez</div>
+                            <div class="cargo-firma" contenteditable="true">Dirección CAPA Limache</div>
+                        </div>
+                        <div class="firma-bloque">
+                            <div class="img-firma-contenedor" onclick="gestionarFirma(this.querySelector('.img-firma'))">
+                                <span class="instruccion-firma no-print">Clic: Firma Digital</span>
+                                <img src="" class="img-firma" alt="Firma">
+                            </div>
+                            <div class="linea-firma"></div>
+                            <div class="nombre-firma" contenteditable="true">Mauricio Galaz Estay</div>
+                            <div class="cargo-firma" contenteditable="true">Docente Instructor TIC</div>
+                        </div>
+                    </div>
+                    <div class="firmas-centro">
+                        <div class="firma-bloque alcalde">
+                            <div class="img-firma-contenedor" onclick="gestionarFirma(this.querySelector('.img-firma'))">
+                                <span class="instruccion-firma no-print">Clic: Firma Digital</span>
+                                <img src="" class="img-firma" alt="Firma">
+                            </div>
+                            <div class="linea-colores">
+                                <div style="flex: 1; background-color: var(--azul-moderno);"></div>
+                                <div style="flex: 1; background-color: var(--magenta);"></div>
+                                <div style="flex: 1; background-color: var(--naranja);"></div>
+                                <div style="flex: 1; background-color: var(--coral);"></div>
+                            </div>
+                            <div class="nombre-firma" contenteditable="true">Daniel Morales Espíndola</div>
+                            <div class="cargo-firma" contenteditable="true">Alcalde de Limache</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="custom-modal-overlay" class="hidden">
         <div class="custom-modal">
             <div class="modal-icon" id="modal-icon"><i class="fas fa-exclamation-circle"></i></div>
@@ -44,7 +294,6 @@
             <div class="login-content-wrapper">
                 <img src="logo.png" alt="Logo Capacitación Municipal" class="main-logo-login"
                     onerror="this.src='https://via.placeholder.com/180x60?text=LOGO'">
-
                 <div id="role-selection-step">
                     <h2 class="login-title">¡Empieza a aprender hoy!</h2>
                     <p class="login-subtitle">Selecciona tu perfil para continuar:</p>
@@ -69,22 +318,13 @@
                         <input type="hidden" id="selected-role-hidden">
                         <div class="input-group-modern">
                             <label>Usuario o correo</label>
-                            <div class="input-wrapper"><input type="text" id="l-user" required
-                                    autocomplete="username"><i class="far fa-user"></i></div>
+                            <div class="input-wrapper"><input type="text" id="l-user" required autocomplete="username"><i class="far fa-user"></i></div>
                         </div>
                         <div class="input-group-modern">
                             <label>Contraseña</label>
-                            <div class="input-wrapper"><input type="password" id="l-pass" required
-                                    autocomplete="current-password"><button type="button" class="toggle-pwd"
-                                    onclick="togglePassword('l-pass')"><i class="far fa-eye"></i></button></div>
+                            <div class="input-wrapper"><input type="password" id="l-pass" required autocomplete="current-password"><button type="button" class="toggle-pwd" onclick="togglePassword('l-pass')"><i class="far fa-eye"></i></button></div>
                         </div>
                         <button type="submit" class="btn-accent" id="btn-login">ACCEDER</button>
-                        <div class="login-footer-links">
-                            <label class="check-container"><input type="checkbox" id="remember-me"> Recordar mis
-                                claves</label>
-                            <a href="#" onclick="alert('Contacta a dirección para restablecer credenciales.')">He
-                                olvidado mis claves de acceso</a>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -94,18 +334,13 @@
     <div id="app" style="display:none">
         <header class="top-header">
             <div class="header-left" style="align-items: center;">
-                <button id="mobile-menu-btn" class="hamburger-btn" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-
+                <button id="mobile-menu-btn" class="hamburger-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
                 <img src="logo.png" alt="Logo" class="header-logo-img logo-gigante" onerror="this.style.display='none'">
-
                 <div class="header-titles">
                     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                         <span id="u-role-label" class="role-badge">Cargando...</span>
                         <span id="active-course-badge" class="course-lock-badge hidden"><i class="fas fa-lock"></i>
-                            <b id="active-course-name"></b> <button onclick="unlockCourse()" title="Cambiar curso"
-                                class="btn-unlock"><i class="fas fa-times"></i></button></span>
+                            <b id="active-course-name"></b> <button onclick="unlockCourse()" title="Cambiar curso" class="btn-unlock"><i class="fas fa-times"></i></button></span>
                     </div>
                 </div>
             </div>
@@ -117,8 +352,7 @@
                     </div>
                     <div class="avatar-circle"><span id="user-initial">U</span></div>
                 </div>
-                <button class="logout-btn-modern" onclick="auth.signOut()" title="Cerrar Sesión"><i
-                        class="fas fa-sign-out-alt"></i></button>
+                <button class="logout-btn-modern" onclick="auth.signOut()" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </header>
 
@@ -127,41 +361,41 @@
 
             <aside class="side-nav" id="sidebar">
                 <nav class="nav-links">
-                    <a href="#" class="nav-item active" data-page="p-home" onclick="nav('p-home', this)"><i
-                            class="fas fa-home"></i><span>Inicio</span></a>
-                    <a href="#" class="nav-item" data-page="p-obs" onclick="nav('p-obs', this)"><i
-                            class="fas fa-envelope"></i><span>Comunicaciones</span><span class="nav-badge"
-                            id="msg-badge">0</span></a>
-                    <a href="#" class="nav-item nav-staff-admin" data-page="p-asist" onclick="nav('p-asist', this)"><i
-                            class="fas fa-calendar-check"></i><span>Asistencia</span></a>
-                    <a href="#" class="nav-item nav-staff-admin" data-page="p-notas" onclick="nav('p-notas', this)"><i
-                            class="fas fa-star"></i><span>Calificaciones</span></a>
-                    <a href="#" class="nav-item nav-staff-admin" data-page="p-materia"
-                        onclick="nav('p-materia', this)"><i class="fas fa-book"></i><span>Bitácora</span></a>
-                    <a href="#" class="nav-item nav-admin-only" data-page="p-admin" onclick="nav('p-admin', this)"><i
-                            class="fas fa-cog"></i><span>Administración</span></a>
+                    <a href="#" class="nav-item active" data-page="p-home" onclick="nav('p-home', this)"><i class="fas fa-home"></i><span>Inicio</span></a>
+                    
+                    <a href="computacion basica .html" class="nav-item" id="nav-evaluaciones" data-page="p-recursos"><i class="fas fa-file-pdf"></i><span>Evaluaciones y Material</span></a>
+                    
+                    <a href="#" class="nav-item nav-admin-only" data-page="p-inscripciones" onclick="nav('p-inscripciones', this)">
+                        <i class="fas fa-user-plus"></i><span>Ficha Inscripción</span>
+                    </a>
+                    <a href="#" class="nav-item nav-admin-only" data-page="p-lista" onclick="nav('p-lista', this)">
+                        <i class="fas fa-database"></i><span>Base de Datos (PDF)</span>
+                    </a>
+                    <a href="#" class="nav-item nav-admin-only" data-page="p-talleres" onclick="nav('p-talleres', this)">
+                        <i class="fas fa-chalkboard-teacher"></i><span>Gestión Talleres</span>
+                    </a>
+
+                    <a href="#" class="nav-item" data-page="p-obs" onclick="nav('p-obs', this)"><i class="fas fa-envelope"></i><span>Comunicaciones</span><span class="nav-badge" id="msg-badge">0</span></a>
+                    <a href="#" class="nav-item nav-staff-admin" data-page="p-asist" onclick="nav('p-asist', this)"><i class="fas fa-calendar-check"></i><span>Asistencia</span></a>
+                    <a href="#" class="nav-item nav-staff-admin" data-page="p-notas" onclick="nav('p-notas', this)"><i class="fas fa-star"></i><span>Calificaciones</span></a>
+                    <a href="#" class="nav-item nav-staff-admin" data-page="p-materia" onclick="nav('p-materia', this)"><i class="fas fa-book"></i><span>Bitácora</span></a>
+                    <a href="#" class="nav-item nav-admin-only" data-page="p-admin" onclick="nav('p-admin', this)"><i class="fas fa-cog"></i><span>Administración</span></a>
                 </nav>
             </aside>
 
             <div class="content-area">
                 <section id="p-home" class="page active">
-                    <div id="dashboard-staff">
+                     <div id="dashboard-staff">
                         <div class="page-title">
                             <h1>Panel Académico</h1>
                             <p>Haz clic en un curso para gestionar su Asistencia y Notas</p>
                         </div>
                         <div class="metrics-grid mb-4">
                             <div class="metric-card border-teal"><i class="fas fa-users icon-teal"></i>
-                                <div>
-                                    <h3 id="stat-total-alumnos">0</h3>
-                                    <p>Alumnos Registrados</p>
-                                </div>
+                                <div><h3 id="stat-total-alumnos">0</h3><p>Alumnos Registrados</p></div>
                             </div>
                             <div class="metric-card border-orange"><i class="fas fa-chalkboard icon-orange"></i>
-                                <div>
-                                    <h3 id="stat-total-cursos">0</h3>
-                                    <p>Cursos Activos</p>
-                                </div>
+                                <div><h3 id="stat-total-cursos">0</h3><p>Cursos Activos</p></div>
                             </div>
                         </div>
                         <div id="global-dashboard" class="courses-grid"></div>
@@ -171,32 +405,139 @@
                             <h1>Mi Portal de Estudiante</h1>
                             <p>Revisa tu rendimiento general</p>
                         </div>
-                        <div class="white-card mb-4" id="student-course-details"
-                            style="border-left: 6px solid var(--c-blue-accent);">
-                            <div class="p-3 text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando
-                                información del curso...</div>
+                        <div class="white-card mb-4" id="student-course-details" style="border-left: 6px solid var(--c-blue-accent);">
+                            <div class="p-3 text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando información del curso...</div>
                         </div>
                         <div class="student-dashboard-grid">
                             <div class="white-card">
-                                <div class="card-header-styled bg-magenta">
-                                    <h3><i class="fas fa-award"></i> Mis Calificaciones</h3>
-                                </div>
-                                <div id="student-notas-list" class="p-3" style="max-height: 400px; overflow-y: auto;">
-                                </div>
+                                <div class="card-header-styled bg-magenta"><h3><i class="fas fa-award"></i> Mis Calificaciones</h3></div>
+                                <div id="student-notas-list" class="p-3" style="max-height: 400px; overflow-y: auto;"></div>
                             </div>
                             <div class="white-card">
-                                <div class="card-header-styled bg-teal">
-                                    <h3><i class="fas fa-calendar-check"></i> Mi Asistencia</h3>
-                                </div>
+                                <div class="card-header-styled bg-teal"><h3><i class="fas fa-calendar-check"></i> Mi Asistencia</h3></div>
                                 <div id="student-asist-list" class="p-3"></div>
                             </div>
                             <div class="white-card">
-                                <div class="card-header-styled bg-orange">
-                                    <h3><i class="fas fa-bullhorn"></i> Últimos Avisos</h3>
-                                </div>
-                                <div id="student-avisos-list" class="p-3" style="max-height: 400px; overflow-y: auto;">
-                                </div>
+                                <div class="card-header-styled bg-orange"><h3><i class="fas fa-bullhorn"></i> Últimos Avisos</h3></div>
+                                <div id="student-avisos-list" class="p-3" style="max-height: 400px; overflow-y: auto;"></div>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="p-inscripciones" class="page" style="display:none;">
+                    <div class="page-title">
+                        <h1>Ingreso de Ficha de Alumnos 2026</h1>
+                        <p>Completa los datos del alumno y asócialo a un Taller Oficial.</p>
+                    </div>
+
+                    <div class="white-card mb-4">
+                        <div class="card-header-styled bg-blue">
+                            <h3><i class="fas fa-address-card"></i> Datos Personales</h3>
+                        </div>
+                        <div class="p-4 bg-light-gray" style="border-radius: 0 0 12px 12px;">
+                            <form id="form-sga-inscripcion" onsubmit="guardarFichaAlumnoSGA(event)">
+                                <div class="form-grid-inscripcion">
+                                    <div class="photo-col-ins">
+                                        <img id="preview-foto-sga" src="https://via.placeholder.com/150x180?text=FOTO" style="width:150px; height:180px; border-radius:12px; border:2px solid #cbd5e1; object-fit: cover; margin-bottom: 15px;">
+                                        <input type="file" id="fotoFileSga" accept="image/*" hidden onchange="procesarFotoSGA(this)">
+                                        <button type="button" class="btn-cancelar" style="width: 150px; justify-content:center; background:#e2e8f0; color:#333;" onclick="document.getElementById('fotoFileSga').click()">CARGAR FOTO</button>
+                                    </div>
+                                    <div class="data-col-ins">
+                                        <div class="input-group-ins"><label>Apellido Paterno</label><input type="text" id="sga-apP" required></div>
+                                        <div class="input-group-ins"><label>Apellido Materno</label><input type="text" id="sga-apM" required></div>
+                                        <div class="input-group-ins full"><label>Nombres Completos</label><input type="text" id="sga-nom" required></div>
+                                        <div class="input-group-ins"><label>RUT (Sin puntos y con guión)</label><input type="text" id="sga-rut" required placeholder="12345678-9"></div>
+                                        <div class="input-group-ins"><label>Fecha Nacimiento</label><input type="date" id="sga-fNac"></div>
+                                    </div>
+
+                                    <div class="input-group-ins full"><label>Domicilio Completo</label><input type="text" id="sga-dom"></div>
+                                    <div class="input-group-ins"><label>Teléfono / WhatsApp</label><input type="tel" id="sga-tel"></div>
+                                    <div class="input-group-ins"><label>Email</label><input type="email" id="sga-mail"></div>
+
+                                    <div class="input-group-ins"><label>Nivel de Estudios</label>
+                                        <select id="sga-edu">
+                                            <option>N/A</option><option>BÁSICA</option><option>MEDIA</option><option>TÉCNICO</option><option>UNIVERSITARIO</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="input-group-ins full">
+                                        <label>Curso / Taller a Inscribir</label>
+                                        <select id="sga-curso-select" required style="border-color: #1e3a8a; font-weight: bold;"></select>
+                                    </div>
+
+                                    <div class="input-group-ins"><label>¿Pagó Matrícula?</label>
+                                        <select id="sga-pago" onchange="document.getElementById('sga-folio').value = this.value === 'SI' ? 'FOLIO: FL-' + Math.floor(1000+Math.random()*9000) + ' | VALOR: $5.000' : ''">
+                                            <option value="NO">PENDIENTE (NO)</option><option value="SI">PAGADA (SI)</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group-ins full"><label>Información de Folio</label><input type="text" id="sga-folio" readonly style="background:#f1f5f9; font-weight: 800; color: #9E005D;"></div>
+                                    <div class="input-group-ins full"><label>Motivo de la Capacitación</label><input type="text" id="sga-motivo"></div>
+                                </div>
+                                <div style="margin-top: 25px;">
+                                    <button type="submit" class="btn-accent w-100" style="padding: 15px; font-size: 1.1rem; border-radius: 12px; background: #9E005D;"><i class="fas fa-save"></i> GUARDAR FICHA DE ALUMNO</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="p-lista" class="page" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap: wrap; gap: 10px;">
+                        <div class="page-title" style="margin:0;">
+                            <h1>Base de Datos Alumnos</h1>
+                            <p>Visualiza estudiantes, imprime listas y emite certificados.</p>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items: center;">
+                            <select id="filterTaller" onchange="renderTablaSGA()" style="padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0; font-weight:bold;"></select>
+                            <button onclick="printCoursePDF()" class="btn-accent" style="padding: 10px 20px; border-radius: 8px;"><i class="fas fa-file-pdf"></i> EXPORTAR LISTA PDF</button>
+                        </div>
+                    </div>
+
+                    <div class="white-card">
+                        <div class="table-responsive">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>RUT</th>
+                                        <th>Nombres</th>
+                                        <th>Apellidos</th>
+                                        <th>Curso/Taller</th>
+                                        <th>Folio</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-sga-alumnos">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="p-talleres" class="page" style="display:none;">
+                    <div class="page-title">
+                        <h1>Gestión de Talleres 2026</h1>
+                    </div>
+                    <div class="white-card mb-4">
+                        <div class="card-header-styled bg-teal">
+                            <h3><i class="fas fa-plus"></i> Crear Nuevo Taller</h3>
+                        </div>
+                        <div class="p-3">
+                            <div class="controls-row">
+                                <div class="form-group w-100"><label>Nombre del Taller</label><input type="text" id="newTaller" class="form-control"></div>
+                                <div class="form-group w-100"><label>Docente Asignado</label><input type="text" id="newDocente" class="form-control"></div>
+                            </div>
+                            <button class="btn-accent w-100" style="background:var(--c-teal);" onclick="addTaller()"><i class="fas fa-save"></i> Guardar Taller</button>
+                        </div>
+                    </div>
+                    
+                    <div class="white-card">
+                        <div class="table-responsive p-3">
+                            <table class="styled-table">
+                                <thead><tr><th>Nombre Taller</th><th>Docente Asignado</th><th width="100">Acción</th></tr></thead>
+                                <tbody id="tallerData"></tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -212,14 +553,10 @@
                                 <h3><i class="fas fa-paper-plane"></i> Redactar Mensaje</h3>
                             </div>
                             <div class="p-3">
-                                <div class="form-group"><label>Para:</label><select id="obs-destinatario"
-                                        class="form-control"></select></div>
-                                <div class="form-group"><label>Tipo:</label><select id="obs-tipo"
-                                        class="form-control"></select></div>
-                                <div class="form-group"><label>Mensaje:</label><textarea id="obs-texto" rows="5"
-                                        class="form-control" placeholder="Escribe tu mensaje..."></textarea></div>
-                                <button class="btn-accent w-100" onclick="sendObservation()"><i
-                                        class="fas fa-paper-plane"></i> Enviar Mensaje</button>
+                                <div class="form-group"><label>Para:</label><select id="obs-destinatario" class="form-control"></select></div>
+                                <div class="form-group"><label>Tipo:</label><select id="obs-tipo" class="form-control"></select></div>
+                                <div class="form-group"><label>Mensaje:</label><textarea id="obs-texto" rows="5" class="form-control" placeholder="Escribe tu mensaje..."></textarea></div>
+                                <button class="btn-accent w-100" onclick="sendObservation()"><i class="fas fa-paper-plane"></i> Enviar Mensaje</button>
                             </div>
                         </div>
                         <div class="white-card w-100">
@@ -232,30 +569,21 @@
                 </section>
 
                 <section id="p-asist" class="page" style="display:none;">
-                    <div class="page-title"
-                        style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:10px;">
+                    <div class="page-title" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:10px;">
                         <div>
                             <h1>Control de Asistencia</h1>
                         </div>
                         <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-                            <button class="btn-outline-teal" onclick="exportarAsistencia()"><i
-                                    class="fas fa-file-csv"></i> Reporte CSV</button>
-                            <button class="btn-outline-danger nav-admin-only" onclick="suspenderClase()"><i
-                                    class="fas fa-ban"></i> Suspender Clase</button>
+                            <button class="btn-outline-teal" onclick="exportarAsistencia()"><i class="fas fa-file-csv"></i> Reporte CSV</button>
+                            <button class="btn-outline-danger nav-admin-only" onclick="suspenderClase()"><i class="fas fa-ban"></i> Suspender Clase</button>
                         </div>
                     </div>
-
-                    <div id="empty-asist" class="locked-course-notice error"><i class="fas fa-exclamation-triangle"></i>
-                        Debes ir a <b>Inicio</b> y hacer clic en un curso para gestionarlo.</div>
-
+                    <div id="empty-asist" class="locked-course-notice error"><i class="fas fa-exclamation-triangle"></i> Debes ir a <b>Inicio</b> y hacer clic en un curso.</div>
                     <div id="content-asist" class="white-card hidden">
-                        <div class="controls-row p-3 bg-light-gray"
-                            style="border-radius: 12px; margin-bottom: 20px; align-items:center;">
-                            <div class="form-group mb-0"><label>Fecha a gestionar:</label><input type="date"
-                                    id="asist-fecha" class="form-control" onchange="renderAttendanceList()"></div>
+                        <div class="controls-row p-3 bg-light-gray" style="border-radius: 12px; margin-bottom: 20px; align-items:center;">
+                            <div class="form-group mb-0"><label>Fecha a gestionar:</label><input type="date" id="asist-fecha" class="form-control" onchange="renderAttendanceList()"></div>
                             <div class="form-group mb-0"><label>Curso Seleccionado:</label>
-                                <div class="form-control bg-white display-active-course"
-                                    style="color:var(--c-blue-accent); font-weight:800; cursor:not-allowed;"></div>
+                                <div class="form-control bg-white display-active-course" style="color:var(--c-blue-accent); font-weight:800; cursor:not-allowed;"></div>
                             </div>
                         </div>
                         <div id="asist-list-container" class="mt-4 table-responsive"></div>
@@ -263,23 +591,14 @@
                 </section>
 
                 <section id="p-notas" class="page" style="display:none;">
-                    <div class="page-title"
-                        style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap;">
-                        <div>
-                            <h1>Gestión de Calificaciones</h1>
-                        </div>
-                        <span class="nav-admin-only text-muted text-sm"><i class="fas fa-shield-alt"></i> Modo Auditoría
-                            (Admin)</span>
+                    <div class="page-title">
+                        <h1>Gestión de Calificaciones</h1>
                     </div>
-
-                    <div id="empty-notas" class="locked-course-notice error"><i class="fas fa-exclamation-triangle"></i>
-                        Debes ir a <b>Inicio</b> y hacer clic en un curso para gestionarlo.</div>
-
+                    <div id="empty-notas" class="locked-course-notice error"><i class="fas fa-exclamation-triangle"></i> Debes ir a <b>Inicio</b> y hacer clic en un curso.</div>
                     <div id="content-notas" class="white-card hidden">
                         <div class="controls-row p-3 bg-light-gray" style="border-radius: 12px; margin-bottom: 20px;">
                             <div class="form-group mb-0 w-100"><label>Curso Seleccionado:</label>
-                                <div class="form-control bg-white display-active-course"
-                                    style="color:var(--c-blue-accent); font-weight:800; cursor:not-allowed;"></div>
+                                <div class="form-control bg-white display-active-course" style="color:var(--c-blue-accent); font-weight:800; cursor:not-allowed;"></div>
                             </div>
                         </div>
                         <div id="notes-table-container" class="table-responsive mt-4"></div>
@@ -290,114 +609,79 @@
                     <div class="page-title">
                         <h1>Bitácora Docente</h1>
                     </div>
-
-                    <div id="empty-bitacora" class="locked-course-notice error mb-4"><i
-                            class="fas fa-exclamation-triangle"></i> Debes ir a <b>Inicio</b> y hacer clic en un curso
-                        para gestionarlo.</div>
-
+                    <div id="empty-bitacora" class="locked-course-notice error mb-4"><i class="fas fa-exclamation-triangle"></i> Debes ir a <b>Inicio</b> y hacer clic en un curso.</div>
                     <div id="content-bitacora" class="hidden">
                         <div class="white-card mb-4 nav-staff-only" id="form-bitacora-container">
                             <div class="card-header-styled bg-teal">
-                                <h3><i class="fas fa-plus-circle"></i> Nuevo Registro de Materia</h3>
+                                <h3><i class="fas fa-plus-circle"></i> Nuevo Registro</h3>
                             </div>
                             <div class="p-3">
                                 <div class="controls-row">
-                                    <div class="form-group"><label>Fecha</label><input type="date" id="mat-fecha"
-                                            class="form-control"></div>
-                                    <div class="form-group"><label>Curso Seleccionado</label>
-                                        <div class="form-control bg-light-gray display-active-course"
-                                            style="font-weight:800; cursor:not-allowed;"></div>
-                                    </div>
-                                    <div class="form-group"><label>Tipo</label>
-                                        <select id="mat-tipo" class="form-control">
+                                    <div class="form-group"><label>Fecha</label><input type="date" id="mat-fecha" class="form-control"></div>
+                                    <div class="form-group"><label>Tipo</label><select id="mat-tipo" class="form-control">
                                             <option>Materia Cursada</option>
                                             <option>Examen</option>
                                             <option>Actividad Práctica</option>
-                                            <option>Trabajos Grupales</option>
-                                            <option>Tareas en clases</option>
-                                        </select>
-                                    </div>
+                                        </select></div>
                                 </div>
-                            </div>
-                            <div class="form-group" style="padding: 0 1.5rem;"><label>Detalle de lo avanzado en
-                                    clases</label><textarea id="mat-contenido" class="form-control" rows="2"></textarea>
-                            </div>
-                            <div style="padding: 0 1.5rem 1.5rem;">
-                                <button class="btn-accent" onclick="saveBitacora()"><i class="fas fa-save"></i> Guardar
-                                    Registro</button>
+                                <div class="form-group"><label>Detalle</label><textarea id="mat-contenido" class="form-control" rows="2"></textarea></div>
+                                <button class="btn-accent" onclick="saveBitacora()"><i class="fas fa-save"></i> Guardar Registro</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="white-card">
-                        <div class="card-header-styled bg-dark" style="justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                            <h3><i class="fas fa-history"></i> Historial Académico</h3>
-                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                                <select id="filtro-bitacora-admin" class="form-control nav-admin-only"
-                                    style="width:auto; padding:5px;" onchange="loadBitacora()">
-                                    <option value="todas">Todos los Registros</option>
-                                    <option value="Suspendida">Clases Suspendidas</option>
-                                </select>
+                        <div class="white-card">
+                            <div class="card-header-styled bg-dark" style="justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                                <h3><i class="fas fa-history"></i> Historial Académico</h3>
                                 <button class="btn-outline-danger nav-admin-only" onclick="limpiarHistorialBitacora()" style="background:white; padding: 6px 12px; font-size: 0.85rem;"><i class="fas fa-trash-alt"></i> Limpiar Historial</button>
                             </div>
+                            <div id="bitacora-list-filtro" class="p-3"></div>
                         </div>
-                        <div id="bitacora-list-filtro" class="p-3"></div>
                     </div>
                 </section>
+
                 <section id="p-admin" class="page" style="display:none;">
                     <div class="page-title">
                         <h1>Administración del Centro</h1>
                     </div>
-
                     <div class="white-card mb-4">
                         <div class="card-header-styled bg-magenta">
-                            <h3><i class="fas fa-print"></i> Reportes Oficiales (PDF)</h3>
+                            <h3><i class="fas fa-print"></i> Reportes Oficiales</h3>
                         </div>
                         <div class="p-3">
-                            <p class="text-muted text-sm mb-3">Genera informes formales listos para imprimir o descargar
-                                en PDF. <b>El reporte se generará en base al curso que tengas fijado en la pestaña Inicio.</b></p>
-                            <div id="empty-reportes" class="locked-course-notice error mb-3"><i class="fas fa-exclamation-triangle"></i> Fije un curso en la pestaña "Inicio" para generar su reporte.</div>
+                            <div id="empty-reportes" class="locked-course-notice error mb-3">Fije un curso en Inicio.</div>
                             <div id="content-reportes" class="hidden">
-                                <div class="form-group mb-0"><label>Curso a Reportar:</label>
-                                    <div class="form-control bg-light-gray display-active-course" style="font-weight:900; cursor:not-allowed; color:var(--c-magenta);"></div>
+                                <div class="form-group"><label>Curso:</label>
+                                    <div class="form-control display-active-course" style="font-weight:900; color:var(--c-magenta);"></div>
                                 </div>
-                                <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
-                                    <button class="btn-accent w-100" style="flex:1; background:var(--c-teal);" onclick="generarReporteOficial('notas')"><i class="fas fa-star"></i> Informe de Calificaciones</button>
-                                    <button class="btn-accent w-100" style="flex:1; background:var(--c-orange);" onclick="generarReporteOficial('asistencia')"><i class="fas fa-calendar-check"></i> Informe de Asistencia</button>
+                                <div style="display:flex; gap:10px; margin-top:15px;">
+                                    <button class="btn-accent w-100" style="background:var(--c-teal);" onclick="generarReporteOficial('notas')">Informe Notas</button>
+                                    <button class="btn-accent w-100" style="background:var(--c-orange);" onclick="generarReporteOficial('asistencia')">Informe Asistencia</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div class="white-card mb-4">
                         <div class="card-header-styled" style="background: var(--c-teal);">
-                            <h3><i class="fas fa-book-open"></i> Gestión de Cursos Oficiales</h3>
+                            <h3><i class="fas fa-book-open"></i> Gestión de Cursos Activos</h3>
                         </div>
                         <div class="split-layout p-3">
                             <div>
-                                <h4 style="margin-bottom:15px; color:var(--c-dark);">Crear Nuevo Curso</h4>
-                                <div class="form-group"><label>Nombre del Curso</label><input type="text" id="c-nombre" class="form-control" placeholder="Ej: Armado y Desarmado de Computadores"></div>
-                                <div class="form-group"><label>Docente a cargo</label><input type="text" id="c-docente" class="form-control" placeholder="Ej: Mauricio Galaz"></div>
-                                <div class="form-group">
-                                    <label>Jornada</label>
-                                    <select id="c-jornada" class="form-control">
+                                <h4>Crear Nuevo Curso</h4>
+                                <div class="form-group"><label>Nombre</label><input type="text" id="c-nombre" class="form-control"></div>
+                                <div class="form-group"><label>Docente</label><input type="text" id="c-docente" class="form-control"></div>
+                                <div class="form-group"><label>Jornada</label><select id="c-jornada" class="form-control">
                                         <option value="Mañana">Mañana</option>
                                         <option value="Tarde">Tarde</option>
                                         <option value="Vespertino">Vespertino</option>
-                                    </select>
-                                </div>
+                                    </select></div>
                                 <div class="controls-row">
-                                    <div class="form-group"><label>Mes Inicio</label><input type="text" id="c-inicio" class="form-control" placeholder="Ej: Marzo"></div>
-                                    <div class="form-group"><label>Mes Término</label><input type="text" id="c-fin" class="form-control" placeholder="Ej: Julio"></div>
+                                    <div class="form-group"><label>Mes Inicio</label><input type="text" id="c-inicio" class="form-control"></div>
+                                    <div class="form-group"><label>Mes Término</label><input type="text" id="c-fin" class="form-control"></div>
                                 </div>
-                                <div class="controls-row">
-                                    <div class="form-group"><label>Duración (Horas)</label><input type="text" id="c-duracion" class="form-control" placeholder="Ej: 40 hrs"></div>
-                                    <div class="form-group"><label>Días y Horarios</label><input type="text" id="c-horario" class="form-control" placeholder="Ej: Lun y Mie 18:00 a 20:00"></div>
-                                </div>
-                                <button class="btn-accent w-100" style="background:var(--c-teal);" onclick="crearCursoOficial()"><i class="fas fa-plus"></i> Guardar Curso Oficial</button>
+                                <button class="btn-accent w-100" style="background:var(--c-teal);" onclick="crearCursoOficial()">Guardar Curso</button>
                             </div>
                             <div class="border-left-desktop">
-                                <h4 style="margin-bottom:15px; color:var(--c-dark);">Cursos Activos (Base de Datos)</h4>
-                                <div id="admin-cursos-oficiales-list" style="max-height: 450px; overflow-y:auto; padding-right:10px;"></div>
+                                <h4>Cursos Activos</h4>
+                                <div id="admin-cursos-oficiales-list" style="max-height: 400px; overflow-y:auto;"></div>
                             </div>
                         </div>
                     </div>
@@ -405,80 +689,402 @@
                         <div class="card-header-styled bg-dark">
                             <h3><i class="fas fa-users-cog"></i> Personal Docente Activo</h3>
                         </div>
-                        <div id="admin-docentes-list" class="p-3 admin-cards-container">
-                            </div>
+                        <div id="admin-docentes-list" class="p-3 admin-cards-container"></div>
                     </div>
-
                     <div class="white-card mb-4">
                         <div class="card-header-styled bg-blue">
-                            <h3><i class="fas fa-user-plus"></i> Registro Único de Usuarios</h3>
+                            <h3><i class="fas fa-user-plus"></i> Registro de Usuarios</h3>
                         </div>
-                        <div class="p-4 bg-light-gray" style="border-bottom: 1px solid var(--border-light);">
+                        <div class="p-4 bg-light-gray">
                             <div class="controls-row">
-                                <div class="form-group"><label>Rol del Usuario</label>
-                                    <select id="adm-nuevo-rol" class="form-control" onchange="toggleNewCourseVisibility()">
-                                        <option value="alumno">Alumno (Estudiante)</option>
-                                        <option value="profesor">Profesor (Docente)</option>
-                                        <option value="admin">Administrador (Dirección)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group"><label>Nombre Completo</label><input type="text" id="adm-prof-name" class="form-control" placeholder="Ej: Juan Pérez"></div>
+                                <div class="form-group"><label>Rol</label><select id="adm-nuevo-rol" class="form-control" onchange="toggleNewCourseVisibility()">
+                                        <option value="alumno">Alumno</option>
+                                        <option value="profesor">Profesor</option>
+                                        <option value="admin">Admin</option>
+                                    </select></div>
+                                <div class="form-group"><label>Nombre Completo</label><input type="text" id="adm-prof-name" class="form-control"></div>
                             </div>
-                            
                             <div class="controls-row">
-                                <div class="form-group"><label>Usuario o Correo (Para Iniciar Sesión)</label><input type="text" id="adm-prof-user" class="form-control" placeholder="Ej: jperez"></div>
-                                <div class="form-group"><label>Contraseña Asignada</label><input type="text" id="adm-prof-pass" class="form-control" placeholder="Mínimo 6 caracteres"></div>
+                                <div class="form-group"><label>Usuario</label><input type="text" id="adm-prof-user" class="form-control"></div>
+                                <div class="form-group"><label>Clave</label><input type="text" id="adm-prof-pass" class="form-control"></div>
                             </div>
-
                             <div class="form-group" id="container-asignar-curso">
-                                <label>Asignar a Curso Inicial</label>
+                                <label>Curso Inicial</label>
                                 <select id="adm-prof-curso-select" class="form-control" onchange="toggleManualCourseInput()"></select>
-                                <input type="text" id="adm-prof-nuevo-curso" class="form-control hidden mt-2" placeholder="Escriba el nombre del nuevo curso">
+                                <input type="text" id="adm-prof-nuevo-curso" class="form-control hidden mt-2" placeholder="Nombre nuevo curso">
                             </div>
-
-                            <button class="btn-accent w-100 mt-3" onclick="registerUserSystem()"><i class="fas fa-check"></i> Crear Usuario en el Sistema</button>
+                            <button class="btn-accent w-100 mt-3" onclick="registerUserSystem()">Crear Usuario</button>
                         </div>
                     </div>
-
                     <div class="white-card">
                         <div class="card-header-styled bg-dark">
-                            <h3><i class="fas fa-users-cog"></i> Directorio General (Gestión y Claves)</h3>
+                            <h3><i class="fas fa-users-cog"></i> Directorio General</h3>
                         </div>
-                        <div id="admin-users-table" class="table-responsive p-3" style="max-height: 600px; overflow-y: auto;">
-                            </div>
+                        <div id="admin-users-table" class="table-responsive p-3" style="max-height: 600px; overflow-y: auto;"></div>
                     </div>
-
                 </section>
-                
-                <footer class="modern-footer">
-                    <div class="footer-content">
-                        <p>&copy; 2026 Diseñado por <strong>mgservicios</strong> | Todos los derechos reservados.</p>
-                        <div class="footer-contact-info">
-                            <span><i class="fas fa-map-marker-alt" style="color: var(--danger);"></i> Chile</span>
-                            <span class="footer-divider">•</span>
-                            <span>
-                                <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> Contacto: 
-                                <a href="https://wa.me/56998797596" target="_blank">+56 9 98797596</a>
-                            </span>
-                        </div>
-                    </div>
-                </footer>
 
             </div>
         </main>
+        
+        <footer class="modern-footer">
+            <div class="footer-content">
+                <p>&copy; 2026 Diseñado por <strong>mgservicios</strong></p>
+                <div class="footer-contact-info">
+                    <span><i class="fas fa-map-marker-alt" style="color: #ED4E44;"></i> Chile</span>
+                    <span class="footer-divider">•</span>
+                    <span><i class="fab fa-whatsapp" style="color: #25D366;"></i> <a href="https://wa.me/56998797596" target="_blank">+56 9 98797596</a></span>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <link rel="stylesheet" href="styles.css?v=8">
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
+
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registrado correctamente'))
-                    .catch(err => console.error('Error al registrar el Service Worker', err));
-            });
+        // --- 1. SISTEMA DE ALERTAS TOAST MODERNAS ---
+        function mostrarAlertaModerna(mensaje, tipo = 'warning') {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `modern-toast ${tipo}`;
+            
+            let icono = 'fa-exclamation-circle';
+            if(tipo === 'success') icono = 'fa-check-circle';
+            if(tipo === 'error') icono = 'fa-times-circle';
+
+            toast.innerHTML = `<i class="fas ${icono}"></i> <span>${mensaje}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOutRight 0.4s forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
         }
+
+        window.alert = function(msg) {
+            if(msg && msg.toLowerCase().includes('error') || msg.toLowerCase().includes('problema')) {
+                mostrarAlertaModerna(msg, 'error');
+            } else {
+                mostrarAlertaModerna(msg, 'warning');
+            }
+        };
+
+
+        // --- 2. BASE DE DATOS Y TALLERES LOCALES ---
+        let alumnosFichasDB = JSON.parse(localStorage.getItem('capa_sga_fichas_v2')) || [];
+        let listaTalleresSGA = JSON.parse(localStorage.getItem('capa_sga_talleres')) || [
+            {nombre: "REPOSTERÍA", docente: "ANGELA TORO"},
+            {nombre: "PANADERÍA", docente: "NEVENCKA JIMENEZ"},
+            {nombre: "CONTABILIDAD", docente: "MAURICIO GALAZ"}
+        ];
+        let fotoBase64SGA = "";
+
+        // --- 3. FOTOGRAFÍA ---
+        function procesarFotoSGA(input) {
+            let r = new FileReader();
+            r.onload = (e) => { 
+                document.getElementById('preview-foto-sga').src = e.target.result; 
+                fotoBase64SGA = e.target.result; 
+            };
+            if(input.files[0]) r.readAsDataURL(input.files[0]);
+        }
+
+        // --- 4. FUNCIONES DE TALLERES ---
+        function addTaller() {
+            const n = document.getElementById('newTaller').value.toUpperCase();
+            const d = document.getElementById('newDocente').value.toUpperCase();
+            if(!n || !d) { mostrarAlertaModerna("Faltan campos para crear el taller", 'error'); return; }
+            listaTalleresSGA.push({nombre: n, docente: d});
+            localStorage.setItem('capa_sga_talleres', JSON.stringify(listaTalleresSGA));
+            document.getElementById('newTaller').value = ""; 
+            document.getElementById('newDocente').value = "";
+            mostrarAlertaModerna("Taller agregado con éxito", 'success');
+            actualizarUI_SGA();
+        }
+
+        function delTaller(i) {
+            if(confirm("¿Eliminar este taller permanentemente?")) { 
+                listaTalleresSGA.splice(i, 1); 
+                localStorage.setItem('capa_sga_talleres', JSON.stringify(listaTalleresSGA)); 
+                actualizarUI_SGA(); 
+                mostrarAlertaModerna("Taller eliminado", 'success');
+            }
+        }
+
+        function actualizarUI_SGA() {
+            const tbTaller = document.getElementById('tallerData');
+            if(tbTaller) {
+                tbTaller.innerHTML = listaTalleresSGA.map((t, i) => `
+                    <tr>
+                        <td><b>${t.nombre}</b></td><td>${t.docente}</td>
+                        <td><button class="btn-cancelar" style="padding: 6px 12px;" onclick="delTaller(${i})"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `).join('');
+            }
+
+            let options = '<option value="">-- SELECCIONE UN TALLER --</option>';
+            let optionsFiltro = '<option value="TODOS">TODOS LOS CURSOS</option>';
+            
+            listaTalleresSGA.forEach(t => {
+                options += `<option value="${t.nombre}">${t.nombre} (${t.docente})</option>`;
+                optionsFiltro += `<option value="${t.nombre}">${t.nombre}</option>`;
+            });
+
+            const selCurso = document.getElementById('sga-curso-select');
+            const selFiltro = document.getElementById('filterTaller');
+            if(selCurso) selCurso.innerHTML = options;
+            if(selFiltro) selFiltro.innerHTML = optionsFiltro;
+        }
+
+        // --- 5. GUARDAR FICHA ---
+        function guardarFichaAlumnoSGA(e) {
+            e.preventDefault();
+            const nom = document.getElementById('sga-nom').value.toUpperCase();
+            const apP = document.getElementById('sga-apP').value.toUpperCase();
+            const apM = document.getElementById('sga-apM').value.toUpperCase();
+            const rut = document.getElementById('sga-rut').value.toUpperCase();
+            const curso = document.getElementById('sga-curso-select').value;
+            
+            if(!curso) { mostrarAlertaModerna("Debe seleccionar un taller/curso.", 'error'); return; }
+
+            const alumno = {
+                id: Date.now(),
+                nom: nom,
+                apP: apP,
+                apM: apM,
+                rut: rut,
+                curso: curso,
+                foto: fotoBase64SGA,
+                domicilio: document.getElementById('sga-dom').value,
+                telefono: document.getElementById('sga-tel').value,
+                email: document.getElementById('sga-mail').value,
+                folio: document.getElementById('sga-folio').value
+            };
+
+            alumnosFichasDB.push(alumno);
+            localStorage.setItem('capa_sga_fichas_v2', JSON.stringify(alumnosFichasDB));
+            
+            document.getElementById('form-sga-inscripcion').reset();
+            document.getElementById('preview-foto-sga').src = "https://via.placeholder.com/150x180?text=FOTO";
+            fotoBase64SGA = "";
+            
+            mostrarAlertaModerna(`Ficha guardada en: ${curso}`, 'success');
+            renderTablaSGA();
+        }
+
+        // --- 6. RENDERIZAR BASE DE DATOS ---
+        function renderTablaSGA() {
+            const tbody = document.getElementById('tabla-sga-alumnos');
+            const filtro = document.getElementById('filterTaller') ? document.getElementById('filterTaller').value : 'TODOS';
+            if(!tbody) return;
+
+            const datosFiltrados = filtro === 'TODOS' ? alumnosFichasDB : alumnosFichasDB.filter(x => x.curso === filtro);
+
+            tbody.innerHTML = datosFiltrados.map(al => `
+                <tr>
+                    <td><img src="${al.foto || 'https://via.placeholder.com/50'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid #cbd5e1;"></td>
+                    <td><b>${al.rut}</b></td>
+                    <td>${al.nom}</td>
+                    <td>${al.apP} ${al.apM}</td>
+                    <td style="color:#1e3a8a; font-weight:bold;">${al.curso}</td>
+                    <td><span style="font-size:0.8rem; background:#f1f5f9; padding:4px 8px; border-radius:4px;">${al.folio || 'N/A'}</span></td>
+                    <td>
+                        <button class="btn-accent" style="padding: 6px 10px; background: #9E005D; font-size:0.8rem;" onclick="abrirCertificadoSGA(${al.id})" title="Emitir Certificado"><i class="fas fa-certificate"></i></button>
+                        <button class="btn-cancelar" style="padding: 6px 10px; margin-left:5px;" onclick="eliminarFichaSGA(${al.id})" title="Eliminar Alumno"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function eliminarFichaSGA(id) {
+            if(confirm("¿Eliminar alumno de la base de datos?")) {
+                alumnosFichasDB = alumnosFichasDB.filter(x => x.id !== id);
+                localStorage.setItem('capa_sga_fichas_v2', JSON.stringify(alumnosFichasDB));
+                renderTablaSGA();
+                mostrarAlertaModerna("Alumno eliminado correctamente", 'success');
+            }
+        }
+
+        // --- 7. EXPORTAR PDF (ASISTENCIA) ---
+        function printCoursePDF() {
+            const c = document.getElementById('filterTaller').value;
+            if(c === 'TODOS') { mostrarAlertaModerna("Selecciona un curso específico en el filtro superior para imprimir", 'warning'); return; }
+            
+            const talObj = listaTalleresSGA.find(t => t.nombre === c);
+            const data = alumnosFichasDB.filter(x => x.curso === c);
+            
+            if(data.length === 0) { mostrarAlertaModerna("No hay alumnos en este curso.", 'error'); return; }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            try { 
+                const logoImg = document.querySelector('.header-logo-img');
+                if(logoImg && logoImg.src && logoImg.src.includes('http')) {
+                    doc.addImage(logoImg, 'PNG', 15, 10, 35, 18); 
+                }
+            } catch(e) { console.log("Logo PDF saltado"); }
+
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text(`LISTA OFICIAL DE ASISTENCIA 2026`, 60, 18);
+            
+            doc.setFontSize(10);
+            doc.text(`CURSO/TALLER:`, 15, 40);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${c}`, 48, 40);
+
+            doc.setFont(undefined, 'bold');
+            doc.text(`DOCENTE A CARGO:`, 15, 46);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${talObj ? talObj.docente : "SIN DOCENTE ASIGNADO"}`, 53, 46);
+
+            doc.autoTable({
+                startY: 55,
+                head: [['N°', 'RUT', 'APELLIDO PATERNO', 'APELLIDO MATERNO', 'NOMBRES', 'FIRMA ASISTENCIA']],
+                body: data.map((a, i) => [
+                    i + 1, 
+                    a.rut, 
+                    a.apP || "", 
+                    a.apM || "", 
+                    a.nom || "",
+                    "" // Espacio para firmar
+                ]),
+                theme: 'striped',
+                headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold', halign: 'center' },
+                styles: { fontSize: 8, cellPadding: 3, valign: 'middle' },
+                columnStyles: {
+                    0: { halign: 'center', cellWidth: 10 },
+                    5: { cellWidth: 40 }
+                }
+            });
+
+            const fechaInp = new Date().toLocaleDateString();
+            doc.setFontSize(8);
+            doc.text(`Emitido por Sistema CAPA Limache | Fecha de impresión: ${fechaInp}`, 15, doc.internal.pageSize.height - 10);
+
+            doc.save(`Asistencia_${c}_2026.pdf`);
+            mostrarAlertaModerna("PDF Generado exitosamente", 'success');
+        }
+
+        // --- 8. LÓGICA DEL CERTIFICADO ---
+        function abrirCertificadoSGA(id) {
+            const alumno = alumnosFichasDB.find(x => x.id === id);
+            if(!alumno) return;
+
+            document.getElementById('cert-nombres').innerText = alumno.nom;
+            document.getElementById('cert-apellidos').innerText = `${alumno.apP} ${alumno.apM}`;
+            
+            document.getElementById('cert-foto-nombre').innerText = `${alumno.nom} ${alumno.apP}`;
+            document.getElementById('cert-foto-rut').innerText = "RUT: " + alumno.rut;
+            
+            document.getElementById('cert-curso-principal').innerText = alumno.curso;
+            
+            const imgFoto = document.getElementById('cert-img-foto');
+            if(alumno.foto) {
+                imgFoto.src = alumno.foto;
+                imgFoto.style.opacity = '1';
+                imgFoto.previousElementSibling.style.display = 'none';
+            } else {
+                imgFoto.src = "";
+                imgFoto.style.opacity = '0';
+                imgFoto.previousElementSibling.style.display = 'block';
+            }
+
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('zona-certificado-overlay').style.display = 'flex';
+        }
+
+        function cerrarCertificado() {
+            document.getElementById('zona-certificado-overlay').style.display = 'none';
+            document.getElementById('app').style.display = 'block'; 
+        }
+
+        function gestionarImagen(elemento, mensaje) {
+            let actualSrc = (elemento.src && elemento.src.includes('http')) ? elemento.src : '';
+            let nuevaUrl = prompt(mensaje + "\n(Deja en blanco para borrar la imagen actual)", actualSrc);
+            if (nuevaUrl !== null) {
+                if (nuevaUrl.trim() === "") {
+                    elemento.src = "";
+                    elemento.style.opacity = '0';
+                    if(elemento.previousElementSibling) elemento.previousElementSibling.style.display = 'block';
+                } else {
+                    elemento.src = nuevaUrl;
+                    elemento.style.opacity = '1';
+                    if(elemento.previousElementSibling) elemento.previousElementSibling.style.display = 'none';
+                }
+            }
+        }
+
+        function gestionarFirma(elemento) {
+            let actualSrc = (elemento.src && elemento.src.includes('http')) ? elemento.src : '';
+            let instruccion = "OPCIONES DE FIRMA:\n\n1. FIRMA DIGITAL: Pega el enlace (URL) de la imagen PNG.\n2. FIRMA MANUAL: Deja en blanco y presiona Aceptar.";
+            let nuevaUrl = prompt(instruccion, actualSrc);
+            if (nuevaUrl !== null) {
+                if (nuevaUrl.trim() === "") {
+                    elemento.src = "";
+                    elemento.style.opacity = '0';
+                } else {
+                    elemento.src = nuevaUrl;
+                    elemento.style.opacity = '1';
+                }
+            }
+        }
+
+        // --- 9. INICIALIZADOR ---
+        document.addEventListener('DOMContentLoaded', () => {
+            actualizarUI_SGA();
+            renderTablaSGA();
+        });
+        
+        function nav(pageId, btn) {
+            document.querySelectorAll('.page').forEach(s => s.style.display = 'none');
+            const target = document.getElementById(pageId);
+            if(target) {
+                target.style.display = 'block';
+                target.classList.add('active');
+            }
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            
+            if(pageId === 'p-lista') renderTablaSGA();
+            if(pageId === 'p-talleres') actualizarUI_SGA();
+            if(pageId === 'p-inscripciones') actualizarUI_SGA();
+        }
+
+        // --- 10. CONTROL DE PERMISOS INFALIBLE: OCULTAR EVALUACIONES A ADMIN ---
+        function chequearPermisosEvaluaciones() {
+            // Buscamos ambas etiquetas donde el sistema escribe el rol (arriba a la izquierda y arriba a la derecha)
+            const badgeIzquierda = document.getElementById('u-role-label');
+            const badgeDerecha = document.getElementById('u-rol-display');
+            
+            let textoIzq = badgeIzquierda ? badgeIzquierda.innerText.toLowerCase() : '';
+            let textoDer = badgeDerecha ? badgeDerecha.innerText.toLowerCase() : '';
+            
+            const btnEvaluaciones = document.getElementById('nav-evaluaciones');
+            
+            if (btnEvaluaciones) {
+                // Comprobamos si en CUALQUIERA de las dos etiquetas dice "admin", "administrador" o "dirección"
+                if (textoIzq.includes('admin') || textoDer.includes('admin') || 
+                    textoIzq.includes('direcci') || textoDer.includes('direcci')) {
+                    // Si es administrador, forzamos que se oculte con un !important
+                    btnEvaluaciones.style.setProperty('display', 'none', 'important');
+                } else {
+                    // Si no es admin (ej. es profe o alumno) nos aseguramos de que el botón siga visible
+                    if(textoIzq !== '' && textoIzq !== 'cargando...') {
+                        btnEvaluaciones.style.setProperty('display', 'flex');
+                    }
+                }
+            }
+        }
+
+        // Ejecutamos la revisión cada 1 segundo en segundo plano. Así, no importa cuánto 
+        // tarde Firebase en cargar la info de la cuenta, apenas detecte al Admin, lo esconderá.
+        setInterval(chequearPermisosEvaluaciones, 1000);
+
     </script>
 </body>
-
 </html>

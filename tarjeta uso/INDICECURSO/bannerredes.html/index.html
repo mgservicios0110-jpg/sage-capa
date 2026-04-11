@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banner WhatsApp - CAPA Limache</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cian: #00A89D; --magenta: #9E005D; --naranja: #F18A00;
+            --coral: #ED4E44; --texto-oscuro: #2D3748; --texto-claro: #4A5568; --fondo-gris: #F7FAFC;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #cbd5e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        .banner-container {
+            width: 800px; height: 800px; background-color: white; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .barra-colores { display: flex; height: 12px; width: 100%; position: absolute; z-index: 20;}
+        .barra-top { top: 0; } .barra-bottom { bottom: 0; }
+        .barra-colores div { flex: 1; }
+        .bg-cian { background-color: var(--cian); } .bg-magenta { background-color: var(--magenta); }
+        .bg-naranja { background-color: var(--naranja); } .bg-coral { background-color: var(--coral); }
+
+        /* Ajuste 1: Altura de la imagen al 40% para dar más espacio al texto */
+        .hero-section { width: 100%; height: 40%; position: relative; }
+        .hero-img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: opacity 0.3s; }
+        .hero-img:hover { opacity: 0.9; }
+        .hero-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(9, 11, 16, 0.8) 0%, rgba(45, 55, 72, 0) 100%); pointer-events: none; }
+        .etiqueta-estado { position: absolute; top: 30px; right: 30px; background-color: var(--naranja); color: rgb(9, 7, 7); padding: 8px 18px; border-radius: 30px; font-weight: 800; font-size: 1rem; text-transform: uppercase; box-shadow: 0 4px 10px rgba(38, 176, 200, 0.4); z-index: 10; }
+        .logo-municipio { position: absolute; top: 30px; left: 30px; width: 50px; filter: brightness(1) invert(0); cursor: pointer; z-index: 10; border-radius: 15px; }
+
+        /* Ajuste 2: Reducción de padding interior */
+        .content-section { padding: 30px 40px; display: flex; flex-direction: column; flex-grow: 1; position: relative; background-color: white; justify-content: space-between; }
+        .content-section::before { content: ''; position: absolute; top: -25px; left: 0; right: 0; height: 50px; background-color: white; transform: skewY(-2deg); z-index: 5; }
+        
+        .textos-principales { position: relative; z-index: 10; }
+        .categoria { color: var(--cian); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; margin-bottom: 5px; }
+        
+        /* Ajuste 3: Título más pequeño para que no empuje todo hacia abajo */
+        .titulo-curso { font-size: 2.8rem; font-weight: 900; color: var(--texto-oscuro); line-height: 1.1; margin-bottom: 10px; text-transform: uppercase; }
+        .subtitulo { font-size: 1.1rem; color: var(--texto-claro); margin-bottom: 15px; font-weight: 500; }
+
+        .grid-detalles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; position: relative; z-index: 10; }
+        .detalle-item { background-color: var(--fondo-gris); padding: 12px; border-radius: 8px; border-left: 5px solid var(--magenta); }
+        .detalle-item:nth-child(2) { border-color: var(--cian); }
+        .detalle-item:nth-child(3) { border-color: var(--naranja); }
+        .detalle-titulo { font-size: 0.85rem; color: var(--texto-claro); text-transform: uppercase; font-weight: 700; margin-bottom: 3px; }
+        .detalle-valor { font-size: 1.1rem; color: var(--texto-oscuro); font-weight: 800; }
+
+        .banner-footer { display: flex; justify-content: space-between; align-items: center; border-top: 2px dashed #e2e8f0; padding-top: 15px; position: relative; z-index: 10; }
+        .footer-logo { font-weight: 900; color: var(--texto-oscuro); font-size: 1.3rem; display: flex; align-items: center; }
+        .footer-contacto { text-align: right; }
+        .footer-contacto strong { display: block; color: var(--magenta); font-size: 1.1rem; }
+        .footer-contacto span { color: var(--texto-claro); font-weight: 600; font-size: 0.9rem; }
+
+        [contenteditable="true"] { outline: none; transition: background-color 0.2s; border-radius: 4px; padding: 2px 5px;}
+        [contenteditable="true"]:hover { background-color: rgba(241, 138, 0, 0.08); cursor: text; }
+        [contenteditable="true"]:focus { background-color: rgba(0, 168, 157, 0.08); border-bottom: 2px solid var(--cian); }
+    </style>
+</head>
+<body>
+    <div class="banner-container">
+        <div class="barra-colores barra-top"><div class="bg-cian"></div><div class="bg-magenta"></div><div class="bg-naranja"></div><div class="bg-coral"></div></div>
+        <div class="hero-section">
+            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=80" class="hero-img" onclick="cambiarImagen(this)">
+            <div class="hero-overlay"></div>
+            <img src="logo.png" class="logo-municipio" onclick="cambiarImagen(this)">
+            <div class="etiqueta-estado" contenteditable="true">¡Inscripciones Abiertas!</div>
+        </div>
+        <div class="content-section">
+            <div class="textos-principales">
+                <div class="categoria" contenteditable="true">CAPACITACIÓN MUNICIPAL</div>
+                <h1 class="titulo-curso" contenteditable="true">CONTABILIDAD<br>COMERCIAL Y TRIBUTARIA 2026</h1>
+                <div class="subtitulo" contenteditable="true">Área Técnica y gestión administrativa.</div>
+            </div>
+            <div class="grid-detalles">
+                <div class="detalle-item">
+                    <div class="detalle-titulo" contenteditable="true">Modalidad</div>
+                    <div class="detalle-valor" contenteditable="true">Presencial</div>
+                </div>
+                <div class="detalle-item">
+                    <div class="detalle-titulo" contenteditable="true">Horario</div>
+                    <div class="detalle-valor" contenteditable="true">Lunes y Jueves, 17:15h</div>
+                </div>
+                <div class="detalle-item">
+                    <div class="detalle-titulo" contenteditable="true">Duración</div>
+                    <div class="detalle-valor" contenteditable="true">10 meses</div>
+                </div>
+            </div>
+            <div class="banner-footer">
+                <div class="footer-logo" contenteditable="true">CAPA Limache</div>
+                <div class="footer-contacto">
+                    <strong contenteditable="true">📞 +569 7608 1946</strong>
+                    <span contenteditable="true">Serrano N° 254, Limache</span>
+                </div>
+            </div>
+        </div>
+        <div class="barra-colores barra-bottom"><div class="bg-coral"></div><div class="bg-naranja"></div><div class="bg-magenta"></div><div class="bg-cian"></div></div>
+    </div>
+    <script>
+        function cambiarImagen(elemento) {
+            let nuevaUrl = prompt("Pega aquí el enlace (URL) de la nueva imagen:\n\nEjemplo: https://tu-sitio.com/foto.jpg", elemento.src);
+            if (nuevaUrl != null && nuevaUrl.trim() !== "") { elemento.src = nuevaUrl; }
+        }
+    </script>
+</body>
+</html>

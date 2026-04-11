@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Credencial Premium Directora - Centro de Capacitación Municipal</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Libre+Barcode+128&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --navy: #0b1324;
+            --navy-2: #14213d;
+            --navy-3: #1f3a68;
+            --gold: #d4af37;
+            --gold-soft: #efd98b;
+            --gold-light: #fff4ca;
+            --white: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --line: rgba(255, 255, 255, .14);
+            --shadow: 0 22px 55px rgba(15, 23, 42, .25);
+            --radius: 28px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 30px 20px;
+            background:
+                radial-gradient(circle at top left, rgba(212, 175, 55, .10), transparent 25%),
+                radial-gradient(circle at bottom right, rgba(20, 33, 61, .18), transparent 25%),
+                linear-gradient(135deg, #edf3fb 0%, #f9fbff 50%, #eaf0f8 100%);
+        }
+
+        .credencial {
+            width: 880px;
+            height: 540px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, .4);
+            background: #fff;
+        }
+
+        .gold-line-top,
+        .gold-line-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 8px;
+            z-index: 5;
+            background: linear-gradient(90deg, #8c6a15 0%, #d4af37 25%, #fff4ca 50%, #d4af37 75%, #8c6a15 100%);
+        }
+
+        .gold-line-top {
+            top: 0;
+        }
+
+        .gold-line-bottom {
+            bottom: 0;
+        }
+
+        /* ================= FRENTE ================= */
+        .frente {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            background:
+                radial-gradient(circle at 20% 18%, rgba(255, 255, 255, .08), transparent 16%),
+                radial-gradient(circle at 80% 10%, rgba(212, 175, 55, .18), transparent 18%),
+                linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 50%, var(--navy-3) 100%);
+            color: #fff;
+        }
+
+        .frente::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .08), transparent 30%, transparent 70%, rgba(255, 255, 255, .05));
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .panel-foto {
+            position: relative;
+            z-index: 3;
+            padding: 36px 24px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgba(255, 255, 255, .10);
+        }
+
+        .halo {
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 55, .18), transparent 70%);
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        .foto-wrap {
+            width: 210px;
+            height: 260px;
+            border-radius: 28px;
+            padding: 7px;
+            background: linear-gradient(145deg, var(--gold-light), var(--gold), #8d6b12);
+            box-shadow:
+                0 18px 35px rgba(0, 0, 0, .28),
+                inset 0 1px 0 rgba(255, 255, 255, .55);
+            position: relative;
+            z-index: 2;
+            margin-bottom: 18px;
+        }
+
+        .foto-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 22px;
+            display: block;
+            border: 3px solid rgba(255, 255, 255, .9);
+            cursor: pointer;
+        }
+
+        .cargo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(212, 175, 55, .18), rgba(255, 255, 255, .06));
+            border: 1px solid rgba(239, 217, 139, .35);
+            color: var(--gold-light);
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 2;
+        }
+
+        .panel-info {
+            position: relative;
+            z-index: 3;
+            padding: 28px 34px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .marca {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        /* LOGO MÁS NOTORIO */
+        .logo-box {
+            width: 120px;
+            height: 120px;
+            min-width: 120px;
+            border-radius: 30px;
+            padding: 10px;
+            background:
+                radial-gradient(circle at 30% 25%, rgba(255,255,255,.45), rgba(255,255,255,.08)),
+                linear-gradient(145deg, rgba(255,255,255,.28), rgba(255,255,255,.10));
+            border: 2px solid rgba(255, 244, 202, .55);
+            backdrop-filter: blur(12px);
+            box-shadow:
+                0 16px 35px rgba(0, 0, 0, .22),
+                0 0 0 4px rgba(212, 175, 55, .10),
+                inset 0 1px 0 rgba(255,255,255,.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-box::before {
+            content: "";
+            position: absolute;
+            inset: -8px;
+            border-radius: 36px;
+            border: 1px solid rgba(212, 175, 55, .22);
+            pointer-events: none;
+        }
+
+        .logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 1);
+            padding: 10px;
+            display: block;
+            box-shadow: inset 0 0 0 1px rgba(212,175,55,.18);
+        }
+
+        .marca-texto {
+            flex: 1;
+        }
+
+        .marca-texto h1 {
+            font-size: 1.72rem;
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: .3px;
+            text-align: center;
+        }
+
+        .marca-texto .sub {
+            margin-top: 10px;
+            color: rgba(255, 255, 255, .88);
+            font-size: .90rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .sello {
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .04));
+            border: 1px solid rgba(255, 255, 255, .14);
+            min-width: 185px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .sello .etq {
+            display: block;
+            color: var(--gold-light);
+            font-size: .70rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .sello .val {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .datos {
+            margin-top: 8px;
+        }
+
+        .nombre {
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+            text-align: center;
+        }
+
+        .institucion {
+            font-size: 1rem;
+            color: var(--gold-light);
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .descripcion-box {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .05));
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 24px;
+            padding: 18px 18px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 18px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+        }
+
+        .descripcion-box .label {
+            display: block;
+            font-size: .68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold-light);
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .descripcion-box .valor {
+            font-size: .95rem;
+            line-height: 1.6;
+            color: #f8fafc;
+            font-weight: 500;
+        }
+
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .05));
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 20px;
+            padding: 15px 14px;
+            backdrop-filter: blur(8px);
+        }
+
+        .card .label {
+            display: block;
+            font-size: .64rem;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            color: var(--gold-light);
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .card .value {
+            font-size: .84rem;
+            color: #fff;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        /* ================= REVERSO ================= */
+        .reverso {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            background:
+                radial-gradient(circle at top right, rgba(212, 175, 55, .10), transparent 18%),
+                linear-gradient(180deg, #ffffff 0%, #f9fbff 55%, #f2f6fb 100%);
+            color: var(--text);
+        }
+
+        .rev-izq,
+        .rev-der {
+            padding: 34px 30px 28px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .rev-izq {
+            border-right: 1px solid rgba(15, 23, 42, .07);
+        }
+
+        .titulo {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .subtitulo {
+            color: var(--muted);
+            font-size: .82rem;
+            line-height: 1.6;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: linear-gradient(180deg, #ffffff, #fcfdff);
+            border: 1px solid rgba(15, 23, 42, .07);
+            border-radius: 22px;
+            padding: 18px;
+            box-shadow: 0 10px 22px rgba(2, 8, 23, .05);
+            margin-bottom: 16px;
+        }
+
+        .panel h3 {
+            font-size: .74rem;
+            font-weight: 900;
+            color: #9a7718;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            margin-bottom: 10px;
+        }
+
+        .panel p {
+            font-size: .8rem;
+            color: #475569;
+            line-height: 1.7;
+            text-align: justify;
+        }
+
+        .firma-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .firma-box {
+            background: #fff;
+            border: 1px solid rgba(15, 23, 42, .07);
+            border-radius: 20px;
+            padding: 18px 14px 12px;
+            text-align: center;
+            box-shadow: 0 8px 18px rgba(2, 8, 23, .04);
+        }
+
+        .linea-firma {
+            height: 40px;
+            border-bottom: 1px dashed #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .firma-box span {
+            font-size: .68rem;
+            color: #64748b;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .barcode-panel {
+            background: linear-gradient(180deg, #ffffff, #fcfdff);
+            border: 1px solid rgba(15, 23, 42, .07);
+            border-radius: 24px;
+            padding: 22px 18px;
+            box-shadow: 0 12px 25px rgba(2, 8, 23, .06);
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .barcode-panel h3 {
+            font-size: .74rem;
+            font-weight: 900;
+            color: #9a7718;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            margin-bottom: 10px;
+        }
+
+        .barcode {
+            font-family: 'Libre Barcode 128', cursive;
+            font-size: 5.3rem;
+            line-height: 1;
+            color: var(--navy);
+            margin-bottom: -10px;
+        }
+
+        .barcode-number {
+            font-size: .84rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: var(--navy);
+        }
+
+        .contacto-panel {
+            background: linear-gradient(180deg, #ffffff, #fcfdff);
+            border: 1px solid rgba(15, 23, 42, .07);
+            border-radius: 24px;
+            padding: 20px 18px;
+            box-shadow: 0 12px 25px rgba(2, 8, 23, .06);
+        }
+
+        .contacto-panel h3 {
+            font-size: .74rem;
+            font-weight: 900;
+            color: #9a7718;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            margin-bottom: 12px;
+        }
+
+        .item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: .82rem;
+            line-height: 1.55;
+            color: #334155;
+        }
+
+        .item:last-child {
+            margin-bottom: 0;
+        }
+
+        .item i {
+            color: #b78c16;
+            width: 18px;
+            margin-top: 2px;
+        }
+
+        .estado {
+            margin-top: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #fff6d7, #f6e29e);
+            border: 1px solid rgba(182, 141, 24, .28);
+            color: #8a6910;
+            font-size: .74rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 15px rgba(212, 175, 55, .10);
+        }
+
+        [contenteditable="true"] {
+            outline: none;
+            border-radius: 8px;
+            transition: .2s ease;
+        }
+
+        [contenteditable="true"]:hover {
+            background: rgba(212, 175, 55, .08);
+            cursor: text;
+        }
+
+        [contenteditable="true"]:focus {
+            background: rgba(212, 175, 55, .12);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, .18);
+        }
+
+        @media (max-width: 930px) {
+            .credencial {
+                width: 100%;
+                max-width: 420px;
+                height: auto;
+            }
+
+            .frente,
+            .reverso {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-foto {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, .10);
+            }
+
+            .rev-izq {
+                border-right: none;
+                border-bottom: 1px solid rgba(15, 23, 42, .07);
+            }
+
+            .encabezado {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .marca {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo-box {
+                width: 110px;
+                height: 110px;
+                min-width: 110px;
+            }
+
+            .grid-info,
+            .firma-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                padding: 10px;
+                gap: 14px;
+            }
+
+            .credencial {
+                box-shadow: none;
+                border: 1px solid #d9dee7;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- FRENTE -->
+    <div class="credencial frente">
+        <div class="gold-line-top"></div>
+        <div class="gold-line-bottom"></div>
+
+        <div class="panel-foto">
+            <div class="halo"></div>
+
+            <div class="foto-wrap">
+                <img src="directora.jpg" alt="Foto de la directora" onclick="cambiarImagen(this)" title="Cambiar foto">
+            </div>
+
+            <div class="cargo-badge">
+                <i class="fa-solid fa-crown"></i>
+                <span contenteditable="true">Directora</span>
+            </div>
+        </div>
+
+        <div class="panel-info">
+            <div>
+                <div class="encabezado">
+                    <div class="marca">
+                        <div class="logo-box">
+                            <img src="logo.png" alt="Logo municipal">
+                        </div>
+
+                        <div class="marca-texto">
+                            <h1 contenteditable="true">Centro de Capacitación Municipal</h1>
+                            <div class="sub" contenteditable="true">Credencial Ejecutiva Institucional</div>
+                        </div>
+                    </div>
+
+                    <div class="sello">
+                        <span class="etq">Edición</span>
+                        <div class="val" contenteditable="true">Premium 2026</div>
+                    </div>
+                </div>
+
+                <div class="datos">
+                    <div class="nombre" contenteditable="true">Nombre Directora</div>
+                    <div class="institucion" contenteditable="true">Centro de Capacitación Municipal de Limache</div>
+
+                    <div class="descripcion-box">
+                        <span class="label">Representación institucional</span>
+                        <div class="valor" contenteditable="true">
+                            Autoridad responsable de liderar, coordinar y representar institucionalmente las acciones
+                            académicas, administrativas y estratégicas del Centro de Capacitación Municipal.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-info">
+                <div class="card">
+                    <span class="label">Cargo</span>
+                    <div class="value" contenteditable="true">Directora</div>
+                </div>
+
+                <div class="card">
+                    <span class="label">Vigencia</span>
+                    <div class="value" contenteditable="true">Año 2026</div>
+                </div>
+
+                <div class="card">
+                    <span class="label">Dependencia</span>
+                    <div class="value" contenteditable="true">Municipal</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVERSO -->
+    <div class="credencial reverso">
+        <div class="gold-line-top"></div>
+        <div class="gold-line-bottom"></div>
+
+        <div class="rev-izq">
+            <div class="titulo" contenteditable="true">Identificación Oficial</div>
+            <div class="subtitulo" contenteditable="true">
+                Esta credencial acredita la representación directiva e institucional de la portadora dentro del Centro
+                de Capacitación Municipal.
+            </div>
+
+            <div class="panel">
+                <h3>Condiciones de uso</h3>
+                <p contenteditable="true">
+                    Esta credencial es oficial, personal e intransferible. Su utilización está destinada exclusivamente
+                    a funciones institucionales y de representación directiva. En caso de extravío, debe ser informada y
+                    restituida al Centro de Capacitación Municipal a la brevedad.
+                </p>
+            </div>
+
+            <div class="panel">
+                <h3>Autorización</h3>
+                <p contenteditable="true">
+                    El presente documento valida la identificación interna de la directora y podrá ser requerido para
+                    actividades administrativas, académicas, ceremoniales y de coordinación institucional.
+                </p>
+            </div>
+
+            <div class="firma-area">
+                <div class="firma-box">
+                    <div class="linea-firma"></div>
+                    <span contenteditable="true">Firma Directora</span>
+                </div>
+
+                <div class="firma-box">
+                    <div class="linea-firma"></div>
+                    <span contenteditable="true">Timbre Institucional</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rev-der">
+            <div class="barcode-panel">
+                <h3>Código institucional</h3>
+                <div class="barcode" contenteditable="true">DIR2026001</div>
+                <div class="barcode-number" contenteditable="true">DIR-2026-001</div>
+            </div>
+
+            <div class="contacto-panel">
+                <h3>Datos institucionales</h3>
+
+                <div class="item">
+                    <i class="fa-solid fa-building"></i>
+                    <div contenteditable="true">Centro de Capacitación Municipal de Limache</div>
+                </div>
+
+                <div class="item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <div contenteditable="true">Serrano N° 254, Limache, Región de Valparaíso</div>
+                </div>
+
+                <div class="item">
+                    <i class="fa-solid fa-phone"></i>
+                    <div contenteditable="true">Teléfono: 33 2 411 014</div>
+                </div>
+
+                <div class="item">
+                    <i class="fa-solid fa-envelope"></i>
+                    <div contenteditable="true">correo@centrocapacitacion.cl</div>
+                </div>
+
+                <div class="item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <div contenteditable="true">Vigencia institucional: Enero 2026 - Diciembre 2026</div>
+                </div>
+
+                <div class="estado">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span contenteditable="true">Credencial válida</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cambiarImagen(elemento) {
+            const nuevaUrl = prompt("Pega aquí la URL de la nueva imagen:", elemento.src);
+            if (nuevaUrl && nuevaUrl.trim() !== "") {
+                elemento.src = nuevaUrl.trim();
+                elemento.onerror = function () {
+                    alert("No se pudo cargar la imagen. Verifica la URL ingresada.");
+                };
+            }
+        }
+    </script>
+</body>
+
+</html>

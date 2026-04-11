@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manual de Computación Básica 2026 | Centro de Capacitación Municipal</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --primary: #7b1fa2;
+            --secondary: #ff6b6b;
+            --accent: #0fb9b1;
+            --gold: #f39c12;
+            --dark: #151515;
+            --muted: #5b6472;
+            --border: #e8ebf2;
+            --shadow: 0 18px 45px rgba(20, 20, 40, 0.09);
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(255, 107, 107, .10), transparent 30%),
+                radial-gradient(circle at top right, rgba(123, 31, 162, .12), transparent 28%),
+                linear-gradient(180deg, #f8f9fd 0%, #eef3fb 100%);
+            color: var(--dark);
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.82);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand img {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+            padding: 4px;
+        }
+
+        .brand-text {
+            line-height: 1.1;
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 0.98rem;
+        }
+
+        .brand-text span {
+            color: var(--muted);
+            font-size: 0.86rem;
+        }
+
+        .menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: var(--dark);
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 0.94rem;
+            transition: .2s ease;
+        }
+
+        .menu a:hover {
+            background: #f1f3fb;
+            color: var(--primary);
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 20px 22px;
+            display: grid;
+            grid-template-columns: 1.25fr .95fr;
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        .hero-card,
+        .hero-side {
+            background: var(--surface);
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, .8);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-card {
+            padding: 42px;
+            background:
+                linear-gradient(135deg, rgba(123, 31, 162, 0.96) 0%, rgba(255, 107, 107, 0.92) 50%, rgba(243, 156, 18, 0.92) 100%);
+            color: white;
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            top: -90px;
+            right: -60px;
+            background: rgba(255, 255, 255, .12);
+            filter: blur(4px);
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            bottom: -60px;
+            left: -50px;
+            background: rgba(255, 255, 255, .12);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 0.88rem;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            margin: 0 0 16px;
+            font-size: clamp(2rem, 4vw, 4rem);
+            line-height: 1.02;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-card p {
+            margin: 0 0 24px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            max-width: 720px;
+            color: rgba(255, 255, 255, .95);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .12);
+        }
+
+        .btn-secondary {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .hero-side {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .logo-wrap {
+            background: linear-gradient(180deg, #ffffff 0%, #f7f8fc 100%);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+        }
+
+        .logo-wrap img {
+            max-width: 100%;
+            width: 280px;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .08));
+        }
+
+        .quick-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .info-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .info-box small {
+            display: block;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .info-box strong {
+            font-size: 1rem;
+        }
+
+        .section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 22px 20px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: clamp(1.5rem, 2.5vw, 2.4rem);
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 760px;
+            line-height: 1.7;
+        }
+
+        .grid-2,
+        .grid-3,
+        .grid-4 {
+            display: grid;
+            gap: 18px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, .7);
+        }
+
+        .card h3,
+        .card h4 {
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .card p,
+        .card li {
+            color: #334155;
+            line-height: 1.72;
+        }
+
+        .icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .chip {
+            background: #f4f0fb;
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: .88rem;
+            font-weight: 700;
+        }
+
+        .module {
+            border-left: 8px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module:nth-child(2) {
+            border-left-color: var(--secondary);
+        }
+
+        .module:nth-child(3) {
+            border-left-color: var(--accent);
+        }
+
+        .module:nth-child(4) {
+            border-left-color: var(--gold);
+        }
+
+        .module:nth-child(5) {
+            border-left-color: #3949ab;
+        }
+
+        .module:nth-child(6) {
+            border-left-color: #16a34a;
+        }
+
+        .module .badge {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: .8rem;
+            font-weight: 800;
+            background: #f7f7fb;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        ul.clean {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        ul.clean li::before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: 900;
+            margin-right: 10px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 15px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            font-size: 0.96rem;
+        }
+
+        th {
+            background: linear-gradient(135deg, #1b1533, #472f7b);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover td {
+            background: #fafbff;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 16px;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 74px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .timeline-num {
+            width: 74px;
+            height: 74px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 900;
+            box-shadow: var(--shadow);
+        }
+
+        .footer {
+            margin-top: 36px;
+            background: linear-gradient(135deg, #111827, #1f2937 60%, #111827);
+            color: white;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 34px 20px 50px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .footer h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, .82);
+            line-height: 1.7;
+        }
+
+        .footer-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .footer-card strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .footer-card a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .print-note {
+            font-size: 0.88rem;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        @media (max-width: 980px) {
+
+            .hero,
+            .footer-inner,
+            .grid-4,
+            .grid-3,
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card,
+            .hero-side {
+                border-radius: 28px;
+            }
+
+            .quick-info {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .section-head {
+                flex-direction: column;
+                align-items: start;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .nav {
+                align-items: start;
+                flex-direction: column;
+            }
+
+            .menu {
+                justify-content: start;
+            }
+
+            .hero-card,
+            .hero-side,
+            .card {
+                padding: 20px;
+            }
+
+            .quick-info {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-item {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-num {
+                width: 64px;
+                height: 64px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media print {
+
+            .topbar,
+            .hero-actions {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .hero,
+            .section,
+            .footer-inner {
+                max-width: 100%;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .card,
+            .hero-card,
+            .hero-side,
+            .table-wrap {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="nav">
+            <div class="brand">
+                <img src="logo.png"
+                    alt="Logo Centro de Capacitación Municipal" />
+            </div>
+            <div class="brand-text">
+                <strong>Centro de Capacitación Municipal</strong>
+                <span>Manual Profesional Web 2026 · Computación Básica</span>
+            </div>
+            <nav class="menu">
+                <a href="#descripcion">Descripción</a>
+                <a href="#objetivos">Objetivos</a>
+                <a href="#modulos">Módulos</a>
+                <a href="#metodologia">Metodología</a>
+                <a href="#evaluacion">Evaluación</a>
+                <a href="#contacto">Contacto</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <article class="hero-card">
+                <div class="eyebrow">💻 Formación digital · 2026</div>
+                <h1>Manual Profesional de <br>Computación Básica</h1>
+                <p>
+                    Sitio web institucional del <strong>Centro de Capacitación Municipal</strong> para presentar de
+                    forma moderna,
+                    clara y atractiva el módulo de <strong>Computación Básica 2026</strong>. Diseñado para alumnos,
+                    apoderados,
+                    comunidad y equipo docente, con enfoque práctico, inclusivo y orientado al mundo laboral.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#modulos">Ver módulos</a>
+                    <a class="btn btn-secondary" href="#evaluacion">Revisar evaluación</a>
+                </div>
+            </article>
+
+            <aside class="hero-side">
+                <div>
+                    <div class="logo-wrap">
+                        <img src="logo.png" alt="Logo del curso de Computación Básica" />
+                    </div>
+                    <div class="quick-info">
+                        <div class="info-box">
+
+                            <small>Profesor</small>
+
+                            <strong>Mauricio Galaz</strong>
+                        </div>
+                        <div class="info-box">
+                            <small>Año académico</small>
+                            <strong>2026</strong>
+                        </div>
+                        <div class="info-box">
+                            <small>Duración sugerida</small>
+                            <strong>30 a 40 horas</strong>
+                        </div>
+                        <div class="info-box">
+                            <small>Modalidad</small>
+                            <strong>Presencial / Práctica</strong>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="section" id="descripcion">
+            <div class="section-head">
+                <div>
+                    <h2>Descripción del curso</h2>
+                    <p>Programa formativo orientado a personas que necesitan iniciar o fortalecer sus competencias
+                        digitales para desenvolverse con seguridad en contextos personales, educativos y laborales.</p>
+                </div>
+            </div>
+            <div class="grid-3">
+                <article class="card">
+                    <div class="icon">🖥️</div>
+                    <h3>Enfoque práctico</h3>
+                    <p>El aprendizaje se desarrolla mediante ejercicios guiados, actividades reales y resolución de
+                        tareas frecuentes como redactar documentos, usar internet o manejar archivos.</p>
+                </article>
+                <article class="card">
+                    <div class="icon">🌐</div>
+                    <h3>Competencias digitales</h3>
+                    <p>Los estudiantes aprenden a usar el computador, navegar con seguridad, crear documentos y utilizar
+                        herramientas básicas de oficina y comunicación digital.</p>
+                </article>
+                <article class="card">
+                    <div class="icon">🚀</div>
+                    <h3>Proyección laboral</h3>
+                    <p>El módulo entrega una base sólida para empleabilidad, continuidad de estudios y uso eficiente de
+                        recursos tecnológicos en la vida diaria.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="objetivos">
+            <div class="section-head">
+                <div>
+                    <h2>Objetivos del módulo</h2>
+                    <p>Diseñados para que el estudiante avance desde el reconocimiento del entorno digital hasta el uso
+                        funcional de herramientas esenciales.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <article class="card">
+                    <h3>Objetivo general</h3>
+                    <p>Desarrollar competencias digitales básicas que permitan al estudiante utilizar un computador,
+                        navegar en internet y manejar herramientas ofimáticas de manera autónoma, responsable y segura.
+                    </p>
+                </article>
+                <article class="card">
+                    <h3>Objetivos específicos</h3>
+                    <ul class="clean">
+                        <li>Identificar partes y funciones del computador.</li>
+                        <li>Usar el sistema operativo y administrar carpetas y archivos.</li>
+                        <li>Navegar por internet y utilizar correo electrónico.</li>
+                        <li>Crear documentos en Word con formato básico.</li>
+                        <li>Realizar operaciones simples y tablas en Excel.</li>
+                        <li>Diseñar presentaciones básicas en PowerPoint.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="grid-3">
+                <article class="card">
+                    <h3>Perfil de ingreso</h3>
+                    <p>Dirigido a jóvenes, adultos, trabajadores y comunidad en general con conocimientos nulos o
+                        básicos en computación.</p>
+                    <div class="chip-row">
+                        <span class="chip">Sin experiencia previa</span>
+                        <span class="chip">Nivel inicial</span>
+                        <span class="chip">Aprendizaje guiado</span>
+                    </div>
+                </article>
+                <article class="card">
+                    <h3>Perfil de egreso</h3>
+                    <p>Al finalizar, el estudiante podrá usar el computador con autonomía, navegar con criterio,
+                        elaborar documentos y aplicar buenas prácticas de seguridad digital.</p>
+                    <div class="chip-row">
+                        <span class="chip">Autonomía básica</span>
+                        <span class="chip">Uso laboral</span>
+                        <span class="chip">Uso educativo</span>
+                    </div>
+                </article>
+                <article class="card">
+                    <h3>Beneficios del curso</h3>
+                    <p>Mejora la empleabilidad, facilita trámites en línea, fortalece la comunicación digital y abre
+                        oportunidades de capacitación futura.</p>
+                    <div class="chip-row">
+                        <span class="chip">Productividad</span>
+                        <span class="chip">Inclusión digital</span>
+                        <span class="chip">Confianza tecnológica</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="modulos">
+            <div class="section-head">
+                <div>
+                    <h2>Módulos formativos</h2>
+                    <p>Estructura organizada para desarrollar progresivamente habilidades esenciales en computación
+                        básica.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <article class="card module">
+                    <span class="badge">Módulo 1</span>
+                    <h3>Introducción a la computación</h3>
+                    <ul class="clean">
+                        <li>Concepto de computador.</li>
+                        <li>Diferencia entre hardware y software.</li>
+                        <li>Periféricos de entrada y salida.</li>
+                        <li>Normas básicas de uso del equipo.</li>
+                    </ul>
+                </article>
+                <article class="card module">
+                    <span class="badge">Módulo 2</span>
+                    <h3>Sistema operativo y escritorio</h3>
+                    <ul class="clean">
+                        <li>Encendido y apagado correcto.</li>
+                        <li>Escritorio, ventanas e íconos.</li>
+                        <li>Creación de carpetas y organización de archivos.</li>
+                        <li>Uso básico del explorador.</li>
+                    </ul>
+                </article>
+                <article class="card module">
+                    <span class="badge">Módulo 3</span>
+                    <h3>Internet y comunicación digital</h3>
+                    <ul class="clean">
+                        <li>Navegadores y buscadores.</li>
+                        <li>Búsqueda eficiente de información.</li>
+                        <li>Correo electrónico y adjuntos.</li>
+                        <li>Seguridad y cuidado de datos personales.</li>
+                    </ul>
+                </article>
+                <article class="card module">
+                    <span class="badge">Módulo 4</span>
+                    <h3>Procesador de texto</h3>
+                    <ul class="clean">
+                        <li>Escribir, guardar y abrir documentos.</li>
+                        <li>Formato de fuente y párrafo.</li>
+                        <li>Inserción de imágenes.</li>
+                        <li>Elaboración de documentos simples.</li>
+                    </ul>
+                </article>
+                <article class="card module">
+                    <span class="badge">Módulo 5</span>
+                    <h3>Excel básico</h3>
+                    <ul class="clean">
+                        <li>Uso de celdas, filas y columnas.</li>
+                        <li>Tablas simples y orden de datos.</li>
+                        <li>Fórmulas básicas como suma y promedio.</li>
+                        <li>Aplicación en gastos y registros.</li>
+                    </ul>
+                </article>
+                <article class="card module">
+                    <span class="badge">Módulo 6</span>
+                    <h3>Presentaciones</h3>
+                    <ul class="clean">
+                        <li>Creación de diapositivas.</li>
+                        <li>Diseño con texto e imágenes.</li>
+                        <li>Presentación personal o temática.</li>
+                        <li>Exposición básica apoyada en PowerPoint.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="metodologia">
+            <div class="section-head">
+                <div>
+                    <h2>Metodología de enseñanza</h2>
+                    <p>Modelo centrado en el estudiante, con orientación progresiva, demostraciones en vivo y práctica
+                        constante en clases.</p>
+                </div>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-num">1</div>
+                    <div class="card">
+                        <h3>Explicación guiada</h3>
+                        <p>El docente presenta el contenido con lenguaje claro, ejemplos cotidianos y demostraciones
+                            paso a paso.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-num">2</div>
+                    <div class="card">
+                        <h3>Demostración práctica</h3>
+                        <p>Se muestra el procedimiento directamente en el computador para facilitar la observación y
+                            comprensión del proceso.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-num">3</div>
+                    <div class="card">
+                        <h3>Ejercicio individual y acompañamiento</h3>
+                        <p>Los estudiantes replican la actividad con apoyo del profesor, resolviendo dudas en el
+                            momento.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-num">4</div>
+                    <div class="card">
+                        <h3>Aplicación en tareas reales</h3>
+                        <p>Se realizan ejercicios como redactar un currículum, completar una tabla, enviar un correo o
+                            buscar información útil.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="evaluacion">
+            <div class="section-head">
+                <div>
+                    <h2>Evaluación del curso</h2>
+                    <p>Sistema equilibrado que valora la práctica, el avance personal y la aplicación concreta de
+                        conocimientos.</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Instrumento</th>
+                            <th>Descripción</th>
+                            <th>Ponderación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Trabajos prácticos</td>
+                            <td>Ejercicios en Word, Excel, internet y manejo del sistema operativo.</td>
+                            <td>40%</td>
+                        </tr>
+                        <tr>
+                            <td>Evaluaciones parciales</td>
+                            <td>Pruebas cortas o desafíos guiados por unidad.</td>
+                            <td>30%</td>
+                        </tr>
+                        <tr>
+                            <td>Participación y asistencia</td>
+                            <td>Compromiso en clases, participación activa y cumplimiento de actividades.</td>
+                            <td>20%</td>
+                        </tr>
+                        <tr>
+                            <td>Proyecto final</td>
+                            <td>Producto integrador como CV, planilla de gastos o presentación básica.</td>
+                            <td>10%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="print-note">Escala adaptable según necesidades del Centro de Capacitación Municipal de Limache.
+            </p>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2>Rúbrica de desempeño</h2>
+                    <p>Referencia rápida para medir progreso y nivel de logro del estudiante en habilidades clave.</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Criterio</th>
+                            <th>Excelente</th>
+                            <th>Bueno</th>
+                            <th>En proceso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Manejo del computador</td>
+                            <td>Usa el equipo con autonomía y seguridad.</td>
+                            <td>Realiza funciones básicas con poca ayuda.</td>
+                            <td>Requiere apoyo constante.</td>
+                        </tr>
+                        <tr>
+                            <td>Uso de Word</td>
+                            <td>Crea documentos ordenados y con buen formato.</td>
+                            <td>Aplica formato básico correctamente.</td>
+                            <td>Presenta dificultad para completar la tarea.</td>
+                        </tr>
+                        <tr>
+                            <td>Uso de Excel</td>
+                            <td>Organiza datos y aplica fórmulas simples.</td>
+                            <td>Completa tablas con errores menores.</td>
+                            <td>No logra estructurar la información.</td>
+                        </tr>
+                        <tr>
+                            <td>Internet y seguridad</td>
+                            <td>Navega con criterio y cuida sus datos.</td>
+                            <td>Utiliza buscadores y correo de forma básica.</td>
+                            <td>Necesita reforzar prácticas seguras.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="grid-2">
+                <article class="card">
+                    <h3>Actividades sugeridas</h3>
+                    <ul class="clean">
+                        <li>Redactar un currículum vitae.</li>
+                        <li>Buscar información útil en internet.</li>
+                        <li>Crear una tabla de gastos mensuales.</li>
+                        <li>Enviar un correo con archivo adjunto.</li>
+                        <li>Preparar una presentación personal.</li>
+                    </ul>
+                </article>
+                <article class="card">
+                    <h3>Seguridad digital</h3>
+                    <ul class="clean">
+                        <li>No descargar archivos desde sitios desconocidos.</li>
+                        <li>Utilizar contraseñas seguras.</li>
+                        <li>Evitar compartir datos personales en sitios no confiables.</li>
+                        <li>Revisar correos sospechosos y enlaces dudosos.</li>
+                        <li>Usar almacenamiento ordenado y respaldo básico de archivos.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="contacto">
+            <div class="grid-2">
+                <article class="card">
+                    <h3>Datos del programa</h3>
+                    <p><strong>Curso:</strong> Computación Básica</p>
+                    <p><strong>Año:</strong> 2026</p>
+                    <p><strong>Institución:</strong> Centro de Capacitación Municipal</p>
+                    <p><strong>Docente:</strong> Mauricio Galaz</p>
+                    <p><strong>Modalidad:</strong> Presencial / práctica</p>
+                </article>
+                <article class="card">
+                    <h3>Contacto</h3>
+                    <p><strong>Dirección:</strong> Serrano #254, San Francisco de Limache, Valparaíso, Chile</p>
+                    <p><strong>Teléfono:</strong> +56 9 7608 1946</p>
+                    <p><strong>Horario sugerido:</strong> 2 a 3 sesiones por semana</p>
+                    <p><strong>Duración:</strong> 30 a 40 horas pedagógicas</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div>
+                <h3>Centro de Capacitación Municipal de Limache</h3>
+                <p>
+                    Plataforma web del manual profesional del módulo <strong>Computación Básica 2026</strong>.
+                    Pensada para difusión institucional, uso académico y presentación formal del curso.
+                </p>
+            </div>
+            <div class="footer-card">
+                <strong>Manual web listo para personalizar</strong>
+                <p>Puedes editar textos, colores, módulos, horarios, evaluaciones y agregar más secciones como galería,
+                    inscripción o descarga de documentos.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

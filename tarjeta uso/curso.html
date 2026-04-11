@@ -1,0 +1,2930 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Servicios — Tecnología para tu Negocio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050a12;
+            --bg2: #0b1422;
+            --surface: #111d2e;
+            --surface2: #16253b;
+            --accent: #00c8ff;
+            --accent2: #0077ff;
+            --accent3: #7b2fff;
+            --text: #e8f0fe;
+            --text2: #8a9bbf;
+            --border: rgba(0, 200, 255, 0.12);
+            --glow: 0 0 40px rgba(0, 200, 255, 0.15);
+            --radius: 16px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ── NOISE TEXTURE OVERLAY ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        /* ── TYPOGRAPHY ── */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            font-family: 'Syne', sans-serif;
+            line-height: 1.15;
+        }
+
+        /* ── NAVBAR ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            height: 72px;
+            background: rgba(5, 10, 18, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition);
+            letter-spacing: 0.3px;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            color: #fff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: transform var(--transition), box-shadow var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 119, 255, 0.35);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            background: rgba(5, 10, 18, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid var(--border);
+            z-index: 999;
+        }
+
+        .mobile-menu.open {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-menu a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mobile-menu a:last-child {
+            border-bottom: none;
+        }
+
+        /* ── HERO ── */
+        #inicio {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 5% 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 70% 40%, rgba(0, 119, 255, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 20% 70%, rgba(123, 47, 255, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.06;
+            background-image:
+                linear-gradient(var(--accent) 1px, transparent 1px),
+                linear-gradient(90deg, var(--accent) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 70% 40%, black, transparent);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 200, 255, 0.08);
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            animation: fadeInDown 0.6s ease both;
+        }
+
+        .hero-badge::before {
+            content: '●';
+            font-size: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1 }
+            50% { opacity: 0.3 }
+        }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 1.2rem;
+            animation: fadeInUp 0.7s 0.1s ease both;
+        }
+
+        .hero-title .line1 {
+            display: block;
+            color: var(--text);
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: var(--text2);
+            max-width: 520px;
+            line-height: 1.7;
+            margin-bottom: 2.2rem;
+            font-weight: 300;
+            animation: fadeInUp 0.7s 0.2s ease both;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.7s 0.3s ease both;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            color: #fff;
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: transform var(--transition), box-shadow var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 119, 255, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: border-color var(--transition), color var(--transition), background var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 200, 255, 0.05);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            margin-top: 3.5rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.7s 0.4s ease both;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text2);
+            margin-top: 0.2rem;
+        }
+
+        .hero-visual {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: min(420px, 40vw);
+            z-index: 1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(-50%) translateY(0) }
+            50% { transform: translateY(-50%) translateY(-15px) }
+        }
+
+        .hero-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), var(--glow);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .card-sub {
+            font-size: 0.75rem;
+            color: var(--text2);
+        }
+
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .progress-label {
+            font-size: 0.78rem;
+            color: var(--text2);
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--surface2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--accent2), var(--accent));
+            animation: grow 1.5s ease forwards;
+            transform-origin: left;
+        }
+
+        @keyframes grow {
+            from { transform: scaleX(0) }
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(0, 200, 255, 0.08);
+            border: 1px solid rgba(0, 200, 255, 0.15);
+            padding: 0.2rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            color: var(--accent);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px) }
+            to { opacity: 1; transform: translateY(0) }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px) }
+            to { opacity: 1; transform: translateY(0) }
+        }
+
+        /* ── SECTIONS GENERAL ── */
+        section {
+            padding: 100px 5%;
+        }
+
+        .section-label {
+            display: inline-block;
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.05rem;
+            color: var(--text2);
+            max-width: 540px;
+            line-height: 1.7;
+        }
+
+        .section-header {
+            margin-bottom: 4rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0 5%;
+        }
+
+        /* ── SERVICIOS ── */
+        #servicios {
+            background: var(--bg2);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent2), var(--accent3));
+            transform: scaleX(0);
+            transition: transform var(--transition);
+            transform-origin: left;
+        }
+
+        .service-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 200, 255, 0.25);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), var(--glow);
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .ic-blue { background: rgba(0, 119, 255, 0.15); }
+        .ic-cyan { background: rgba(0, 200, 255, 0.12); }
+        .ic-purple { background: rgba(123, 47, 255, 0.15); }
+        .ic-green { background: rgba(0, 200, 100, 0.12); }
+        .ic-orange { background: rgba(255, 160, 0, 0.12); }
+        .ic-pink { background: rgba(255, 60, 120, 0.12); }
+
+        .service-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: var(--text);
+        }
+
+        .service-card p {
+            font-size: 0.88rem;
+            color: var(--text2);
+            line-height: 1.65;
+        }
+
+        .service-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        .service-tag {
+            background: rgba(0, 200, 255, 0.06);
+            border: 1px solid var(--border);
+            padding: 0.15rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            color: var(--text2);
+        }
+
+        /* ── POR QUÉ NOSOTROS ── */
+        #por-que { background: var(--bg); }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: border-color var(--transition);
+        }
+
+        .feature-item:hover {
+            border-color: rgba(0, 200, 255, 0.2);
+        }
+
+        .feature-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .feature-item h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .feature-item p {
+            font-size: 0.83rem;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .pq-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        /* ── CLASES A DOMICILIO ── */
+        #clases { background: var(--bg2); }
+
+        .clases-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .course-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            transition: border-color var(--transition), transform var(--transition);
+        }
+
+        .course-item:hover {
+            border-color: rgba(0, 200, 255, 0.25);
+            transform: translateX(6px);
+        }
+
+        .course-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .course-info h4 {
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .course-info p {
+            font-size: 0.8rem;
+            color: var(--text2);
+        }
+
+        .clases-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .info-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .info-box h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--accent);
+        }
+
+        .info-box ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-box li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.88rem;
+            color: var(--text2);
+        }
+
+        .info-box li::before {
+            content: '→';
+            color: var(--accent);
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        /* ── EMPRENDEDORES ── */
+        #emprendedores { background: var(--bg); }
+
+        .emprend-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.2rem;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 48px;
+            width: 2px;
+            height: calc(100% - 8px);
+            background: linear-gradient(180deg, var(--accent2), transparent);
+        }
+
+        .step-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 2px solid var(--accent2);
+            background: rgba(0, 119, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--accent2);
+        }
+
+        .step h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .step p {
+            font-size: 0.83rem;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .emprend-features {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: var(--glow);
+        }
+
+        .ef-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem;
+            border-radius: 10px;
+            background: var(--surface2);
+        }
+
+        .ef-icon { font-size: 1.5rem; }
+
+        .ef-item h5 {
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .ef-item p {
+            font-size: 0.78rem;
+            color: var(--text2);
+        }
+
+        /* ── PLANES ── */
+        #planes { background: var(--bg2); }
+
+        .planes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .plan-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            transition: transform var(--transition), box-shadow var(--transition);
+            position: relative;
+        }
+
+        .plan-card.featured {
+            border-color: var(--accent2);
+            background: linear-gradient(160deg, var(--surface2) 0%, rgba(0, 119, 255, 0.08) 100%);
+            box-shadow: 0 0 60px rgba(0, 119, 255, 0.15);
+        }
+
+        .plan-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            color: #fff;
+            padding: 0.2rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .plan-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plan-price {
+            font-family: 'Syne', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .plan-price span {
+            font-size: 0.85rem;
+            color: var(--text2);
+            font-weight: 400;
+        }
+
+        .plan-desc {
+            font-size: 0.85rem;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .plan-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            flex: 1;
+        }
+
+        .plan-features li {
+            display: flex;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            align-items: flex-start;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .plan-btn {
+            display: block;
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .plan-btn.outline {
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .plan-btn.outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .plan-btn.solid {
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            color: #fff;
+        }
+
+        .plan-btn.solid:hover {
+            box-shadow: 0 8px 24px rgba(0, 119, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ── TESTIMONIOS ── */
+        #testimonios { background: var(--bg); }
+
+        .testi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .testi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: border-color var(--transition);
+        }
+
+        .testi-card:hover {
+            border-color: rgba(0, 200, 255, 0.2);
+        }
+
+        .stars {
+            color: #f9a825;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .testi-text {
+            font-size: 0.9rem;
+            color: var(--text2);
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .testi-author {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: auto;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .author-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .author-role {
+            font-size: 0.75rem;
+            color: var(--text2);
+        }
+
+        /* ── CONTACTO ── */
+        #contacto { background: var(--bg2); }
+
+        .contacto-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .contact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.3rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color var(--transition);
+            text-decoration: none;
+        }
+
+        .contact-card:hover {
+            border-color: rgba(0, 200, 255, 0.25);
+        }
+
+        .contact-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .cc-blue { background: rgba(0, 119, 255, 0.15); }
+        .cc-green { background: rgba(37, 211, 102, 0.15); }
+        .cc-purple { background: rgba(123, 47, 255, 0.15); }
+
+        .contact-card-text label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text2);
+            margin-bottom: 0.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-card-text span {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .contact-form {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+        }
+
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group.full {
+            grid-column: 1/-1;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            color: var(--text2);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--accent2);
+            box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group select option {
+            background: var(--surface2);
+        }
+
+        .form-submit {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 119, 255, 0.4);
+        }
+
+        .form-success {
+            display: none;
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ── FAQ ── */
+        #faq { background: var(--bg); }
+
+        .faq-list {
+            max-width: 700px;
+            margin: 3rem auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .faq-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            gap: 1rem;
+            transition: background var(--transition);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .faq-question:hover {
+            background: var(--surface2);
+        }
+
+        .faq-arrow {
+            font-size: 0.8rem;
+            color: var(--accent);
+            transition: transform var(--transition);
+            flex-shrink: 0;
+        }
+
+        .faq-item.open .faq-arrow {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.2s ease;
+            padding: 0 1.5rem;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 200px;
+            padding: 0 1.5rem 1.2rem;
+        }
+
+        .faq-answer p {
+            color: var(--text2);
+            font-size: 0.88rem;
+            line-height: 1.7;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            padding: 4rem 5% 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand p {
+            font-size: 0.88rem;
+            color: var(--text2);
+            margin-top: 0.8rem;
+            line-height: 1.7;
+            max-width: 260px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text2);
+            margin-bottom: 1rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .footer-col ul li a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color var(--transition);
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom p {
+            font-size: 0.82rem;
+            color: var(--text2);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: border-color var(--transition), transform var(--transition);
+        }
+
+        .social-link:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ── FLOATING WA BUTTON ── */
+        .wa-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 100;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #25d366;
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            text-decoration: none;
+            transition: transform var(--transition), box-shadow var(--transition);
+            animation: fabPop 0.5s 1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes fabPop {
+            from { transform: scale(0) }
+            to { transform: scale(1) }
+        }
+
+        .wa-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(37, 211, 102, 0.6);
+        }
+
+        .wa-tooltip {
+            position: absolute;
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.4rem 0.9rem;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            color: var(--text);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .wa-fab:hover .wa-tooltip {
+            opacity: 1;
+        }
+
+        /* ── SCROLL TO TOP ── */
+        .scroll-top {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            z-index: 100;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text2);
+            transition: var(--transition);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .scroll-top:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width: 1024px) {
+            .hero-visual { display: none; }
+            .pq-layout,
+            .clases-layout,
+            .emprend-layout,
+            .contacto-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media(max-width: 768px) {
+            nav { padding: 0 4%; }
+            .nav-links, .nav-cta { display: none; }
+            .hamburger { display: flex; }
+            section { padding: 70px 4%; }
+            .features-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .hero-stats { gap: 1.5rem; }
+        }
+
+        @media(max-width: 480px) {
+            .services-grid { grid-template-columns: 1fr; }
+            .planes-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── REVEAL ANIMATION ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* ══════════════════════════════════════════
+           ── AI ASSISTANT ──
+        ══════════════════════════════════════════ */
+
+        /* FAB botón IA */
+        .ai-fab {
+            position: fixed;
+            bottom: 100px;
+            right: 28px;
+            z-index: 200;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            box-shadow: 0 8px 30px rgba(0, 119, 255, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: transform var(--transition), box-shadow var(--transition);
+            animation: fabPop 0.5s 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        .ai-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 14px 40px rgba(0, 119, 255, 0.7);
+        }
+
+        .ai-fab svg {
+            width: 28px;
+            height: 28px;
+            fill: #fff;
+        }
+
+        .ai-fab-tooltip {
+            position: absolute;
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.4rem 0.9rem;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            color: var(--text);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .ai-fab:hover .ai-fab-tooltip {
+            opacity: 1;
+        }
+
+        /* Notificación de nuevo mensaje */
+        .ai-notif {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff4560;
+            border: 2px solid var(--bg);
+            display: none;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        .ai-notif.show { display: block; }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        /* Ventana del chat */
+        .ai-chat-window {
+            position: fixed;
+            bottom: 170px;
+            right: 28px;
+            z-index: 201;
+            width: 380px;
+            max-height: 560px;
+            background: var(--surface);
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            border-radius: 22px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 119, 255, 0.12);
+            transform: scale(0.85) translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+            transform-origin: bottom right;
+        }
+
+        .ai-chat-window.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Header del chat */
+        .ai-chat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 1.2rem;
+            background: linear-gradient(135deg, rgba(0, 119, 255, 0.18), rgba(123, 47, 255, 0.18));
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .ai-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        .ai-avatar-dot {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #2ecc71;
+            border: 2px solid var(--surface);
+        }
+
+        .ai-chat-header-info { flex: 1; }
+
+        .ai-chat-header-info strong {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            display: block;
+            color: var(--text);
+        }
+
+        .ai-chat-header-info span {
+            font-size: 0.73rem;
+            color: var(--accent);
+        }
+
+        .ai-chat-close {
+            background: none;
+            border: none;
+            color: var(--text2);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color var(--transition), background var(--transition);
+            line-height: 1;
+        }
+
+        .ai-chat-close:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Mensajes */
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            scroll-behavior: smooth;
+        }
+
+        .ai-chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .ai-chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .ai-chat-messages::-webkit-scrollbar-thumb {
+            background: var(--surface2);
+            border-radius: 4px;
+        }
+
+        /* Burbuja */
+        .ai-bubble {
+            max-width: 84%;
+            padding: 0.65rem 0.9rem;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            line-height: 1.55;
+            animation: bubbleIn 0.3s ease both;
+        }
+
+        @keyframes bubbleIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
+            to { opacity: 1; transform: none; }
+        }
+
+        .ai-bubble.bot {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+        }
+
+        .ai-bubble.user {
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            color: #fff;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+        }
+
+        .ai-bubble.bot strong {
+            color: var(--accent);
+        }
+
+        /* Chips de sugerencias rápidas */
+        .ai-quick-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.3rem;
+        }
+
+        .ai-chip {
+            background: rgba(0, 200, 255, 0.07);
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            color: var(--accent);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .ai-chip:hover {
+            background: rgba(0, 200, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Typing indicator */
+        .ai-typing {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0.6rem 0.9rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            width: fit-content;
+        }
+
+        .ai-typing span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--text2);
+            animation: typingDot 1.4s infinite ease-in-out;
+        }
+
+        .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingDot {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* Footer del chat (input) */
+        .ai-chat-footer {
+            padding: 0.8rem 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            flex-shrink: 0;
+            background: var(--surface);
+        }
+
+        .ai-chat-input {
+            flex: 1;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.6rem 1rem;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            outline: none;
+            transition: border-color var(--transition);
+        }
+
+        .ai-chat-input:focus {
+            border-color: var(--accent2);
+        }
+
+        .ai-chat-input::placeholder {
+            color: var(--text2);
+            opacity: 0.6;
+        }
+
+        .ai-send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--accent2), var(--accent3));
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .ai-send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(0, 119, 255, 0.5);
+        }
+
+        .ai-send-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #fff;
+        }
+
+        .ai-powered {
+            text-align: center;
+            font-size: 0.67rem;
+            color: var(--text2);
+            opacity: 0.6;
+            padding: 0 0 0.5rem;
+        }
+
+        /* Mobile chat */
+        @media(max-width: 480px) {
+            .ai-chat-window {
+                width: calc(100vw - 20px);
+                right: 10px;
+                bottom: 160px;
+                max-height: 70vh;
+            }
+
+            .ai-fab {
+                bottom: 96px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav id="mainNav">
+        <a href="#inicio" class="logo">MG Servicios</a>
+        <ul class="nav-links">
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#clases">Clases</a></li>
+            <li><a href="#emprendedores">Proyectos</a></li>
+            <li><a href="#planes">Planes</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <a href="#contacto" class="nav-cta">Cotizar ahora</a>
+        <div class="hamburger" id="ham" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#servicios" onclick="toggleMenu()">Servicios</a>
+        <a href="#clases" onclick="toggleMenu()">Clases a Domicilio</a>
+        <a href="#emprendedores" onclick="toggleMenu()">Proyectos</a>
+        <a href="#planes" onclick="toggleMenu()">Planes</a>
+        <a href="#testimonios" onclick="toggleMenu()">Testimonios</a>
+        <a href="#faq" onclick="toggleMenu()">FAQ</a>
+        <a href="#contacto" onclick="toggleMenu()">Contacto</a>
+    </div>
+
+    <!-- HERO -->
+    <section id="inicio">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="hero-badge">Servicios Tecnológicos Profesionales</div>
+            <h1 class="hero-title">
+                <span class="line1">Tecnología que</span>
+                <span class="gradient-text">impulsa tu visión</span>
+            </h1>
+            <p class="hero-sub">Clases a domicilio, mantenimiento, desarrollo de aplicaciones y asesoría informática
+                personalizada para empresas, personas y emprendedores en Chile.</p>
+            <div class="hero-btns">
+                <a href="#servicios" class="btn-primary">Ver servicios</a>
+                <a href="#contacto" class="btn-outline">Contactar ahora</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-num">+200</span>
+                    <span class="stat-label">Clientes atendidos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">+8</span>
+                    <span class="stat-label">Años de experiencia</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">100%</span>
+                    <span class="stat-label">Satisfacción garantizada</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-card">
+                <div class="card-header">
+                    <div class="card-icon">💻</div>
+                    <div>
+                        <div class="card-title">MG Servicios Tech</div>
+                        <div class="card-sub">Soluciones digitales integrales</div>
+                    </div>
+                </div>
+                <div class="progress-row"><span class="progress-label">Desarrollo</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:90%"></div>
+                    </div>
+                </div>
+                <div class="progress-row"><span class="progress-label">Soporte</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:95%;animation-delay:0.3s"></div>
+                    </div>
+                </div>
+                <div class="progress-row"><span class="progress-label">Enseñanza</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:88%;animation-delay:0.6s"></div>
+                    </div>
+                </div>
+                <div class="card-tags">
+                    <span class="tag">React</span><span class="tag">Android</span><span class="tag">Windows</span><span
+                        class="tag">Redes</span><span class="tag">JavaScript</span><span class="tag">Python</span><span
+                        class="tag">Machine Learning</span><span class="tag">AI</span><span class="tag">Base de
+                        Datos</span><span class="tag">Diseño Web</span><span class="tag">Capacitaciones</span><span
+                        class="tag">Asesorías</span><span class="tag">Mantenimiento</span><span
+                        class="tag">Web</span><span class="tag">Marketing Web Site</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SERVICIOS -->
+    <section id="servicios">
+        <div class="section-header reveal">
+            <span class="section-label">Lo que hacemos</span>
+            <h2 class="section-title">Nuestros Servicios</h2>
+            <p class="section-subtitle">Soluciones tecnológicas completas para particulares, empresas y emprendedores en
+                toda la región.</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card reveal">
+                <div class="service-icon ic-blue">🖥️</div>
+                <h3>Mantenimiento de PC & Laptop</h3>
+                <p>Limpieza, formateo, instalación de sistemas operativos, optimización de rendimiento, cambio de
+                    componentes y diagnóstico completo de hardware y software.</p>
+                <div class="service-tags"><span class="service-tag">Windows</span><span
+                        class="service-tag">macOS</span><span class="service-tag">Linux</span><span
+                        class="service-tag">Hardware</span></div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon ic-cyan">📱</div>
+                <h3>Desarrollo de Aplicaciones</h3>
+                <p>Creación de apps móviles para Android e iOS y aplicaciones de escritorio personalizadas según las
+                    necesidades de tu negocio o emprendimiento.</p>
+                <div class="service-tags"><span class="service-tag">Android</span><span
+                        class="service-tag">iOS</span><span class="service-tag">React Native</span></div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon ic-purple">🌐</div>
+                <h3>Creación de Páginas Web</h3>
+                <p>Diseño y desarrollo de sitios web modernos, responsivos y optimizados para SEO. Desde landing pages
+                    hasta e-commerce completos con panel de administración.</p>
+                <div class="service-tags"><span class="service-tag">HTML/CSS</span><span
+                        class="service-tag">WordPress</span><span class="service-tag">E-commerce</span></div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon ic-green">🎓</div>
+                <h3>Clases de Computación</h3>
+                <p>Clases personalizadas a domicilio de informática básica, programación, ofimática, diseño gráfico,
+                    redes y mucho más. Todos los niveles bienvenidos.</p>
+                <div class="service-tags"><span class="service-tag">Básico</span><span
+                        class="service-tag">Intermedio</span><span class="service-tag">Avanzado</span></div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon ic-orange">💡</div>
+                <h3>Asesoría Informática</h3>
+                <p>Consultoría tecnológica para personas y empresas. Te ayudamos a elegir el software, hardware y
+                    herramientas digitales ideales para tus objetivos.</p>
+                <div class="service-tags"><span class="service-tag">Consultoría</span><span
+                        class="service-tag">Planificación</span><span class="service-tag">TI</span></div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon ic-pink">🔒</div>
+                <h3>Redes & Seguridad</h3>
+                <p>Configuración de redes WiFi, instalación de routers, VPN, cortafuegos y protección de datos. Tu
+                    seguridad digital es nuestra prioridad.</p>
+                <div class="service-tags"><span class="service-tag">WiFi</span><span class="service-tag">VPN</span><span
+                        class="service-tag">Firewall</span><span class="service-tag">Backup</span></div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon ic-purple">🌐</div>
+                <h3>Herramientas de Diseño Gráfico Web</h3>
+                <p>Herramientas y técnicas para crear diseños atractivos y funcionales para sitios web.</p>
+                <div class="service-tags"><span class="service-tag">HTML/CSS</span><span
+                        class="service-tag">WordPress</span><span class="service-tag">E-commerce</span></div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon ic-purple">🌐</div>
+                <h3>Integración de Sistemas Web</h3>
+                <p>Integración de diferentes sistemas y plataformas web para crear soluciones completas y funcionales.</p>
+                <div class="service-tags"><span class="service-tag">HTML/CSS</span><span
+                        class="service-tag">WordPress</span><span class="service-tag">E-commerce</span></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- POR QUÉ -->
+    <section id="por-que">
+        <div class="pq-layout">
+            <div class="section-header reveal" style="margin-bottom:0">
+                <span class="section-label">¿Por qué elegirnos?</span>
+                <h2 class="section-title">Tu tecnología, en buenas manos</h2>
+                <p class="section-subtitle">Más de 8 años brindando servicios tecnológicos con compromiso, honestidad y
+                    resultados reales para nuestros clientes.</p>
+                <br>
+                <a href="#contacto" class="btn-primary" style="display:inline-block">Hablar con el equipo asesor web
+                    →</a>
+            </div>
+            <div class="features-grid reveal">
+                <div class="feature-item">
+                    <div class="feature-dot">⚡</div>
+                    <div>
+                        <h4>Respuesta rápida</h4>
+                        <p>Atención ágil y resolución eficiente de problemas técnicos, con soporte remoto disponible.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot">🏠</div>
+                    <div>
+                        <h4>Servicio a domicilio</h4>
+                        <p>Vamos donde estás. Sin que tengas que salir de casa u oficina para resolver tu problema
+                            tecnológico.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot">💰</div>
+                    <div>
+                        <h4>Precios justos</h4>
+                        <p>Tarifas transparentes sin costos ocultos. Cotización gratuita y sin compromiso para todos los
+                            servicios.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot">🎯</div>
+                    <div>
+                        <h4>Soluciones a medida</h4>
+                        <p>Cada cliente es único. Diseñamos soluciones personalizadas que se adaptan a tus necesidades
+                            reales.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot">🔐</div>
+                    <div>
+                        <h4>Confidencialidad</h4>
+                        <p>Manejamos tus datos y sistemas con total discreción y respeto a tu privacidad.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot">🤝</div>
+                    <div>
+                        <h4>Garantía de servicio</h4>
+                        <p>Respaldamos nuestro trabajo. Si algo no funciona, volvemos sin costo adicional.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- CLASES -->
+    <section id="clases">
+        <div class="section-header reveal">
+            <span class="section-label">Aprendizaje personalizado</span>
+            <h2 class="section-title">Clases a Domicilio</h2>
+            <p class="section-subtitle">Aprende tecnología desde la comodidad de tu hogar con clases 100% personalizadas
+                para tu nivel y ritmo.</p>
+        </div>
+        <div class="clases-layout">
+            <div class="course-list reveal">
+                <div class="course-item">
+                    <div class="course-num">01</div>
+                    <div class="course-info">
+                        <h4>Computación Básica</h4>
+                        <p>Manejo del computador, internet y correo electrónico</p>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <div class="course-num">02</div>
+                    <div class="course-info">
+                        <h4>Ofimática (Office)</h4>
+                        <p>Word, Excel, PowerPoint y Google Workspace</p>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <div class="course-num">03</div>
+                    <div class="course-info">
+                        <h4>Programación Web</h4>
+                        <p>HTML, CSS, JavaScript y frameworks modernos</p>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <div class="course-num">04</div>
+                    <div class="course-info">
+                        <h4>Diseño Gráfico</h4>
+                        <p>Photoshop, Canva, Illustrator y edición de video</p>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <div class="course-num">05</div>
+                    <div class="course-info">
+                        <h4>Redes & Ciberseguridad</h4>
+                        <p>Protege tu información y configura redes seguras</p>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <div class="course-num">06</div>
+                    <div class="course-info">
+                        <h4>Marketing Digital</h4>
+                        <p>Redes sociales, SEO, publicidad y analítica web</p>
+                    </div>
+                </div>
+            </div>
+            <div class="clases-info reveal">
+                <div class="info-box">
+                    <h3>¿Cómo funciona?</h3>
+                    <ul>
+                        <li>Diagnóstico inicial gratuito de tu nivel</li>
+                        <li>Plan de estudio personalizado según tus metas</li>
+                        <li>Clases en tu domicilio, oficina o de forma remota</li>
+                        <li>Material didáctico incluido en cada sesión</li>
+                        <li>Seguimiento y apoyo entre clases vía WhatsApp</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h3>Dirigido a</h3>
+                    <ul>
+                        <li>Adultos mayores que desean aprender tecnología</li>
+                        <li>Emprendedores que quieren potenciar su negocio</li>
+                        <li>Profesionales en cambio de carrera o actualización</li>
+                        <li>Estudiantes con necesidades de apoyo académico</li>
+                        <li>Empresas para capacitación de su equipo</li>
+                    </ul>
+                </div>
+                <a href="https://wa.me/56998797596?text=Hola%20Mauricio,%20me%20interesa%20tomar%20clases%20a%20domicilio"
+                    target="_blank" class="btn-primary" style="display:block;text-align:center;text-decoration:none">📱
+                    Consultar disponibilidad</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- EMPRENDEDORES -->
+    <section id="emprendedores">
+        <div class="section-header reveal">
+            <span class="section-label">Para tu emprendimiento</span>
+            <h2 class="section-title">Proyectos para Emprendedores</h2>
+            <p class="section-subtitle">Transformamos tu idea de negocio en una solución tecnológica funcional y lista
+                para competir en el mercado digital.</p>
+        </div>
+        <div class="emprend-layout">
+            <div class="steps reveal">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div>
+                        <h4>Reunión inicial gratuita</h4>
+                        <p>Conversamos sobre tu idea, objetivos, público objetivo y presupuesto disponible sin ningún
+                            compromiso.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div>
+                        <h4>Propuesta y cotización</h4>
+                        <p>Elaboramos una propuesta técnica detallada con plazos, costos y tecnologías recomendadas para
+                            tu proyecto.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div>
+                        <h4>Desarrollo iterativo</h4>
+                        <p>Desarrollamos tu solución en etapas, con revisiones periódicas para asegurarnos que todo va
+                            según lo esperado.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div>
+                        <h4>Entrega y capacitación</h4>
+                        <p>Te entregamos el producto final con documentación, capacitación y soporte post-lanzamiento
+                            incluido.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="emprend-features reveal">
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem">¿Qué podemos construir?</h3>
+                <div class="ef-item"><span class="ef-icon">🛒</span>
+                    <div>
+                        <h5>Tienda Online</h5>
+                        <p>E-commerce con pasarela de pago, inventario y gestión de pedidos.</p>
+                    </div>
+                </div>
+                <div class="ef-item"><span class="ef-icon">📊</span>
+                    <div>
+                        <h5>Sistema de Gestión</h5>
+                        <p>Software a medida para controlar clientes, ventas, stock y reportes.</p>
+                    </div>
+                </div>
+                <div class="ef-item"><span class="ef-icon">📲</span>
+                    <div>
+                        <h5>App Móvil</h5>
+                        <p>Aplicación para Android e iOS para tu servicio o producto.</p>
+                    </div>
+                </div>
+                <div class="ef-item"><span class="ef-icon">🌐</span>
+                    <div>
+                        <h5>Sitio Web Corporativo</h5>
+                        <p>Presencia digital profesional con formulario de contacto y SEO.</p>
+                    </div>
+                </div>
+                <div class="ef-item"><span class="ef-icon">🤖</span>
+                    <div>
+                        <h5>Automatizaciones</h5>
+                        <p>Chatbots, flujos automáticos y herramientas para ahorrar tiempo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- PLANES -->
+    <section id="planes">
+        <div class="section-header reveal" style="text-align:center">
+            <span class="section-label">Inversión</span>
+            <h2 class="section-title">Planes y Precios</h2>
+            <p class="section-subtitle" style="margin:0 auto">Elige el plan que mejor se adapte a tus necesidades. Todos
+                incluyen garantía de satisfacción.</p>
+        </div>
+        <div class="planes-grid">
+            <div class="plan-card reveal">
+                <div class="plan-name">Básico</div>
+                <div class="plan-price">Consultar <span>/ servicio</span></div>
+                <div class="plan-desc">Ideal para soporte técnico puntual y clases individuales.</div>
+                <ul class="plan-features">
+                    <li>Diagnóstico de PC o laptop</li>
+                    <li>1 clase a domicilio (2 hrs)</li>
+                    <li>Soporte remoto básico</li>
+                    <li>Instalación de software</li>
+                    <li>Seguimiento 7 días</li>
+                </ul>
+                <a href="#contacto" class="plan-btn outline">Consultar precio</a>
+            </div>
+            <div class="plan-card featured reveal">
+                <div class="popular-badge">⭐ Más popular</div>
+                <div class="plan-name">Profesional</div>
+                <div class="plan-price">Consultar <span>/ mes</span></div>
+                <div class="plan-desc">Para emprendedores y pequeñas empresas con necesidades continuas.</div>
+                <ul class="plan-features">
+                    <li>Mantenimiento mensual PC</li>
+                    <li>4 clases a domicilio al mes</li>
+                    <li>Soporte remoto prioritario</li>
+                    <li>Asesoría tecnológica continua</li>
+                    <li>Backup de datos mensual</li>
+                    <li>Gestión de redes y seguridad</li>
+                </ul>
+                <a href="#contacto" class="plan-btn solid">Cotizar ahora</a>
+            </div>
+            <div class="plan-card reveal">
+                <div class="plan-name">Proyecto</div>
+                <div class="plan-price">A medida</div>
+                <div class="plan-desc">Para desarrollo de apps, páginas web y proyectos tecnológicos completos.</div>
+                <ul class="plan-features">
+                    <li>Reunión de requerimientos</li>
+                    <li>Propuesta técnica detallada</li>
+                    <li>Desarrollo web o app</li>
+                    <li>Capacitación incluida</li>
+                    <li>Soporte post-lanzamiento</li>
+                    <li>Entrega con documentación</li>
+                </ul>
+                <a href="#contacto" class="plan-btn outline">Solicitar propuesta</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- TESTIMONIOS -->
+    <section id="testimonios">
+        <div class="section-header reveal">
+            <span class="section-label">Clientes felices</span>
+            <h2 class="section-title">Lo que dicen de nosotros</h2>
+        </div>
+        <div class="testi-grid">
+            <div class="testi-card reveal">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"Mauricio me enseñó a usar el computador desde cero con mucha paciencia. Las
+                    clases a domicilio fueron perfectas para mí, muy clara su explicación."</p>
+                <div class="testi-author">
+                    <div class="author-avatar">MR</div>
+                    <div>
+                        <div class="author-name">María R.</div>
+                        <div class="author-role">Alumna de computación básica</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card reveal">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"Me creó la página web para mi emprendimiento de forma rápida y profesional. Quedé
+                    muy conforme con el resultado y el precio fue muy justo."</p>
+                <div class="testi-author">
+                    <div class="author-avatar">CL</div>
+                    <div>
+                        <div class="author-name">Carlos L.</div>
+                        <div class="author-role">Emprendedor, Tienda Online</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card reveal">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"Le encargué el desarrollo de un sistema de ventas para mi negocio. Entregó todo
+                    según lo acordado y nos capacitó muy bien para usarlo. Excelente servicio."</p>
+                <div class="testi-author">
+                    <div class="author-avatar">AP</div>
+                    <div>
+                        <div class="author-name">Ana P.</div>
+                        <div class="author-role">Dueña de ferretería</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card reveal">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"Me arregló el computador el mismo día que lo llamé. Formateo, instalación de
+                    programas y todo optimizado. Rápido, serio y muy buen precio."</p>
+                <div class="testi-author">
+                    <div class="author-avatar">JV</div>
+                    <div>
+                        <div class="author-name">Juan V.</div>
+                        <div class="author-role">Cliente de soporte técnico</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card reveal">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"Las clases de Excel me cambiaron la vida laboral. Ahora hago cosas que antes me
+                    parecían imposibles. Super recomendado para personas adultas también."</p>
+                <div class="testi-author">
+                    <div class="author-avatar">LT</div>
+                    <div>
+                        <div class="author-name">Lorena T.</div>
+                        <div class="author-role">Profesional en capacitación</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card reveal">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"Implementó toda la red de nuestra oficina y configuró los equipos en un día. Sin
+                    problemas desde entonces. Muy profesional y confiable."</p>
+                <div class="testi-author">
+                    <div class="author-avatar">RM</div>
+                    <div>
+                        <div class="author-name">Roberto M.</div>
+                        <div class="author-role">Gerente de pyme</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- FAQ -->
+    <section id="faq">
+        <div class="section-header reveal" style="text-align:center">
+            <span class="section-label">Preguntas frecuentes</span>
+            <h2 class="section-title">¿Tienes dudas?</h2>
+        </div>
+        <div class="faq-list reveal">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    ¿En qué zonas ofrecen servicio a domicilio?
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Principalmente atendemos en la región de Valparaíso y sus alrededores. Para zonas más alejadas,
+                        también ofrecemos atención remota vía TeamViewer o AnyDesk, ideal para soporte técnico y clases
+                        online.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    ¿Cuánto dura una clase a domicilio?
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Las clases estándar tienen una duración de 1 a 2 horas. El tiempo se ajusta según tu
+                        disponibilidad y el contenido a cubrir. Coordinamos el horario que mejor te acomode de lunes a
+                        sábado.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    ¿Cuánto demora el desarrollo de una app o página web?
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Depende de la complejidad del proyecto. Una landing page puede estar lista en 3 a 7 días hábiles.
+                        Un e-commerce o aplicación móvil puede tomar entre 3 semanas y 2 meses. Te damos un plazo
+                        estimado en la cotización.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    ¿Cómo se realiza el pago de los servicios?
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Aceptamos transferencia bancaria, efectivo y plataformas como Mercado Pago. Para proyectos
+                        grandes se trabaja con un anticipo del 50% y el saldo a la entrega. Te enviaremos el detalle
+                        completo al cotizar.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    ¿Ofrecen garantía en el servicio técnico?
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Sí. Todos los servicios técnicos cuentan con garantía de 30 días. Si el problema reaparece dentro
+                        de ese período, volvemos sin costo adicional para solucionarlo.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    ¿Puedo tomar clases sin saber nada de computación?
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>¡Por supuesto! De hecho, muchos de nuestros alumnos empiezan desde cero. Adaptamos las clases a
+                        tu nivel de conocimiento y avanzamos a tu propio ritmo, con total paciencia y claridad.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- CONTACTO -->
+    <section id="contacto">
+        <div class="section-header reveal">
+            <span class="section-label">Hablemos</span>
+            <h2 class="section-title">Contáctanos</h2>
+            <p class="section-subtitle">Estamos disponibles para responder todas tus consultas. Cotización gratuita y
+                sin compromiso.</p>
+        </div>
+        <div class="contacto-layout">
+            <div class="contact-info reveal">
+                <a href="mailto:mgservicios0110@gmail.com" class="contact-card">
+                    <div class="contact-icon cc-blue">📧</div>
+                    <div class="contact-card-text">
+                        <label>Correo electrónico</label>
+                        <span>mgservicios0110@gmail.com</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/56998797596?text=Hola%20Mauricio,%20quisiera%20consultar%20por%20sus%20servicios"
+                    target="_blank" class="contact-card">
+                    <div class="contact-icon cc-green">📱</div>
+                    <div class="contact-card-text">
+                        <label>WhatsApp / Teléfono</label>
+                        <span>+569 9879 7596</span>
+                    </div>
+                </a>
+                <div class="contact-card" style="cursor:default">
+                    <div class="contact-icon cc-purple">👨‍💻</div>
+                    <div class="contact-card-text">
+                        <label>Representante</label>
+                        <span>Equipo multidisciplinario</span>
+                    </div>
+                </div>
+                <div class="contact-card" style="cursor:default">
+                    <div class="contact-icon cc-blue">🕐</div>
+                    <div class="contact-card-text">
+                        <label>Horario de atención</label>
+                        <span>Lunes a Viernes, 9:00 – 20:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-form reveal">
+                <div class="form-title">Envíanos un mensaje</div>
+                <div class="form-grid" id="contactForm">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="fname" placeholder="Tu nombre">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="fphone" placeholder="+569 XXXXXXXX">
+                    </div>
+                    <div class="form-group full">
+                        <label>Correo electrónico</label>
+                        <input type="email" id="femail" placeholder="tu@correo.cl">
+                    </div>
+                    <div class="form-group full">
+                        <label>Servicio de interés</label>
+                        <select id="fservice">
+                            <option value="">Selecciona un servicio...</option>
+                            <option>Clases a domicilio</option>
+                            <option>Mantenimiento de PC / Laptop</option>
+                            <option>Desarrollo de página web</option>
+                            <option>Desarrollo de aplicación móvil</option>
+                            <option>Asesoría informática</option>
+                            <option>Redes y seguridad</option>
+                            <option>Proyecto para emprendimiento</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>Mensaje</label>
+                        <textarea id="fmessage" placeholder="Cuéntanos qué necesitas..."></textarea>
+                    </div>
+                </div>
+                <button class="form-submit" onclick="sendForm()">Enviar consulta →</button>
+                <div class="form-success" id="formSuccess">✅ ¡Mensaje enviado! MG Servicios te contactará pronto.
+                    También puedes escribirnos directamente por WhatsApp.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#inicio" class="logo">MG Servicios</a>
+                <p>Tecnología accesible, personalizada y de calidad para personas, emprendedores y empresas en Chile.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Servicios</h4>
+                <ul>
+                    <li><a href="#servicios">Mantenimiento PC</a></li>
+                    <li><a href="#servicios">Desarrollo Web</a></li>
+                    <li><a href="#servicios">Apps Móviles</a></li>
+                    <li><a href="#servicios">Redes & Seguridad</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Aprendizaje</h4>
+                <ul>
+                    <li><a href="#clases">Clases a Domicilio</a></li>
+                    <li><a href="#clases">Computación Básica</a></li>
+                    <li><a href="#clases">Excel y Office</a></li>
+                    <li><a href="#clases">Programación</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Empresa</h4>
+                <ul>
+                    <li><a href="#por-que">Por qué elegirnos</a></li>
+                    <li><a href="#planes">Planes y Precios</a></li>
+                    <li><a href="#testimonios">Testimonios</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 MG Servicios — Chile. Todos los derechos reservados.</p>
+            <div class="social-links">
+                <a href="mailto:mgservicios0110@gmail.com" class="social-link" title="Email">✉️</a>
+                <a href="https://wa.me/56998797596" target="_blank" class="social-link" title="WhatsApp">📱</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- FLOATING BUTTONS -->
+    <a href="https://wa.me/56998797596?text=Hola%20Mauricio,%20quisiera%20consultar%20por%20sus%20servicios"
+        target="_blank" class="wa-fab">
+        <span style="font-size:1.6rem">💬</span>
+        <span class="wa-tooltip">Escríbenos por WhatsApp</span>
+    </a>
+    <a href="#inicio" class="scroll-top" id="scrollTop">↑</a>
+
+    <!-- ══ AI ASSISTANT FAB ══ -->
+    <button class="ai-fab" id="aiFab" onclick="toggleAiChat()" aria-label="Asistente IA">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 10 4a2 2 0 0 1 2-2zm-4 9a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-4 4a4 4 0 0 0-3.26 1.69.5.5 0 0 0 .81.58A3 3 0 0 1 12 16a3 3 0 0 1 2.45 1.27.5.5 0 0 0 .81-.58A4 4 0 0 0 12 15z"/>
+        </svg>
+        <span class="ai-fab-tooltip">Asistente IA</span>
+        <span class="ai-notif" id="aiNotif"></span>
+    </button>
+
+    <!-- ══ AI CHAT WINDOW ══ -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-avatar">
+                🤖
+                <div class="ai-avatar-dot"></div>
+            </div>
+            <div class="ai-chat-header-info">
+                <strong>Asistente MG Servicios</strong>
+                <span>● En línea · IA disponible 24/7</span>
+            </div>
+            <button class="ai-chat-close" onclick="toggleAiChat()">✕</button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiMessages"></div>
+
+        <div class="ai-chat-footer">
+            <input
+                type="text"
+                class="ai-chat-input"
+                id="aiInput"
+                placeholder="Escribe tu consulta..."
+                onkeydown="if(event.key==='Enter') sendAiMessage()"
+                maxlength="300"
+            />
+            <button class="ai-send-btn" onclick="sendAiMessage()" aria-label="Enviar">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="ai-powered">Powered by MG Servicios IA · Respuestas automáticas</div>
+    </div>
+
+    <script>
+        /* ══════════════════════════════════════
+           ORIGINAL SCRIPTS
+        ══════════════════════════════════════ */
+        function toggleMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+        }
+
+        const revealEls = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) {
+                    setTimeout(() => e.target.classList.add('visible'), i * 80);
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12 });
+        revealEls.forEach(el => observer.observe(el));
+
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        }
+
+        const scrollTop = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            scrollTop.classList.toggle('visible', window.scrollY > 400);
+        });
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            nav.style.background = window.scrollY > 40
+                ? 'rgba(5,10,18,0.97)'
+                : 'rgba(5,10,18,0.85)';
+        });
+
+        function sendForm() {
+            const name = document.getElementById('fname').value.trim();
+            const phone = document.getElementById('fphone').value.trim();
+            const email = document.getElementById('femail').value.trim();
+            const service = document.getElementById('fservice').value;
+            const message = document.getElementById('fmessage').value.trim();
+
+            if (!name || !message) {
+                alert('Por favor completa al menos tu nombre y mensaje.');
+                return;
+            }
+            const text = `Hola Mauricio! Me llamo ${name}. Servicio de interés: ${service || 'No especificado'}. ${message}${phone ? ' Tel: ' + phone : ''}${email ? ' Email: ' + email : ''}`;
+            const wa = `https://wa.me/56998797596?text=${encodeURIComponent(text)}`;
+            window.open(wa, '_blank');
+            document.getElementById('formSuccess').style.display = 'block';
+            document.getElementById('contactForm').style.opacity = '0.4';
+            document.getElementById('contactForm').style.pointerEvents = 'none';
+        }
+
+        /* ══════════════════════════════════════
+           AI ASSISTANT
+        ══════════════════════════════════════ */
+
+        // Base de conocimiento de MG Servicios
+        const KB = {
+            saludos: {
+                keys: ['hola','buenos días','buenas tardes','buenas noches','hey','saludos','buenas','hello','hi'],
+                response: () => `¡Hola! 👋 Soy el asistente virtual de **MG Servicios**.\n\nEstoy aquí para ayudarte con información sobre nuestros servicios, clases, precios y más. ¿En qué puedo ayudarte hoy?`,
+                chips: ['Ver servicios', 'Clases a domicilio', '¿Cuánto cuesta?', 'Contactar']
+            },
+            servicios: {
+                keys: ['servicio','servicios','qué ofrecen','qué hacen','que ofrecen','que hacen','ofrecen','hacen','tienen'],
+                response: () => `En **MG Servicios** ofrecemos:\n\n🖥️ **Mantenimiento de PC & Laptop** – formateo, optimización, limpieza\n📱 **Desarrollo de Apps** – Android, iOS y escritorio\n🌐 **Páginas Web** – landing pages, e-commerce, corporativas\n🎓 **Clases a Domicilio** – computación, programación, Office\n💡 **Asesoría TI** – consultoría y planificación tecnológica\n🔒 **Redes & Seguridad** – WiFi, VPN, firewall, backup\n🎨 **Diseño Gráfico Web** – herramientas y técnicas\n🔗 **Integración de Sistemas** – unificación de plataformas`,
+                chips: ['Clases a domicilio', 'Desarrollo web', 'Mantenimiento PC', 'Contactar']
+            },
+            clases: {
+                keys: ['clase','clases','domicilio','aprender','computación','office','excel','word','programación','programacion','enseñanza','curso','cursos','capacitación','capacitacion'],
+                response: () => `📚 Ofrecemos **clases a domicilio** completamente personalizadas:\n\n**01** Computación Básica – manejo de PC e internet\n**02** Ofimática – Word, Excel, PowerPoint, Google Workspace\n**03** Programación Web – HTML, CSS, JavaScript\n**04** Diseño Gráfico – Photoshop, Canva, Illustrator\n**05** Redes & Ciberseguridad\n**06** Marketing Digital – SEO, redes sociales\n\n📍 A domicilio, en tu oficina o de forma **remota**\n⏱️ Duración: 1 a 2 horas por sesión\n✅ Diagnóstico inicial **gratuito**`,
+                chips: ['¿Cuánto cuesta?', 'Agendar clase', 'Contactar', 'Ver planes']
+            },
+            precios: {
+                keys: ['precio','precios','costo','costos','cuánto','cuanto','cobran','valor','valores','tarifa','tarifas','plan','planes','cuánto cuesta','cuanto cuesta'],
+                response: () => `💰 Manejamos **3 planes** principales:\n\n**Plan Básico** – Soporte puntual o clase individual\n• Diagnóstico de PC, 1 clase (2 hrs), soporte remoto\n\n**Plan Profesional** – Para emprendedores y pymes\n• Mantenimiento mensual, 4 clases/mes, asesoría continua, backup\n\n**Plan Proyecto** – A medida\n• Desarrollo web/app, capacitación incluida, soporte post-lanzamiento\n\n📩 Los precios son **a consultar** según necesidades. ¡La cotización es gratuita!`,
+                chips: ['Solicitar cotización', 'Contactar', 'Ver servicios']
+            },
+            contacto: {
+                keys: ['contacto','contactar','comunicar','llamar','whatsapp','teléfono','telefono','email','correo','escribir','hablar','reunión','reunion'],
+                response: () => `📬 ¡Contáctanos fácilmente!\n\n📧 **Email:** mgservicios0110@gmail.com\n📱 **WhatsApp:** +569 9879 7596\n🕐 **Horario:** Lunes a Viernes, 9:00 – 20:00\n\nLa **cotización es gratuita** y sin compromiso. También puedes completar el formulario de contacto en la sección correspondiente del sitio.`,
+                chips: ['Ir a contacto', 'Abrir WhatsApp', 'Ver servicios']
+            },
+            garantia: {
+                keys: ['garantía','garantia','garantizan','garantiza','confianza','seguridad del servicio','respaldo'],
+                response: () => `🛡️ **Garantía de servicio**\n\nTodos nuestros servicios técnicos cuentan con **30 días de garantía**. Si el problema reaparece dentro de ese período, volvemos sin costo adicional.\n\nAdemás:\n✅ Más de **+200 clientes** atendidos\n✅ **+8 años** de experiencia\n✅ **100%** satisfacción garantizada\n✅ Confidencialidad total en el manejo de tus datos`,
+                chips: ['Ver testimonios', 'Contactar', '¿Cuánto cuesta?']
+            },
+            web: {
+                keys: ['página web','pagina web','sitio web','web','website','landing','ecommerce','e-commerce','tienda online','wordpress','html'],
+                response: () => `🌐 **Desarrollo Web**\n\nCreamos sitios web modernos, responsivos y optimizados:\n\n🏪 **Landing Pages** – 3 a 7 días hábiles\n🛒 **E-commerce** – tienda con pasarela de pago e inventario\n🏢 **Sitio Corporativo** – presencia digital profesional con SEO\n⚙️ **Integración de sistemas** – unificamos plataformas existentes\n\nTecnologías: HTML/CSS, WordPress, React y más.\n\n💡 ¡Solicita tu **reunión inicial gratuita** hoy!`,
+                chips: ['Solicitar cotización', 'Ver planes', 'Contactar']
+            },
+            app: {
+                keys: ['app','aplicación','aplicacion','android','ios','móvil','movil','react native','aplicaciones','software','sistema de gestión','sistema de gestion'],
+                response: () => `📱 **Desarrollo de Aplicaciones**\n\nDesarrollamos apps personalizadas según tus necesidades:\n\n📲 **Apps móviles** – Android e iOS\n💻 **Apps de escritorio** – Windows/Mac\n📊 **Sistemas de gestión** – ventas, clientes, stock, reportes\n🤖 **Automatizaciones** – chatbots y flujos automáticos\n\n**Proceso en 4 pasos:**\n1️⃣ Reunión gratuita → 2️⃣ Propuesta → 3️⃣ Desarrollo → 4️⃣ Entrega y capacitación`,
+                chips: ['Ver proceso', 'Solicitar cotización', 'Contactar']
+            },
+            mantenimiento: {
+                keys: ['mantenimiento','formateo','formateado','virus','lento','lenta','pc','laptop','computador','computadora','limpieza','arreglar','reparar','optimizar','diagnóstico','diagnostico'],
+                response: () => `🖥️ **Mantenimiento de PC & Laptop**\n\nOfrecemos:\n🔧 Formateo e instalación de sistemas operativos\n🧹 Limpieza interna y optimización\n🔍 Diagnóstico de hardware y software\n💾 Cambio de componentes (RAM, SSD, etc.)\n🛡️ Eliminación de virus y malware\n\nCompatible con **Windows, macOS y Linux**.\n\n✅ Servicio a **domicilio** o de forma **remota**\n🛡️ Garantía de **30 días**`,
+                chips: ['Solicitar servicio', '¿Cuánto cuesta?', 'Contactar']
+            },
+            zona: {
+                keys: ['zona','zonas','dónde','donde','región','region','valparaíso','valparaiso','santiago','chile','cobertura','sector','sectores','atienden','llegan'],
+                response: () => `📍 **Zona de cobertura**\n\nAtendemos principalmente en la **Región de Valparaíso** y sus alrededores.\n\nPara zonas más alejadas ofrecemos **atención remota** mediante:\n• TeamViewer\n• AnyDesk\n• Zoom / Google Meet\n\n💡 Las clases también pueden realizarse **100% online**, sin importar dónde estés en Chile.`,
+                chips: ['Contactar', 'Ver servicios', 'Clases online']
+            },
+            pago: {
+                keys: ['pago','pagos','cómo pago','como pago','transferencia','efectivo','mercadopago','mercado pago','cuotas','anticipo','abono'],
+                response: () => `💳 **Formas de pago**\n\nAceptamos:\n🏦 Transferencia bancaria\n💵 Efectivo\n📲 Mercado Pago\n\nPara proyectos grandes:\n• **50% anticipo** al inicio\n• **50% saldo** a la entrega\n\nSiempre con comprobante y total transparencia en los cobros.`,
+                chips: ['Ver planes', 'Solicitar cotización', 'Contactar']
+            },
+            emprendedores: {
+                keys: ['emprendedor','emprendimiento','negocio','empresa','startup','pyme','proyecto','proyectos','idea','ideas'],
+                response: () => `🚀 **Servicios para Emprendedores**\n\nTransformamos tu idea en realidad:\n\n🛒 Tienda Online con pasarela de pago\n📊 Sistema de gestión a medida\n📲 App móvil para tu servicio/producto\n🌐 Sitio web corporativo con SEO\n🤖 Automatizaciones e integraciones\n\n**Todo comienza con una reunión gratuita** donde analizamos tu proyecto sin compromiso.`,
+                chips: ['Ver proceso', 'Solicitar reunión', 'Contactar']
+            },
+            redes: {
+                keys: ['red','redes','wifi','router','vpn','firewall','seguridad','ciberseguridad','backup','protección','internet','configurar red'],
+                response: () => `🔒 **Redes & Seguridad**\n\nProtegemos tu conectividad e información:\n\n📶 Configuración de redes WiFi y routers\n🔐 Instalación de VPN y cortafuegos\n☁️ Backup de datos en la nube y local\n🛡️ Auditoría de seguridad digital\n🔍 Diagnóstico de vulnerabilidades\n\nIdeal para **hogares y empresas** que necesitan seguridad confiable.`,
+                chips: ['Solicitar servicio', '¿Cuánto cuesta?', 'Contactar']
+            },
+            tiempo: {
+                keys: ['cuánto demora','cuanto demora','tiempo','plazo','plazos','cuándo','cuando','días','dias','semanas','meses'],
+                response: () => `⏱️ **Plazos de entrega estimados**\n\n🌐 **Landing Page:** 3 a 7 días hábiles\n🛒 **E-commerce:** 2 a 4 semanas\n📱 **App Móvil:** 1 a 2 meses\n🖥️ **Mantenimiento PC:** mismo día o 24 hrs\n📚 **Primera clase:** según disponibilidad (generalmente en 24-48 hrs)\n\n📋 Te damos un plazo estimado exacto en la cotización.`,
+                chips: ['Solicitar cotización', 'Contactar', 'Ver planes']
+            },
+            gracias: {
+                keys: ['gracias','muchas gracias','muy bueno','excelente','perfecto','genial','ok','listo','entendido','bien'],
+                response: () => `¡De nada! 😊 Es un placer ayudarte.\n\nSi tienes más preguntas, aquí estaré. Recuerda que también puedes contactarnos directamente por **WhatsApp al +569 9879 7596** o enviar un mensaje desde la sección de contacto. ¡Éxito! 🚀`,
+                chips: ['Ver servicios', 'Contactar', 'Ver planes']
+            },
+            adios: {
+                keys: ['adiós','adios','chao','hasta luego','bye','nos vemos','hasta pronto'],
+                response: () => `¡Hasta pronto! 👋 Fue un gusto ayudarte.\n\nRecuerda que estamos disponibles **Lunes a Viernes de 9:00 a 20:00**. ¡No dudes en volver cuando necesites! 😊`,
+                chips: ['Volver a inicio']
+            }
+        };
+
+        let chatOpen = false;
+        let firstOpen = true;
+
+        function toggleAiChat() {
+            chatOpen = !chatOpen;
+            const win = document.getElementById('aiChatWindow');
+            const notif = document.getElementById('aiNotif');
+            win.classList.toggle('open', chatOpen);
+            notif.classList.remove('show');
+            if (chatOpen && firstOpen) {
+                firstOpen = false;
+                setTimeout(() => {
+                    addBotMessage(
+                        `¡Hola! 👋 Soy el **asistente virtual de MG Servicios**.\n\nPuedo responderte sobre nuestros servicios, precios, clases, zona de cobertura y más. ¿En qué puedo ayudarte?`,
+                        ['Ver servicios', 'Clases a domicilio', '¿Cuánto cuesta?', 'Contactar']
+                    );
+                }, 300);
+            }
+        }
+
+        function addBotMessage(text, chips = []) {
+            const msgs = document.getElementById('aiMessages');
+
+            // Typing indicator
+            const typing = document.createElement('div');
+            typing.className = 'ai-typing';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            msgs.appendChild(typing);
+            msgs.scrollTop = msgs.scrollHeight;
+
+            setTimeout(() => {
+                typing.remove();
+                const bubble = document.createElement('div');
+                bubble.className = 'ai-bubble bot';
+
+                // Convertir **texto** en <strong>
+                const formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                bubble.innerHTML = formatted;
+
+                if (chips.length > 0) {
+                    const chipContainer = document.createElement('div');
+                    chipContainer.className = 'ai-quick-chips';
+                    chips.forEach(chip => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ai-chip';
+                        btn.textContent = chip;
+                        btn.onclick = () => handleChip(chip);
+                        chipContainer.appendChild(btn);
+                    });
+                    bubble.appendChild(document.createElement('br'));
+                    bubble.appendChild(chipContainer);
+                }
+
+                msgs.appendChild(bubble);
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 900 + Math.random() * 400);
+        }
+
+        function addUserMessage(text) {
+            const msgs = document.getElementById('aiMessages');
+            const bubble = document.createElement('div');
+            bubble.className = 'ai-bubble user';
+            bubble.textContent = text;
+            msgs.appendChild(bubble);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function processQuery(input) {
+            const lower = input.toLowerCase().trim();
+
+            // Chips especiales
+            if (lower === 'contactar' || lower === 'ir a contacto') {
+                document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
+                return addBotMessage('¡Perfecto! Te llevo a la sección de contacto. 📬 También puedes escribirnos directamente por **WhatsApp al +569 9879 7596**.', ['Abrir WhatsApp']);
+            }
+            if (lower === 'abrir whatsapp') {
+                window.open('https://wa.me/56998797596?text=Hola%20Mauricio,%20quisiera%20consultar%20por%20sus%20servicios', '_blank');
+                return addBotMessage('¡Abriendo WhatsApp! 📱 Mauricio te atenderá en el menor tiempo posible. ¡Suerte! 🚀', ['Ver servicios']);
+            }
+            if (lower === 'agendar clase' || lower === 'solicitar reunión' || lower === 'solicitar cotización' || lower === 'solicitar servicio') {
+                document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
+                return addBotMessage('Te redirijo al formulario de contacto. 📋 Completa tus datos y te responderemos a la brevedad. También puedes escribirnos directo al **+569 9879 7596** por WhatsApp.', ['Abrir WhatsApp', 'Ver servicios']);
+            }
+            if (lower === 'volver a inicio') {
+                document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' });
+                return addBotMessage('¡De vuelta al inicio! 🏠 ¿Hay algo más en lo que te pueda ayudar?', ['Ver servicios', 'Contactar']);
+            }
+            if (lower === 'ver servicios') {
+                document.getElementById('servicios').scrollIntoView({ behavior: 'smooth' });
+                return addBotMessage('📋 Te muestro nuestros servicios. ¡Tenemos soluciones para cada necesidad tecnológica!', ['Clases a domicilio', '¿Cuánto cuesta?', 'Contactar']);
+            }
+            if (lower === 'ver planes') {
+                document.getElementById('planes').scrollIntoView({ behavior: 'smooth' });
+                return addBotMessage('💼 Aquí están nuestros planes. Todos incluyen garantía de satisfacción.', ['Solicitar cotización', 'Contactar']);
+            }
+            if (lower === 'ver testimonios') {
+                document.getElementById('testimonios').scrollIntoView({ behavior: 'smooth' });
+                return addBotMessage('⭐ Lee lo que dicen nuestros clientes satisfechos. ¡Más de 200 personas ya confían en nosotros!', ['Ver servicios', 'Contactar']);
+            }
+            if (lower === 'ver proceso') {
+                document.getElementById('emprendedores').scrollIntoView({ behavior: 'smooth' });
+                return addBotMessage('🔄 Así funciona nuestro proceso de desarrollo. Simple, transparente y enfocado en tus resultados.', ['Solicitar reunión', 'Contactar']);
+            }
+            if (lower === 'clases online') {
+                return addBotMessage('💻 ¡Sí! Ofrecemos clases **100% online** vía Zoom, Google Meet o TeamViewer. Funciona exactamente igual que las clases presenciales, sin importar dónde estés en Chile.', ['Agendar clase', 'Contactar', '¿Cuánto cuesta?']);
+            }
+
+            // Buscar en base de conocimiento
+            for (const key in KB) {
+                const entry = KB[key];
+                if (entry.keys.some(k => lower.includes(k))) {
+                    return addBotMessage(entry.response(), entry.chips || []);
+                }
+            }
+
+            // Fallback
+            addBotMessage(
+                `Hmm, no encontré información exacta sobre eso. 🤔\n\nPuedo ayudarte con:\n• Servicios que ofrecemos\n• Clases a domicilio\n• Precios y planes\n• Zona de cobertura\n• Formas de pago\n• Contacto\n\nO si prefieres, contáctanos directamente al **+569 9879 7596** por WhatsApp.`,
+                ['Ver servicios', 'Contactar', 'Abrir WhatsApp']
+            );
+        }
+
+        function handleChip(chip) {
+            addUserMessage(chip);
+            processQuery(chip.toLowerCase());
+        }
+
+        function sendAiMessage() {
+            const input = document.getElementById('aiInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            addUserMessage(text);
+            processQuery(text);
+        }
+
+        // Mostrar notificación al inicio después de 4s si no abrieron el chat
+        setTimeout(() => {
+            if (!chatOpen) {
+                document.getElementById('aiNotif').classList.add('show');
+            }
+        }, 4000);
+    </script>
+</body>
+
+</html>

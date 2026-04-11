@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnet de Estudiante - CAPA Limache</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Libre+Barcode+128&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+        :root {
+            --cian: #00A89D; --magenta: #9E005D; --naranja: #F18A00;
+            --coral: #ED4E44; --texto-oscuro: #2D3748; --texto-claro: #4A5568;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #cbd5e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; gap: 40px; flex-wrap: wrap; padding: 20px;}
+
+        /* --- TAMAÑO ESTÁNDAR CREDENCIAL (CR80) --- */
+        .carnet {
+            width: 324px; height: 516px; background-color: white;
+            border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+            border: 1px solid #e2e8f0;
+        }
+
+        .barra-colores { display: flex; height: 8px; width: 100%; position: absolute; z-index: 20; }
+        .barra-top { top: 0; } .barra-bottom { bottom: 0; }
+        .barra-colores div { flex: 1; }
+        .bg-cian { background-color: var(--cian); } .bg-magenta { background-color: var(--magenta); }
+        .bg-naranja { background-color: var(--naranja); } .bg-coral { background-color: var(--coral); }
+
+        /* --- CARNET FRONTAL --- */
+        .cabecera-carnet {
+            background-color: var(--texto-oscuro); color: white;
+            padding: 25px 20px 15px 20px; text-align: center;
+            border-bottom: 4px solid var(--naranja); position: relative;
+        }
+        
+        .logo-carnet { width: 55px; margin-bottom: 5px; cursor: pointer; object-fit: contain; border-radius: 15px; }
+        
+        .titulo-credencial { font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; }
+        .subtitulo-credencial { font-size: 0.7rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 2px; }
+
+        .cuerpo-carnet { padding: 20px; display: flex; flex-direction: column; align-items: center; flex-grow: 1; position: relative;}
+        
+        .foto-alumno {
+            width: 130px; height: 130px; border-radius: 10px;
+            object-fit: cover; border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: -40px; margin-bottom: 15px;
+            background-color: #e2e8f0; cursor: pointer; position: relative; z-index: 10;
+        }
+
+        .datos-alumno { width: 100%; text-align: center; }
+        .nombre-alumno { font-size: 1.3rem; font-weight: 800; color: var(--texto-oscuro); margin-bottom: 2px; line-height: 1.1; }
+        .rut-alumno { font-size: 0.9rem; color: var(--texto-claro); font-weight: 600; margin-bottom: 15px; }
+
+        .info-curso {
+            width: 100%; background: #f7fafc; border: 1px solid #e2e8f0;
+            padding: 10px; border-radius: 8px; text-align: center; margin-bottom: auto;
+        }
+        .etiqueta-info { font-size: 0.65rem; color: var(--magenta); text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 2px;}
+        .valor-info { font-size: 0.85rem; color: var(--texto-oscuro); font-weight: 700; line-height: 1.2;}
+
+        .footer-carnet { padding: 15px; text-align: center; border-top: 1px dashed #cbd5e0; }
+        .vigencia { font-size: 0.75rem; color: var(--naranja); font-weight: 800; text-transform: uppercase; }
+
+        /* --- CARNET REVERSO --- */
+        .reverso { background-color: #f7fafc; justify-content: center; }
+        .reverso-contenido { padding: 30px 20px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        
+        .terminos { font-size: 0.7rem; color: var(--texto-claro); line-height: 1.5; text-align: justify; margin-bottom: 20px; }
+        
+        /* 🔥 NUEVO CÓDIGO DE BARRAS REAL (FUENTE) */
+        .codigo-barras-real { 
+            font-family: 'Libre Barcode 128', cursive; /* Usa la fuente de código de barras */
+            font-size: 4.5rem; /* Tamaño grande para que las barras se vean claras */
+            color: var(--texto-oscuro);
+            margin: 0 auto -5px auto;
+            line-height: 1;
+        }
+        .numero-codigo { font-size: 0.8rem; letter-spacing: 3px; font-weight: 700; color: var(--texto-oscuro); margin-bottom: 25px;}
+
+        .contacto-reverso { background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .contacto-reverso strong { font-size: 0.8rem; color: var(--cian); display: block; margin-bottom: 5px; text-transform: uppercase;}
+        .contacto-reverso p { font-size: 0.75rem; color: var(--texto-oscuro); font-weight: 600; margin-bottom: 3px;}
+
+        /* --- EDICIÓN --- */
+        [contenteditable="true"] { outline: none; transition: background-color 0.2s; border-radius: 2px; }
+        [contenteditable="true"]:hover { background-color: rgba(241, 138, 0, 0.1); cursor: text; }
+        [contenteditable="true"]:focus { background-color: rgba(0, 168, 157, 0.1); border-bottom: 1px solid var(--cian); }
+
+        @media print {
+            body { background: white; }
+            .carnet { box-shadow: none; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="carnet">
+        <div class="barra-colores barra-top"><div class="bg-cian"></div><div class="bg-magenta"></div><div class="bg-naranja"></div><div class="bg-coral"></div></div>
+        
+        <div class="cabecera-carnet">
+            <img src="logo.png" class="logo-carnet" onclick="cambiarImagen(this)" title="Cambiar Logo">
+            <div class="titulo-credencial" contenteditable="true">CARNET ESTUDIANTIL</div>
+            <div class="subtitulo-credencial" contenteditable="true">CAPA Limache</div> <br>
+        </div>
+
+        <div class="cuerpo-carnet">
+            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&w=300&q=80" class="foto-alumno" onclick="cambiarImagen(this)" title="Subir foto del alumno" alt="Foto Alumno">
+            
+            <div class="datos-alumno">
+                <div class="nombre-alumno" contenteditable="true">NOMBRE APELLIDO</div>
+                <div class="rut-alumno" contenteditable="true">RUT: 12.345.678-9</div>
+            </div>
+
+            <div class="info-curso">
+                <span class="etiqueta-info">Programa Cursado</span>
+                <div class="valor-info" contenteditable="true">Contabilidad Comercial y Tributaria 2026</div>
+            </div>
+        </div>
+
+        <div class="footer-carnet">
+            <div class="vigencia" contenteditable="true">Válido hasta: Dic 2026</div>
+        </div>
+
+        <div class="barra-colores barra-bottom"><div class="bg-coral"></div><div class="bg-naranja"></div><div class="bg-magenta"></div><div class="bg-cian"></div></div>
+    </div>
+
+    <div class="carnet reverso">
+        <div class="barra-colores barra-top"><div class="bg-cian"></div><div class="bg-magenta"></div><div class="bg-naranja"></div><div class="bg-coral"></div></div>
+
+        <div class="reverso-contenido">
+            <div class="terminos" contenteditable="true">
+                Esta credencial es personal e intransferible. Acredita al portador como alumno regular del Centro de Capacitación Municipal de Limache (CAPA). En caso de extravío, se ruega devolver a la dirección indicada en el reverso.
+            </div>
+
+            <div class="codigo-barras-real" contenteditable="true" title="Escribe aquí el código para generar las barras">EST2026001</div>
+            
+            <div class="numero-codigo" contenteditable="true" title="Escribe el mismo código en texto normal">EST-2026-001</div>
+
+            <div class="contacto-reverso">
+                <strong>En caso de emergencia avisar a:</strong>
+                <p contenteditable="true" style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px;">Nombre Familiar<br>📞 +56 9 0000 0000</p>
+                
+                <strong>Contacto Institucional:</strong>
+                <p>Serrano N° 254, Limache<br>📞 33 2 411 014</p>
+            </div>
+        </div>
+
+        <div class="barra-colores barra-bottom"><div class="bg-coral"></div><div class="bg-naranja"></div><div class="bg-magenta"></div><div class="bg-cian"></div></div>
+    </div>
+
+    <script>
+        function cambiarImagen(elemento) {
+            let nuevaUrl = prompt("Pega aquí el enlace (URL) de la nueva imagen:\n\nEjemplo: https://tu-sitio.com/foto.jpg", elemento.src);
+            if (nuevaUrl != null && nuevaUrl.trim() !== "") {
+                elemento.src = nuevaUrl;
+                elemento.onerror = function () { alert("Error al cargar la imagen."); };
+            }
+        }
+    </script>
+</body>
+</html>

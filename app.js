@@ -165,6 +165,19 @@ auth.onAuthStateChanged(async (user) => {
         document.getElementById('app').style.display = 'none'; 
         goBackToRoles();
     }
+
+    // Dentro de auth.onAuthStateChanged después de obtener userProfile
+if (userProfile.rol === 'alumno') {
+    // Buscamos el curso que el alumno tiene asignado en Firestore
+    db.collection('alumnos').where('nombre', '==', userProfile.nombre).get().then(snap => {
+        if (!snap.empty) {
+            const datosAlumno = snap.docs[0].data();
+            cargarMaterialSegunCurso(datosAlumno.curso);
+        }
+    });
+} else if (userProfile.rol === 'admin') {
+    cargarMaterialSegunCurso("ADMIN_VISTA");
+}
 });
 
 function configureUIForRole() {
@@ -1296,3 +1309,196 @@ async function editarNombreUsuario(docId, nombreActual, rol) {
         }
     }
 }
+// ==========================================
+// LÓGICA DE MATERIALES Y VISOR CENTRAL
+// ==========================================
+
+function cargarMaterialSegunCurso(userCurso) {
+    const container = document.getElementById('recursos-grid-estudiante');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // Convertimos a mayúsculas para evitar errores de tipeo
+    const cursoNorm = userCurso ? userCurso.toUpperCase().trim() : "";
+
+    // RESTRICCIÓN: Solo Computación Básica ve este material
+    if (cursoNorm === "COMPUTACION BASICA") {
+        container.innerHTML = `
+            <div class="white-card course-card-modern" style="border-top: 6px solid var(--c-blue-accent)">
+                <div class="p-3">
+                    <h3 style="color: var(--c-blue-accent)">
+                        <i class="fas fa-laptop-code"></i> Módulo: Computación Básica
+                    </h3>
+                    <p class="text-muted mt-2">Bienvenido. Aquí puedes realizar tu evaluación diagnóstica y revisar el material de inducción.</p>
+                    <button class="btn-accent w-100 mt-3" onclick="abrirVisorMaterial('evaluacion_computacion.html', 'Evaluación Computación Básica')">
+                        <i class="fas fa-play-circle"></i> Iniciar Evaluación
+                    </button>
+                </div>
+            </div>`;
+    } else {
+        // Mensaje para otros cursos o Administradores
+        container.innerHTML = `
+            <div class="locked-course-notice error">
+                <i class="fas fa-lock"></i> 
+                ${userProfile.rol === 'admin' ? 
+                'Panel de Materiales (Vista Previa restringida a alumnos)' : 
+                'No hay material disponible para el curso: ' + userCurso}
+            </div>`;
+    }
+}
+function cargarRecursosDinamicos(nombreCurso) {
+    const container = document.getElementById('recursos-grid-estudiante');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // Normalizar el nombre para evitar errores por tildes o espacios
+    const cursoNorm = nombreCurso ? nombreCurso.toUpperCase().trim() : "";
+
+    // CONFIGURACIÓN DE LOS MÓDULOS
+    if (cursoNorm === "COMPUTACION BASICA") {
+        renderCard(container, "#1976d2", "fa-laptop", "Computación Básica", "Evaluación diagnóstica y material inicial.", "evaluacion_computacion.html");
+    } 
+    else if (cursoNorm === "EXCEL BASICO" || cursoNorm === "EXCEL AVANZADO") {
+        renderCard(container, "#2e7d32", "fa-file-excel", nombreCurso, "Test de fórmulas, tablas y ejercicios prácticos.", "evaluacion_excel.html");
+    } 
+    else if (cursoNorm === "CONTABILIDAD") {
+        renderCard(container, "#b92b82", "fa-calculator", "Contabilidad", "Libros contables, balance y normativa vigente.", "evaluacion_contabilidad.html");
+    } 
+    else if (cursoNorm === "ARMADO Y DESARMADO DE COMPUTADORES") {
+        renderCard(container, "#ea8b24", "fa-tools", "Armado de Equipos", "Manuales técnicos de hardware y test de componentes.", "evaluacion_hardware.html");
+    }
+    else {
+        // Mensaje para cursos sin material o Administradores
+        container.innerHTML = `<div class="locked-course-notice error"><i class="fas fa-lock"></i> No hay material disponible para el curso registrado: ${nombreCurso}</div>`;
+    }
+}
+
+// Función auxiliar para dibujar la tarjeta
+function renderCard(target, color, icono, titulo, desc, url) {
+    target.innerHTML = `
+        <div class="white-card course-card-modern" style="border-top: 6px solid ${color}">
+            <div class="p-3">
+                <h3 style="color: ${color}"><i class="fas ${icono}"></i> ${titulo}</h3>
+                <p class="text-muted mt-2">${desc}</p>
+                <button class="btn-accent w-100 mt-3" onclick="abrirMaterial('${url}', '${titulo}')">
+                    <i class="fas fa-play-circle"></i> Abrir Material en el Centro
+                </button>
+            </div>
+        </div>`;
+}
+
+// ==========================================
+// CONTROL DEL VISOR DE MATERIALES (CORREGIDO)
+// ==========================================
+
+// 1. Función para abrir el material
+function abrirMaterial(url, titulo) {
+    const grid = document.getElementById('recursos-grid-estudiante');
+    const viewer = document.getElementById('recursos-viewer');
+    const iframe = document.getElementById('recursos-iframe');
+    const titleDisp = document.getElementById('viewer-title');
+
+    if (grid) grid.classList.add('hidden');
+    if (viewer) viewer.classList.remove('hidden');
+    if (titleDisp) titleDisp.innerText = titulo;
+    if (iframe) iframe.src = url;
+    
+    window.scrollTo(0, 0);
+}
+
+// 2. Función para cerrar el material (se queda en la pestaña recursos)
+function cerrarVisor() {
+    const grid = document.getElementById('recursos-grid-estudiante');
+    const viewer = document.getElementById('recursos-viewer');
+    const iframe = document.getElementById('recursos-iframe');
+
+    if (viewer) viewer.classList.add('hidden');
+    if (grid) grid.classList.remove('hidden');
+    if (iframe) iframe.src = ""; 
+}
+
+// 3. FUNCIÓN MAESTRA: Esta es la que "pinchas" y no hace nada. 
+// La definimos como función global estándar para asegurar compatibilidad.
+function volverAlInicioDesdeMaterial() {
+    console.log("Recibida orden de volver al inicio desde el iframe");
+    
+    // Primero cerramos el visor de materiales
+    cerrarVisor();
+    
+    // Buscamos el ítem de "Inicio" en el menú lateral para que se marque azul
+    const navItemHome = document.querySelector('.nav-item[data-page="p-home"]');
+    
+    // Llamamos a tu función nativa de navegación 'nav'
+    if (typeof nav === "function") {
+        nav('p-home', navItemHome);
+    } else {
+        // Si por alguna razón 'nav' no carga, forzamos la vista
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.getElementById('p-home').style.display = 'block';
+    }
+}
+
+// Hacerla disponible para el iframe explícitamente
+window.volverAlInicioDesdeMaterial = volverAlInicioDesdeMaterial;
+
+// ==========================================
+// CONTROLADOR DE MATERIALES Y VISOR (CENTRO)
+// ==========================================
+
+function cargarRecursosDinamicos(nombreCurso) {
+    const container = document.getElementById('recursos-grid-estudiante');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const cursoNorm = nombreCurso ? nombreCurso.toUpperCase().trim() : "";
+
+    // FILTRO DE SEGURIDAD ESTRICTO POR MÓDULO
+    if (cursoNorm === "COMPUTACION BASICA") {
+        renderMaterialCard(container, "#1976d2", "fa-laptop", "Computación Básica", "computacion basica .html");
+    } 
+    else if (cursoNorm === "EXCEL BASICO") {
+        renderMaterialCard(container, "#2e7d32", "fa-file-excel", "Excel Básico", "evaluacion_excel.html");
+    } 
+    else if (cursoNorm === "CONTABILIDAD") {
+        renderMaterialCard(container, "#b92b82", "fa-calculator", "Contabilidad", "evaluacion_contabilidad.html");
+    }
+    else {
+        container.innerHTML = `<div class="locked-course-notice error">No hay material asignado para el curso: ${nombreCurso}</div>`;
+    }
+}
+
+function renderMaterialCard(target, color, icono, titulo, url) {
+    target.innerHTML = `
+        <div class="white-card course-card-modern" style="border-top: 5px solid ${color}; padding: 20px;">
+            <h3 style="color: ${color}"><i class="fas ${icono}"></i> ${titulo}</h3>
+            <p class="text-muted mt-2">Acceso al material oficial y evaluaciones del módulo.</p>
+            <button class="btn-accent w-100 mt-3" onclick="abrirMaterial('${url}', '${titulo}')">
+                <i class="fas fa-play-circle"></i> Abrir Material en el Centro
+            </button>
+        </div>`;
+}
+
+function abrirMaterial(url, titulo) {
+    document.getElementById('recursos-grid-estudiante').classList.add('hidden');
+    document.getElementById('recursos-viewer').classList.remove('hidden');
+    document.getElementById('viewer-title').innerText = titulo;
+    document.getElementById('recursos-iframe').src = url;
+    window.scrollTo(0, 0);
+}
+
+function cerrarVisor() {
+    document.getElementById('recursos-grid-estudiante').classList.remove('hidden');
+    document.getElementById('recursos-viewer').classList.add('hidden');
+    document.getElementById('recursos-iframe').src = ""; 
+}
+
+// FUNCIÓN PARA EL BOTÓN DENTRO DEL IFRAME
+function volverAlInicioDesdeMaterial() {
+    cerrarVisor();
+    const navItemHome = document.querySelector('.nav-item[data-page="p-home"]');
+    if (typeof nav === "function") {
+        nav('p-home', navItemHome);
+    }
+}
+// Hacerla global para el iframe
+window.volverAlInicioDesdeMaterial = volverAlInicioDesdeMaterial;
