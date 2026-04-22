@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado Oficial Premium - CAPA Limache</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700;1,900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cian: #00A89D;
+            --magenta: #9E005D;
+            --naranja: #F18A00;
+            --coral: #ED4E44;
+            --texto-oscuro: #1A202C;
+            --texto-claro: #4A5568;
+            --dorado: #C5A059;
+            --fondo-visor: #525659; /* Color clásico de visor PDF */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* FONDO DEL NAVEGADOR (MODO VISOR DE DOCUMENTOS) */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--fondo-visor);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            overflow-y: auto; /* Permite hacer scroll natural */
+        }
+
+        /* BARRA DE HERRAMIENTAS SUPERIOR */
+        .toolbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .toolbar button {
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toolbar button:hover { background: #1e293b; transform: translateY(-2px); }
+        .toolbar span { font-size: 0.9rem; font-weight: 600; color: #475569; }
+
+        /* ENVOLTORIO PARA EL ESCALADO CSS */
+        .document-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* ESTRUCTURA EXACTA A4 (210mm x 297mm) */
+        .diploma-container {
+            width: 210mm;
+            height: 297mm;
+            background-color: #ffffff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        /* Marcos Internos */
+        .marco-exterior { position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; border: 2px solid var(--texto-oscuro); pointer-events: none; z-index: 5; }
+        .marco-interior { position: absolute; top: 22px; left: 22px; right: 22px; bottom: 22px; border: 1px solid var(--dorado); pointer-events: none; z-index: 5; }
+
+        /* ====================
+        1. CABECERA (Logo y Foto)
+           ==================== */
+        .header-certificado { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; z-index: 5; padding: 0 5px; margin-top: 5px; }
+        .logo-inst { height: 260px; object-fit: contain; cursor: pointer; transition: 0.1s; }
+        .logo-inst:hover { opacity: 0.8; }
+
+        /* Contenedor Foto + Datos abajo */
+        .marco-foto-wrapper { width: 3.6cm; display: flex; flex-direction: column; align-self: center; background: #fff; border: 1px solid #cbd5e1; padding: 6px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05); }
+        .area-imagen { width: 100%; height: 5cm; background-color: #f8fafc; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border: 1px dashed var(--dorado); cursor: pointer; }
+        .img-foto { width: 120%; height: 100%; object-fit: cover; position: absolute; z-index: 2; opacity: 0; transition: 0.2s; }
+        .area-imagen:hover .img-foto { opacity: 0.2; } /* Efecto hover para indicar que se puede cambiar */
+        .instruccion-foto { position: absolute; font-size: 0.65rem; color: #a0aec0; font-weight: 800; text-align: center; z-index: 1; }
+        .datos-alumno-foto { margin-top: 8px; text-align: center; display: flex; flex-direction: column; gap: 2px; width: 100%; }
+        .texto-dato-foto { font-size: 0.65rem; color: var(--texto-oscuro); font-weight: 800; line-height: 1.2; text-transform: uppercase; } 
+
+        /* ====================
+            2. CUERPO CENTRAL
+           ==================== */
+        .cuerpo-textos { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; margin-top: -20px; }
+        .titulo-certificado { font-size: 3.2rem; color: var(--texto-oscuro); font-weight: 900; letter-spacing: 8px; line-height: 1; margin-bottom: 5px; }
+        .subtitulo-certificado { font-size: 1.2rem; color: var(--magenta); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 25px; }
+        .texto-concede { font-size: 1.15rem; color: var(--texto-claro); margin-bottom: 10px; }
+
+        /* Nombre del Estudiante (Ajustado para nombres muy largos) */
+        .nombre-alumno {
+            font-family: 'Playfair Display', serif; 
+            font-size: 2.8rem; /* REDUCIDO para que quepan nombres largos */
+            font-weight: 900; 
+            font-style: italic; 
+            color: var(--cian);
+            border-bottom: 2px solid var(--dorado); 
+            padding-bottom: 5px; 
+            margin: 15px 0 25px 0; 
+            width: 90%; 
+            line-height: 1.2;
+        }
+
+        .texto-motivo { font-size: 1.1rem; color: var(--texto-claro); line-height: 1.6; width: 85%; margin-bottom: 20px; }
+        .nombre-curso { font-size: 2.2rem; font-weight: 900; color: white; background: var(--texto-oscuro); padding: 12px 35px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(237, 234, 234, 0.1); }
+
+        .detalles-tecnicos { display: flex; justify-content: center; gap: 40px; margin-top: 15px; width: 100%; }
+        .detalle-box { text-align: center; border-left: 2px solid var(--naranja); padding-left: 15px; }
+        .detalle-box:first-child { border-left: none; }
+        .detalle-box strong { color: var(--texto-claro); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+        .detalle-box span { color: var(--texto-oscuro); font-weight: 800; font-size: 1.2rem; }
+
+        /* ====================
+        3. FOOTER Y SELLOS
+           ==================== */
+        .footer-completo { z-index: 10; width: 100%; display: flex; flex-direction: column; gap: 15px; padding: 0 15px; margin-bottom: 10px; }
+        .area-firmas { display: flex; justify-content: space-between; width: 100%; }
+        .firma-bloque { display: flex; flex-direction: column; align-items: center; width: 42%; cursor: pointer; }
+        .espacio-firma { height: 45px; width: 100%; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 5px; }
+        .img-firma-digital { max-height: 100%; max-width: 100%; object-fit: contain; opacity: 0; transition: 0.2s; }
+        .firma-bloque:hover .img-firma-digital { opacity: 0.5; } /* Hover en firma */
+        .linea-firma { width: 100%; height: 1px; background-color: var(--texto-oscuro); margin-bottom: 5px; }
+        .linea-colores { display: flex; height: 3px; width: 100%; margin-bottom: 5px; }
+        .nombre-firma { font-weight: 800; color: var(--texto-oscuro); font-size: 0.85rem; text-align: center; }
+        .cargo-firma { color: var(--texto-claro); font-size: 0.75rem; text-align: center; font-style: italic; }
+
+        /* Sello y QR */
+        .sello-qr-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; }
+        .qr-box { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+        .qr-frame { width: 85px; height: 85px; padding: 6px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: 0.2s; }
+        .qr-frame:hover { border-color: var(--cian); }
+        .qr-img { width: 100%; height: 100%; display: block; }
+        .qr-label { font-size: 0.55rem; font-weight: 800; color: var(--texto-claro); text-transform: uppercase; letter-spacing: 1px; }
+        .sello-pro { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; transform: rotate(-5deg); }
+        .sello-img { position: absolute; width: 100%; height: 100%; opacity: 0.15; filter: sepia(1) saturate(2) hue-rotate(10deg); }
+        .sello-texto-circulo { position: relative; z-index: 2; width: 100%; height: 100%; border: 2px dashed var(--dorado); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; text-align: center; background: rgba(255, 255, 255, 0.7); }
+        .sello-texto-circulo span { font-size: 0.45rem; font-weight: 900; color: var(--dorado); line-height: 1.2; }
+
+        /* =========================================
+        CLASES PARA EDICIÓN EN PANTALLA
+           ========================================= */
+        [contenteditable="true"] {
+            outline: none;
+            border-radius: 4px;
+            border-bottom: 1px dashed transparent;
+            transition: all 0.2s ease;
+            display: inline-block;
+            min-width: 20px;
+        }
+
+        [contenteditable="true"]:hover, 
+        [contenteditable="true"]:focus {
+            background-color: rgba(0, 168, 157, 0.08);
+            border-bottom: 1px dashed var(--cian);
+            cursor: text;
+        }
+
+        /* ESCALADO RESPONSIVO PARA PANTALLAS PEQUEÑAS (PC/Móvil) */
+        @media screen and (max-width: 850px) {
+            .diploma-container {
+                transform: scale(calc(100vw / 880)); /* 880px es ~210mm más márgenes */
+                transform-origin: top center;
+                margin-bottom: calc(-297mm * (1 - (100vw / 880))); /* Ajusta el espacio muerto debajo */
+            }
+        }
+
+        /* =========================================
+        CONFIGURACIÓN IMPRESIÓN LIMPIA Y PERFECTA
+           ========================================= */
+        @media print {
+            body { background: white; padding: 0; margin: 0; overflow: visible; display: block; }
+            .toolbar { display: none !important; }
+            .document-wrapper { display: block; width: 100%; }
+            .diploma-container { 
+                box-shadow: none !important; border: none !important; margin: 0 !important; 
+                width: 210mm !important; height: 297mm !important; padding: 40px !important; 
+                transform: scale(1) !important; position: absolute; top: 0; left: 0;
+            }
+            [contenteditable="true"]:hover, [contenteditable="true"]:focus {
+                background-color: transparent !important; border-bottom: 1px dashed transparent !important;
+            }
+            @page { size: A4 portrait; margin: 0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar no-print">
+        <span style="font-size: 1.4rem;">💡</span>
+        <span><b>Modo Edición Activado:</b> Haz clic en cualquier texto para corregirlo. Haz clic en las imágenes/firmas para cambiarlas.</span>
+        <button onclick="window.print()" style="margin-left: auto;">🖨️ IMPRIMIR CERTIFICADO</button>
+    </div>
+
+    <div class="document-wrapper">
+        <div class="diploma-container">
+            <div class="marco-exterior"></div>
+            <div class="marco-interior"></div>
+
+            <div class="contenido-diploma">
+                
+                <div class="header-certificado">
+                    <img src="../logo.png" class="logo-inst" alt="Logo Institucional" onclick="cambiarImagen(this, 'Enlace del nuevo Logo Municipal:')" title="Clic para cambiar logo">
+
+                    <div class="marco-foto-wrapper">
+                        <div class="area-imagen" onclick="cambiarImagen(document.getElementById('cert-img-foto'), 'Enlace de la foto del alumno (dejar en blanco para quitar):')" title="Clic para cambiar foto">
+                            <span class="instruccion-foto" id="cert-foto-instruccion">FOTO<br>ALUMNO</span>
+                            <img src="" class="img-foto" id="cert-img-foto" alt="Fotografía">
+                        </div>
+                        <div class="datos-alumno-foto">
+                            <div class="texto-dato-foto" id="cert-foto-nombre" contenteditable="true" title="Clic para editar">NOMBRE ALUMNO</div>
+                            <div class="texto-dato-foto" id="cert-foto-rut" contenteditable="true" title="Clic para editar">RUT: 12.345.678-9</div>
+                        </div>
+                    </div>
+                </div><br><br>
+
+                <div class="cuerpo-textos">
+                    <div>
+                        <h1 class="titulo-certificado" contenteditable="true">CERTIFICADO</h1>
+                        <div class="subtitulo-certificado" contenteditable="true">De Aprobación Académica</div>
+                    </div>
+
+                    <div class="texto-concede" contenteditable="true">Se otorga el presente reconocimiento a:</div>
+
+                    <div class="nombre-alumno" id="cert-nombre-gigante" contenteditable="true" title="Clic para editar el nombre completo">NOMBRE COMPLETO DEL ESTUDIANTE</div>
+
+                    <div class="texto-motivo" contenteditable="true">
+                        Por haber aprobado satisfactoriamente el programa de capacitación municipal, cumpliendo con los estándares de excelencia y asistencia requeridas en:
+                    </div>
+                    
+                    <div class="nombre-curso" id="cert-curso-principal" contenteditable="true" title="Clic para editar el nombre del curso">CURSO DE CAPACITACIÓN</div>
+
+                    <div class="detalles-tecnicos">
+                        <div class="detalle-box">
+                            <strong contenteditable="true">Horas Académicas</strong>
+                            <span contenteditable="true" id="cert-horas">80 Hrs</span>
+                        </div>
+                        <div class="detalle-box">
+                            <strong contenteditable="true">Calificación Final</strong>
+                            <span contenteditable="true" id="cert-nota-final">6.9</span>
+                        </div>
+                        <div class="detalle-box">
+                            <strong contenteditable="true">Fecha Emisión</strong>
+                            <span contenteditable="true" id="cert-fecha-emision">Abril 2026</span>
+                        </div>
+                    </div>
+                </div> <br><br>
+
+                <div class="footer-completo">
+                    <div class="area-firmas">
+                        <div class="firma-bloque" onclick="cambiarImagen(this.querySelector('.img-firma-digital'), 'Enlace de la firma digital de la Directora:')" title="Clic para insertar firma digital">
+                            <div class="espacio-firma">
+                                <img src="" class="img-firma-digital">
+                            </div>
+                            <div class="linea-firma"></div>
+                            <div class="nombre-firma" contenteditable="true">Nathaly Villablanca Olivarez</div>
+                            <div class="cargo-firma" contenteditable="true">Directora CAPA Limache</div>
+                        </div>
+                        <div class="firma-bloque" onclick="cambiarImagen(this.querySelector('.img-firma-digital'), 'Enlace de la firma digital del Docente:')" title="Clic para insertar firma digital">
+                            <div class="espacio-firma">
+                                <img src="" class="img-firma-digital">
+                            </div>
+                            <div class="linea-firma"></div>
+                            <div class="nombre-firma" id="cert-docente-nombre" contenteditable="true">Docente Titular</div>
+                            <div class="cargo-firma" contenteditable="true">Instructor TIC</div>
+                        </div>
+                    </div>
+
+                    <div class="sello-qr-row">
+                        <div class="qr-box" onclick="cambiarImagen(document.getElementById('qr-validador'), 'Enlace del nuevo código QR:')" title="Clic para cambiar código QR">
+                            <div class="qr-frame"><img id="qr-validador" class="qr-img" src=""></div>
+                            <div class="qr-label" contenteditable="true">Validación Oficial</div>
+                        </div>
+
+                        <div class="firma-bloque alcalde" style="width: 45%;" onclick="cambiarImagen(this.querySelector('.img-firma-digital'), 'Enlace de la firma digital del Alcalde:')" title="Clic para insertar firma digital">
+                            <div class="espacio-firma">
+                                <img src="" class="img-firma-digital">
+                            </div> 
+                            <div class="linea-colores">
+                                <div style="flex: 1; background-color: var(--cian);"></div>
+                                <div style="flex: 1; background-color: var(--magenta);"></div>
+                                <div style="flex: 1; background-color: var(--naranja);"></div>
+                                <div style="flex: 1; background-color: var(--coral);"></div>
+                            </div> 
+                            <div class="nombre-firma" contenteditable="true">Luciano Valenzuela Romero</div>
+                            <div class="cargo-firma" contenteditable="true">Alcalde Ilustre Municipalidad de Limache</div>
+                        </div> <br><br> 
+
+                        <div class="sello-pro">
+                            <img src="../logo.png" class="sello-img" onerror="this.style.display='none'">
+                            <div class="sello-texto-circulo">
+                                <span style="color: #9E005D;" contenteditable="true">SELLO DE</span>
+                                <span style="color: #00A89D; font-size:0.55rem;" contenteditable="true">AUTENTICIDAD</span>
+                                <div style="height:1px; width:70%; background:var(--dorado); margin:2px 0;"></div>
+                                <span style="color: #4A5568; font-size:0.4rem;" contenteditable="true">CERTIFICADO VALIDADO POR CAPA LIMACHE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para cambiar cualquier imagen al hacer clic (Fotos, Logos, QR, Firmas)
+        function cambiarImagen(imgElement, mensajePrompt) {
+            const currentSrc = (imgElement.src && imgElement.src.startsWith('http')) ? imgElement.src : '';
+            const nuevaUrl = prompt(mensajePrompt, currentSrc);
+            
+            if (nuevaUrl !== null) { // Si no canceló el prompt
+                if (nuevaUrl.trim() === "") {
+                    imgElement.style.opacity = '0';
+                    imgElement.src = "";
+                    // Si es la foto de perfil, mostramos el texto "FOTO ALUMNO" de nuevo
+                    if(imgElement.id === 'cert-img-foto') {
+                        document.getElementById('cert-foto-instruccion').style.display = 'block';
+                    }
+                } else {
+                    imgElement.src = nuevaUrl;
+                    imgElement.style.opacity = '1';
+                    // Ocultamos textos guía si es la foto
+                    if(imgElement.id === 'cert-img-foto') {
+                        document.getElementById('cert-foto-instruccion').style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        // Leer datos iniciales guardados y rellenar
+        document.addEventListener('DOMContentLoaded', () => {
+            const rawData = localStorage.getItem('alumno_certificado_data');
+            
+            if (rawData) {
+                const al = JSON.parse(rawData);
+                const fullNom = `${al.nom} ${al.apP} ${al.apM || ''}`.trim();
+
+                // Autocompletar Textos
+                const elemNom = document.getElementById('cert-nombre-gigante');
+                if (elemNom) elemNom.innerText = fullNom;
+
+                const elemFotoNom = document.getElementById('cert-foto-nombre');
+                if (elemFotoNom) elemFotoNom.innerText = fullNom;
+
+                const elemFotoRut = document.getElementById('cert-foto-rut');
+                if (elemFotoRut) elemFotoRut.innerText = "RUT: " + al.rut;
+
+                const elemCurso = document.getElementById('cert-curso-principal');
+                if (elemCurso) elemCurso.innerText = al.tal || al.curso;
+
+                // Autocompletar Foto
+                const imgFoto = document.getElementById('cert-img-foto');
+                if (imgFoto && al.foto) {
+                    imgFoto.src = al.foto;
+                    imgFoto.style.opacity = '1';
+                    const instruccion = document.getElementById('cert-foto-instruccion');
+                    if (instruccion) instruccion.style.display = 'none';
+                }
+
+                // Generar código QR dinámico inicial
+                const qrImg = document.getElementById('qr-validador');
+                if(qrImg) {
+                    const qrText = `CERTIFICADO VALIDADO POR CAPA LIMACHE\nNombre: ${fullNom}\nRUT: ${al.rut}\nCurso: ${al.tal || al.curso}`;
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
+                    qrImg.style.opacity = '1';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

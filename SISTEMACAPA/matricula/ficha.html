@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Centro de Capacitación Municipal | Portal Educativo</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        /* =======================================================
+        SISTEMA DE ALERTAS MODERNAS (TOASTS)
+           ======================================================= */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .modern-toast {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-left: 6px solid #eab308;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: max-content;
+            max-width: 400px;
+            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .modern-toast i { font-size: 1.4rem; }
+        .modern-toast.error { border-left-color: #ef4444; }
+        .modern-toast.error i { color: #ef4444; }
+        .modern-toast.success { border-left-color: #22c55e; }
+        .modern-toast.success i { color: #22c55e; }
+        .modern-toast.warning i { color: #eab308; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
+
+        /* =======================================================
+        ESTILOS FORMULARIOS Y TABLAS
+           ======================================================= */
+        body { background: #f0f4f8; margin: 0; font-family: 'Montserrat', sans-serif; }
+        
+        .form-grid-inscripcion { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .photo-col-ins { grid-column: span 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #eee; padding-right: 20px; }
+        .data-col-ins { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-group-ins { display: flex; flex-direction: column; gap: 8px; }
+        .input-group-ins.full { grid-column: span 2; }
+        .input-group-ins label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .input-group-ins input, .input-group-ins select, .input-group-ins textarea {
+            padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; width: 100%; outline: none; background: #fdfdfd; transition: all 0.2s;
+        }
+        .input-group-ins input:focus, .input-group-ins select:focus {
+            border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .table-responsive { overflow-x: auto; width: 100%; }
+        .styled-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .styled-table th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.85rem; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+        .styled-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; color: #334155; vertical-align: middle; }
+        .styled-table tr:hover { background: #f1f5ff; }
+
+        @media (max-width: 900px) {
+            .form-grid-inscripcion { grid-template-columns: 1fr; }
+            .photo-col-ins { grid-column: span 1; border-right: none; padding-right: 0; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+            .data-col-ins { grid-column: span 1; grid-template-columns: 1fr; }
+            .input-group-ins.full { grid-column: span 1; }
+        }
+
+        /* VISTA PRINCIPAL */
+        .btn-accent { background: #1e3a8a; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .btn-cancelar { background: #ef4444; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .btn-confirmar { background: #22c55e; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        
+        .hidden { display: none !important; }
+        #custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100000; display: flex; align-items: center; justify-content: center; }
+        .custom-modal { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 400px; width: 90%; }
+        .modal-icon { font-size: 3rem; color: #ef4444; margin-bottom: 15px; }
+        .modal-actions { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+
+        .hamburger-btn { display: none; background: transparent; border: none; font-size: 1.5rem; color: #1e3a8a; cursor: pointer; }
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .side-nav { display: none; position: absolute; left: 0; top: 80px; width: 100%; height: calc(100vh - 80px); background: white; z-index: 50; }
+            .side-nav.show-mobile { display: block; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toast-container"></div>
+
+    <div id="custom-modal-overlay" class="hidden">
+        <div class="custom-modal">
+            <div class="modal-icon" id="modal-icon"><i class="fas fa-exclamation-circle"></i></div>
+            <h3 id="modal-title">Confirmar</h3>
+            <p id="modal-desc">¿Estás seguro?</p>
+            <input type="text" id="modal-input" class="form-control hidden" style="margin-bottom: 20px; font-weight: bold; text-align: center;">
+            <div class="modal-actions">
+                <button id="modal-btn-cancel" class="btn-cancelar">Cancelar</button>
+                <button id="modal-btn-confirm" class="btn-confirmar">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app">
+        <header class="top-header" style="background:white; padding:15px; display:flex; justify-content:space-between; border-bottom:1px solid #eee;">
+            <div class="header-left" style="align-items: center; display:flex; gap:15px;">
+                <button id="mobile-menu-btn" class="hamburger-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+                <img src="logo.png" alt="Logo" class="header-logo-img logo-gigante" onerror="this.style.display='none'" style="height:50px;">
+                <div class="header-titles">
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <span id="u-role-label" class="role-badge" style="background:#1e3a8a; color:white; padding:5px 10px; border-radius:5px; font-weight:bold; font-size: 0.8rem;">ADMINISTRADOR</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right" style="display:flex; align-items:center; gap:15px;">
+                <div class="user-profile-modern" style="display:flex; align-items:center; gap:10px;">
+                    <div class="avatar-text" style="text-align:right;">
+                        <span class="user-name" id="u-name-display" style="font-weight:bold; display:block;">Usuario Central</span>
+                        <span class="user-role-text" id="u-rol-display" style="font-size:0.8rem; color:#666;">Dirección</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-layout" style="display:flex; height:calc(100vh - 80px);">
+            <aside class="side-nav" id="sidebar" style="width:250px; background:white; border-right:1px solid #eee; padding:20px 0;">
+                <nav class="nav-links" style="display:flex; flex-direction:column; gap:5px;">
+                    <a href="#" class="nav-item" data-page="p-home" onclick="nav('p-home', this)" style="padding:12px 20px; color:#333; text-decoration:none; font-weight:600; display:flex; align-items:center; gap:10px;"><i class="fas fa-home"></i> Inicio</a>
+                    <a href="#" class="nav-item active" data-page="p-inscripciones" onclick="nav('p-inscripciones', this)" style="padding:12px 20px; color:#1e3a8a; background:#f1f5f9; text-decoration:none; font-weight:800; border-left:4px solid #1e3a8a; display:flex; align-items:center; gap:10px;"><i class="fas fa-user-plus"></i> Ficha Inscripción</a>
+                    <a href="#" class="nav-item" data-page="p-lista" onclick="nav('p-lista', this)" style="padding:12px 20px; color:#333; text-decoration:none; font-weight:600; display:flex; align-items:center; gap:10px;"><i class="fas fa-database"></i> Base de Datos</a>
+                    <a href="#" class="nav-item" data-page="p-talleres" onclick="nav('p-talleres', this)" style="padding:12px 20px; color:#333; text-decoration:none; font-weight:600; display:flex; align-items:center; gap:10px;"><i class="fas fa-chalkboard-teacher"></i> Gestión Talleres</a>
+                </nav>
+            </aside>
+
+            <div class="content-area" style="flex:1; padding:30px; overflow-y:auto; background:#f8fafc;">
+                
+                <section id="p-inscripciones" class="page active">
+                    <div class="page-title" style="margin-bottom:20px;">
+                        <h1 style="font-size:1.8rem; color:#1e3a8a; font-weight:800;">Ingreso de Ficha de Alumnos 2026</h1>
+                        <p style="color:#666;">Completa los datos del alumno y asócialo a un Taller Oficial.</p>
+                    </div>
+
+                    <div class="white-card" style="background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); overflow:hidden;">
+                        <div class="card-header-styled bg-blue" style="background:#1e3a8a; color:white; padding:15px 20px;">
+                            <h3 style="margin:0; font-size:1.1rem;"><i class="fas fa-address-card"></i> Datos Personales</h3>
+                        </div>
+                        <div class="p-4" style="padding:25px;">
+                            <form id="form-sga-inscripcion" onsubmit="guardarFichaAlumnoSGA(event)">
+                                <div class="form-grid-inscripcion">
+                                    <div class="photo-col-ins">
+                                        <img id="preview-foto-sga" src="https://via.placeholder.com/150x180?text=FOTO" style="width:150px; height:180px; border-radius:12px; border:2px solid #cbd5e1; object-fit: cover; margin-bottom: 15px;">
+                                        <input type="file" id="fotoFileSga" accept="image/*" hidden onchange="procesarFotoSGA(this)">
+                                        <button type="button" style="width: 150px; padding:10px; background:#e2e8f0; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.8rem;" onclick="document.getElementById('fotoFileSga').click()">CARGAR FOTO</button>
+                                    </div>
+                                    <div class="data-col-ins">
+                                        <div class="input-group-ins"><label>Apellido Paterno</label><input type="text" id="sga-apP" required></div>
+                                        <div class="input-group-ins"><label>Apellido Materno</label><input type="text" id="sga-apM"></div>
+                                        <div class="input-group-ins full"><label>Nombres Completos</label><input type="text" id="sga-nom" required></div>
+                                        <div class="input-group-ins"><label>RUT (Sin puntos y con guión)</label><input type="text" id="sga-rut" required placeholder="12345678-9"></div>
+                                        <div class="input-group-ins"><label>Fecha Nacimiento</label><input type="date" id="sga-fNac"></div>
+                                    </div>
+
+                                    <div class="input-group-ins full"><label>Domicilio Completo</label><input type="text" id="sga-dom"></div>
+                                    <div class="input-group-ins"><label>Teléfono / WhatsApp</label><input type="tel" id="sga-tel"></div>
+                                    <div class="input-group-ins"><label>Email</label><input type="email" id="sga-mail"></div>
+
+                                    <div class="input-group-ins"><label>Nivel de Estudios</label>
+                                        <select id="sga-edu">
+                                            <option>N/A</option><option>BÁSICA</option><option>MEDIA</option><option>TÉCNICO</option><option>UNIVERSITARIO</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="input-group-ins full">
+                                        <label>Curso / Taller a Inscribir</label>
+                                        <select id="sga-curso-select" required style="border-color: #1e3a8a; font-weight: bold;"></select>
+                                    </div>
+
+                                    <div class="input-group-ins"><label>¿Pagó Matrícula?</label>
+                                        <select id="sga-pago" onchange="document.getElementById('sga-folio').value = this.value === 'SI' ? 'FOLIO: FL-' + Math.floor(1000+Math.random()*9000) + ' | VALOR: $5.000' : ''">
+                                            <option value="NO">PENDIENTE (NO)</option>
+                                            <option value="SI">PAGADA (SI)</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group-ins full"><label>Información de Folio y Valor</label><input type="text" id="sga-folio" readonly style="background:#f1f5f9; font-weight: 800; color: #9E005D;"></div>
+                                    <div class="input-group-ins full"><label>Motivo de la Capacitación</label><input type="text" id="sga-motivo"></div>
+                                </div>
+                                <div style="margin-top: 25px;">
+                                    <button type="submit" style="width:100%; padding: 15px; font-size: 1.1rem; border-radius: 12px; background: #9E005D; color:white; border:none; font-weight:800; cursor:pointer;"><i class="fas fa-save"></i> GUARDAR FICHA DE ALUMNO</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="p-lista" class="page" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap: wrap; gap: 10px;">
+                        <div class="page-title" style="margin:0;">
+                            <h1 style="font-size:1.8rem; color:#1e3a8a; font-weight:800;">Base de Datos Alumnos</h1>
+                            <p style="color:#666;">Visualiza estudiantes, imprime listas y emite certificados.</p>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items: center;">
+                            <select id="filterTaller" onchange="renderTablaSGA()" style="padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0; font-weight:bold;"></select>
+                            <button onclick="printCoursePDF()" style="padding: 10px 20px; border-radius: 8px; background:#1e3a8a; color:white; border:none; font-weight:bold; cursor:pointer;"><i class="fas fa-file-pdf"></i> EXPORTAR LISTA PDF</button>
+                        </div>
+                    </div>
+
+                    <div class="white-card" style="background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); overflow:hidden; padding:20px;">
+                        <div class="table-responsive">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr><th>Foto</th><th>RUT</th><th>Nombres</th><th>Apellidos</th><th>Curso/Taller</th><th>Folio</th><th>Acción</th></tr>
+                                </thead>
+                                <tbody id="tabla-sga-alumnos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="p-talleres" class="page" style="display:none;">
+                    <div class="page-title" style="margin-bottom:20px;">
+                        <h1 style="font-size:1.8rem; color:#1e3a8a; font-weight:800;">Gestión de Talleres 2026</h1>
+                    </div>
+                    <div class="white-card" style="background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); overflow:hidden; margin-bottom:20px;">
+                        <div class="card-header-styled" style="background:#0f766e; color:white; padding:15px 20px;">
+                            <h3 style="margin:0; font-size:1.1rem;"><i class="fas fa-plus"></i> Crear Nuevo Taller</h3>
+                        </div>
+                        <div class="p-3" style="padding:20px;">
+                            <div style="display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap;">
+                                <div style="flex:1; min-width:200px;"><label style="font-size:0.8rem; font-weight:bold; color:#666;">Nombre del Taller</label><input type="text" id="newTaller" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;"></div>
+                                <div style="flex:1; min-width:200px;"><label style="font-size:0.8rem; font-weight:bold; color:#666;">Docente Asignado</label><input type="text" id="newDocente" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;"></div>
+                            </div>
+                            <button style="width:100%; padding:12px; background:#0f766e; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="addTaller()"><i class="fas fa-save"></i> Guardar Taller</button>
+                        </div>
+                    </div>
+
+                    <div class="white-card" style="background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); padding:20px;">
+                        <div class="table-responsive">
+                            <table class="styled-table">
+                                <thead><tr><th>Nombre Taller</th><th>Docente Asignado</th><th width="100">Acción</th></tr></thead>
+                                <tbody id="tallerData"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="p-home" class="page" style="display:none;">
+                    <div class="page-title">
+                        <h1 style="font-size:1.8rem; color:#1e3a8a; font-weight:800;">Panel Central</h1>
+                        <p style="color:#666;">Bienvenido al Sistema de Gestión Académica</p>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURACIÓN FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyp5J2ZRWpA8lRupKD5xfPOyd407bD020",
+            authDomain: "capa-limache-sistema.firebaseapp.com",
+            projectId: "capa-limache-sistema",
+            storageBucket: "capa-limache-sistema.firebasestorage.app",
+            messagingSenderId: "173615478102",
+            appId: "1:173615478102:web:f711d94b4942ea926352f7"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const cloud_db = firebase.firestore();
+
+        // --- 2. BASE DE DATOS LOCAL Y VARIABLES ---
+        let alumnosFichasDB = JSON.parse(localStorage.getItem('capa_sga_fichas_v2')) || [];
+        let listaTalleresSGA = JSON.parse(localStorage.getItem('capa_sga_talleres')) || [
+            { nombre: "REPOSTERÍA", docente: "ANGELA TORO" },
+            { nombre: "PANADERÍA", docente: "NEVENCKA JIMENEZ" },
+            { nombre: "CONTABILIDAD COMERCIAL Y TRIBUTARIA", docente: "MAURICIO GALAZ" }
+        ];
+        let fotoBase64SGA = "";
+
+        // --- 3. NAVEGACIÓN Y MENÚ ---
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('show-mobile');
+        }
+
+        function nav(pageId, btn) {
+            document.querySelectorAll('.page').forEach(s => s.style.display = 'none');
+            const target = document.getElementById(pageId);
+            if (target) {
+                target.style.display = 'block';
+                target.classList.add('active');
+            }
+            document.querySelectorAll('.nav-item').forEach(b => {
+                b.classList.remove('active');
+                b.style.color = '#333';
+                b.style.background = 'transparent';
+                b.style.borderLeft = 'none';
+            });
+            if (btn) {
+                btn.classList.add('active');
+                btn.style.color = '#1e3a8a';
+                btn.style.background = '#f1f5f9';
+                btn.style.borderLeft = '4px solid #1e3a8a';
+            }
+            document.getElementById('sidebar').classList.remove('show-mobile');
+
+            if (pageId === 'p-lista') renderTablaSGA();
+            if (pageId === 'p-talleres') actualizarUI_SGA();
+            if (pageId === 'p-inscripciones') actualizarUI_SGA();
+        }
+
+        // --- 4. GESTIÓN DE FOTOS Y TOASTS ---
+        function mostrarAlertaModerna(mensaje, tipo = 'warning') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `modern-toast ${tipo}`;
+            let icono = tipo === 'success' ? 'fa-check-circle' : (tipo === 'error' ? 'fa-times-circle' : 'fa-exclamation-circle');
+            toast.innerHTML = `<i class="fas ${icono}"></i> <span>${mensaje}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'fadeOutRight 0.4s forwards'; setTimeout(() => toast.remove(), 400); }, 3500);
+        }
+
+        function procesarFotoSGA(input) {
+            let r = new FileReader();
+            r.onload = (e) => {
+                document.getElementById('preview-foto-sga').src = e.target.result;
+                fotoBase64SGA = e.target.result;
+            };
+            if (input.files[0]) r.readAsDataURL(input.files[0]);
+        }
+
+        // --- 5. GUARDAR FICHA (FIREBASE ANTIBLOQUEO + PUENTE DIPLOMA) ---
+        async function guardarFichaAlumnoSGA(e) {
+            e.preventDefault();
+            
+            const alumno = {
+                id: Date.now().toString(),
+                apP: document.getElementById('sga-apP').value.toUpperCase(),
+                apM: document.getElementById('sga-apM').value.toUpperCase(),
+                nom: document.getElementById('sga-nom').value.toUpperCase(),
+                rut: document.getElementById('sga-rut').value,
+                curso: document.getElementById('sga-curso-select').value,
+                tal: document.getElementById('sga-curso-select').value,
+                fNac: document.getElementById('sga-fNac').value,
+                dom: document.getElementById('sga-dom').value,
+                tel: document.getElementById('sga-tel').value,
+                email: document.getElementById('sga-mail').value,
+                folio: document.getElementById('sga-folio').value,
+                foto: fotoBase64SGA,
+                fecha_registro: new Date().toISOString()
+            };
+
+            if (!alumno.nom || !alumno.rut || !alumno.curso) {
+                mostrarAlertaModerna("Faltan campos obligatorios: RUT, Nombres o Taller.", "error");
+                return;
+            }
+
+            // A) EJECUCIÓN LOCAL PRIMERO Y APERTURA DE DIPLOMA (Evita que el sistema se quede pegado por internet lento)
+            alumnosFichasDB.push(alumno);
+            localStorage.setItem('capa_sga_fichas_v2', JSON.stringify(alumnosFichasDB));
+            
+            // Puente de Datos para el Certificado
+            localStorage.setItem('alumno_certificado_data', JSON.stringify(alumno));
+            
+            // Abrir el diploma en pestaña limpia (asumiendo que la carpeta certificado está al mismo nivel que index.html)
+            window.open('./certificado/diploma.html', '_blank');
+            
+            mostrarAlertaModerna("Ficha guardada. Generando certificado...", "success");
+
+            // Limpiar Formulario
+            document.getElementById('form-sga-inscripcion').reset();
+            document.getElementById('preview-foto-sga').src = "https://via.placeholder.com/150x180?text=FOTO";
+            fotoBase64SGA = "";
+
+            // B) INTENTAR GUARDAR EN FIREBASE (En segundo plano)
+            try {
+                await cloud_db.collection("matriculas_2026").doc(alumno.id).set(alumno);
+                console.log("Sincronizado con Firebase en la nube.");
+            } catch (error) {
+                console.error("Error Firebase:", error);
+                // No mostrar error molesto, el diploma ya se generó gracias al guardado local
+            }
+        }
+
+        // --- 6. TABLA BASE DE DATOS Y REEMISIÓN ---
+        function renderTablaSGA() {
+            const tbody = document.getElementById('tabla-sga-alumnos');
+            const filtro = document.getElementById('filterTaller') ? document.getElementById('filterTaller').value : 'TODOS';
+            if (!tbody) return;
+
+            const datosFiltrados = filtro === 'TODOS' ? alumnosFichasDB : alumnosFichasDB.filter(x => x.curso === filtro);
+
+            tbody.innerHTML = datosFiltrados.map(al => `
+                <tr>
+                    <td><img src="${al.foto || 'https://via.placeholder.com/50'}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid #cbd5e1;"></td>
+                    <td><b>${al.rut}</b></td>
+                    <td>${al.nom}</td>
+                    <td>${al.apP} ${al.apM}</td>
+                    <td style="color:#1e3a8a; font-weight:bold;">${al.curso}</td>
+                    <td><span style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.85rem;">${al.folio || 'N/A'}</span></td>
+                    <td>
+                        <button onclick="reEmitirCertificado('${al.id}')" style="background:none; border:none; color:#1e3a8a; cursor:pointer;" title="Emitir Certificado"><i class="fas fa-certificate fa-lg"></i></button>
+                        <button onclick="eliminarAlumno('${al.id}')" style="background:none; border:none; color:red; cursor:pointer; margin-left:10px;" title="Eliminar"><i class="fas fa-trash-alt fa-lg"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function reEmitirCertificado(id) {
+            const alumno = alumnosFichasDB.find(x => x.id == id);
+            if(alumno) {
+                localStorage.setItem('alumno_certificado_data', JSON.stringify(alumno));
+                window.open('./certificado/diploma.html', '_blank');
+            }
+        }
+
+        function eliminarAlumno(id) {
+            if (confirm("¿Estás totalmente seguro de eliminar este registro de la base de datos?")) {
+                alumnosFichasDB = alumnosFichasDB.filter(x => x.id != id);
+                localStorage.setItem('capa_sga_fichas_v2', JSON.stringify(alumnosFichasDB));
+                renderTablaSGA();
+                mostrarAlertaModerna("Alumno eliminado correctamente", "success");
+            }
+        }
+
+        // --- 7. TALLERES ---
+        function addTaller() {
+            const n = document.getElementById('newTaller').value.toUpperCase();
+            const d = document.getElementById('newDocente').value.toUpperCase();
+            if (!n || !d) return mostrarAlertaModerna("Complete nombre y docente del taller", "warning");
+            listaTalleresSGA.push({ nombre: n, docente: d });
+            localStorage.setItem('capa_sga_talleres', JSON.stringify(listaTalleresSGA));
+            document.getElementById('newTaller').value = ""; document.getElementById('newDocente').value = "";
+            renderTalleresSGA(); actualizarSelects(); mostrarAlertaModerna("Taller añadido", "success");
+        }
+
+        function renderTalleresSGA() {
+            const tbTaller = document.getElementById('tallerData');
+            if (tbTaller) {
+                tbTaller.innerHTML = listaTalleresSGA.map((t, i) => `
+                    <tr>
+                        <td><b>${t.nombre}</b></td><td>${t.docente}</td>
+                        <td><button style="padding: 6px 12px; background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer;" onclick="listaTalleresSGA.splice(${i},1); localStorage.setItem('capa_sga_talleres', JSON.stringify(listaTalleresSGA)); renderTalleresSGA(); actualizarSelects();"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function actualizarSelects() {
+            const opts = listaTalleresSGA.map(t => `<option value="${t.nombre}">${t.nombre}</option>`).join('');
+            const selCurso = document.getElementById('sga-curso-select');
+            const selFiltro = document.getElementById('filterTaller');
+            if (selCurso) selCurso.innerHTML = '<option value="">-- SELECCIONE UN CURSO --</option>' + opts;
+            if (selFiltro) selFiltro.innerHTML = '<option value="TODOS">TODOS LOS CURSOS</option>' + opts;
+        }
+
+        function printCoursePDF() {
+            const c = document.getElementById('filterTaller').value;
+            if (c === 'TODOS') return mostrarAlertaModerna("Selecciona un curso específico en el filtro superior para imprimir", "warning");
+            const data = alumnosFichasDB.filter(x => x.curso === c);
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`Lista Oficial de Asistencia - ${c}`, 14, 20);
+            doc.autoTable({ startY: 30, head: [['N°', 'RUT', 'NOMBRES', 'FIRMA']], body: data.map((a, i) => [i + 1, a.rut, `${a.nom} ${a.apP}`, ""]) });
+            doc.save(`Asistencia_${c}.pdf`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { actualizarSelects(); renderTalleresSGA(); });
+    </script>
+</body>
+</html>
